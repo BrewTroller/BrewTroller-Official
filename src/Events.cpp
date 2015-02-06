@@ -1,4 +1,4 @@
-/*  
+/*
    Copyright (C) 2009, 2010 Matt Reba, Jeremiah Dillingham
 
     This file is part of BrewTroller.
@@ -24,6 +24,15 @@ Hardware Lead: Jeremiah Dillingham (jeremiah_AT_brewtroller_DOT_com)
 Documentation, Forums and more information available at http://www.brewtroller.com
 */
 
+#include <Arduino.h>
+#include "Enum.h"
+#include "Outputs.h"
+#include "BrewTroller.h"
+#include "Com.h"
+#include "UI.h"
+#include "Events.h"
+#include "Timer.h"
+#include "EEPROM.h"
 
 void eventHandler(byte eventID, int eventParam) {
   //Global Event handler

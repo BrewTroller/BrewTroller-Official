@@ -24,6 +24,16 @@ Hardware Lead: Jeremiah Dillingham (jeremiah_AT_brewtroller_DOT_com)
 Documentation, Forums and more information available at http://www.brewtroller.com
 */
 
+#include <Arduino.h>
+#include "BrewCore.h"
+#include "BrewTroller.h"
+#include "Outputs.h"
+#include "Timer.h"
+#include "Temp.h"
+#include "Volume.h"
+#include "StepLogic.h"
+#include "Com.h"
+
 byte scheduler;
 
 enum schedulerTasks {

@@ -24,6 +24,21 @@ Hardware Lead: Jeremiah Dillingham (jeremiah_AT_brewtroller_DOT_com)
 Documentation, Forums and more information available at http://www.brewtroller.com
 
 */
+#include <Arduino.h>
+#include "HWProfile.h"
+#include "Enum.h"
+#include "Config.h"
+#include "BrewTroller.h"
+#include "Com_BTPD.h"
+#include "Com.h"
+
+//Function Forward Declarations
+#TODO Fix ME! Replace Forward Declarations
+void logASCIIVersion();
+void printFieldUL(unsigned long uLong);
+void printFieldPS(const char* sText);
+void updateI2CBTnic();
+void updateS0BTnic();
 
 //**********************************************************************************
 //Code Shared by all Schemas

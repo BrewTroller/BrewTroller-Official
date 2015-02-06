@@ -29,6 +29,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 // Special thanks to Jason von Nieda (vonnieda) for the design and code for this cool add-on to BrewTroller.
 //*****************************************************************************************************************************
 
+#include "Com_BTPD.h"
 
 #ifdef BTPD_SUPPORT
 

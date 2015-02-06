@@ -23,6 +23,8 @@ Hardware Lead: Jeremiah Dillingham (jeremiah_AT_brewtroller_DOT_com)
 
 Documentation, Forums and more information available at http://www.brewtroller.com
 */
+#include <Arduino.h>
+#include "Temp.h"
 
 #ifdef TS_ONEWIRE
   #ifdef TS_ONEWIRE_GPIO

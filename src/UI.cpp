@@ -24,6 +24,11 @@ Hardware Lead: Jeremiah Dillingham (jeremiah_AT_brewtroller_DOT_com)
 Documentation, Forums and more information available at http://www.brewtroller.com
 */
 
+#include <encoder.h>
+#include "UI.h"
+#include "BrewTroller.h"
+#include "EEPROM.h"
+
 #ifndef NOUI
 //*****************************************************************************************************************************
 // Begin UI Code

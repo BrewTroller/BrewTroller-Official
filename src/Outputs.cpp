@@ -1,4 +1,4 @@
-/*  
+/*
    Copyright (C) 2009, 2010 Matt Reba, Jeremiah Dillingham
 
     This file is part of BrewTroller.
@@ -23,6 +23,11 @@ Hardware Lead: Jeremiah Dillingham (jeremiah_AT_brewtroller_DOT_com)
 
 Documentation, Forums and more information available at http://www.brewtroller.com
 */
+#include <Arduino.h>
+#include <pin.h>
+#include "HWProfile.h"
+#include "Enum.h"
+
 extern const int HEAT_OUTPUTS_COUNT;
 extern const byte HEAT_OUTPUTS[HEAT_OUTPUTS_COUNT][2];
 

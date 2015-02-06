@@ -23,6 +23,14 @@ Hardware Lead: Jeremiah Dillingham (jeremiah_AT_brewtroller_DOT_com)
 
 Documentation, Forums and more information available at http://www.brewtroller.com
 */
+#include <Arduino.h>
+#include <EEPROM.h>
+#include <avr/eeprom.h>
+#include "BrewTroller.h"
+#include "Events.h"
+#include "EEPROM.h"
+#include "HWProfile.h"
+#include "BrewTroller.cpp"
 
 void loadSetup() {
   //**********************************************************************************
