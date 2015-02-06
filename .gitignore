@@ -1,0 +1,12 @@
+# Compiled Object files
+*.o
+
+# Compiled Static libraries
+*.a
+
+# CLion files
+.idea
+.iml
+
+#build directory
+build
