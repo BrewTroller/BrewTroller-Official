@@ -52,6 +52,10 @@ Compiled on Arduino-0022 (http://arduino.cc/en/Main/Software)
 #include "EEPROM.h"
 #include "Events.h"
 #include "UI.h"
+#include "Com.h"
+#include "Outputs.h"
+#include "Temp.h"
+#include "StepLogic.h"
 
 void(* softReset) (void) = 0;
 
@@ -86,88 +90,6 @@ void(* softReset) (void) = 0;
 
 #ifdef USE_I2C
   #include <Wire.h>
-#endif
-
-//**********************************************************************************
-// Globals
-//**********************************************************************************
-
-#ifdef DIGITAL_INPUTS
-  pin digInPin[DIGIN_COUNT];
-#endif
-
-//Volume Sensor Pin Array
-#ifdef HLT_AS_KETTLE
-  byte vSensor[3] = { HLTVOL_APIN, MASHVOL_APIN, HLTVOL_APIN};
-#elif defined KETTLE_AS_MASH
-  byte vSensor[3] = { HLTVOL_APIN, KETTLEVOL_APIN, KETTLEVOL_APIN};
-#elif defined SINGLE_VESSEL_SUPPORT
-  byte vSensor[3] = { HLTVOL_APIN, HLTVOL_APIN, HLTVOL_APIN};
-#else
-  byte vSensor[3] = { HLTVOL_APIN, MASHVOL_APIN, KETTLEVOL_APIN};
-#endif
-
-#ifdef SPARGE_IN_PUMP_CONTROL
-unsigned long prevSpargeVol[2] = {0,0};
-#endif
-
-#ifdef HLT_MIN_REFILL
-unsigned long SpargeVol = 0;
-#endif
-
-#ifdef FLOWRATE_CALCS
-//Flowrate in thousandths of gal/l per minute
-long flowRate[3] = {0,0,0};
-#endif
-
-//Create the appropriate 'Valves' object for the hardware configuration (GPIO, MUX, MODBUS)
-#if defined PVOUT_TYPE_GPIO
-  #define PVOUT
-  PVOutGPIO Valves(PVOUT_COUNT);
-
-#elif defined PVOUT_TYPE_MUX
-  #define PVOUT
-  PVOutMUX Valves( 
-    MUX_LATCH_PIN,
-    MUX_DATA_PIN,
-    MUX_CLOCK_PIN,
-    MUX_ENABLE_PIN,
-    MUX_ENABLE_LOGIC
-  );
-#endif
-
-#ifdef PVOUT_TYPE_MODBUS
-  PVOutMODBUS *ValvesMB[PVOUT_MODBUS_MAXBOARDS];
-#endif
-
-//Shared buffers
-char buf[20];
-
-//Output Globals
-#ifdef PID_FEED_FORWARD
-double FFBias;
-#endif
-#ifdef PWM_BY_TIMER
-unsigned int cycleStart[4] = {0,0,0,0};
-#else
-unsigned long cycleStart[4] = {0,0,0,0};
-#endif
-
-//Log Globals
-boolean logData = LOG_INITSTATUS;
-
-//Brew Step Logic Globals
-boolean preheated[4];
-ControlState boilControlState = CONTROLSTATE_OFF;
-
-//Bit 1 = Boil; Bit 2-11 (See Below); Bit 12 = End of Boil; Bit 13-15 (Open); Bit 16 = Preboil (If Compile Option Enabled)
-unsigned int hoptimes[11] = { 105, 90, 75, 60, 45, 30, 20, 15, 10, 5, 0 };
-byte pitchTemp;
-
-//PWM by timer globals
-#ifdef PWM_BY_TIMER
-unsigned int timer1_overflow_count = 0;
-unsigned int PIDOutputCountEquivalent[4][2] = {{0,0},{0,0},{0,0},{0,0}};
 #endif
 
 //**********************************************************************************

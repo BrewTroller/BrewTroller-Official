@@ -26,4 +26,13 @@ set(SOURCE_FILES
 add_avr_executable(BrewTroller ${SOURCE_FILES})
 
 # Link libraries
-target_link_libraries(BrewTroller-${AVR_MCU}.elf arduino-${AVR_MCU})
+target_link_libraries(BrewTroller-${AVR_MCU}.elf
+            arduino-${AVR_MCU}
+            EEPROM-${AVR_MCU}
+            encoder-${AVR_MCU}
+            fastpin-${AVR_MCU}
+            menu-${AVR_MCU}
+            modbusmaster-${AVR_MCU}
+            pid-${AVR_MCU}
+            twowire-${AVR_MCU}
+            liquidcrystalfp-${AVR_MCU})

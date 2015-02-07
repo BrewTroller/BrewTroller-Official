@@ -23,13 +23,14 @@ Arduino library for communicating with Modbus slaves over RS232/485 (via RTU pro
   along with ModbusMaster.  If not, see <http://www.gnu.org/licenses/>.
   
   Written by Doc Walker (Rx)
-  Copyright © 2009, 2010 Doc Walker <dfwmountaineers at gmail dot com>
+  Copyright ï¿½ 2009, 2010 Doc Walker <dfwmountaineers at gmail dot com>
   $Id: ModbusMaster.cpp 39 2010-02-10 02:12:21Z dfwmountaineers $
   
 */
 
 
 /* _____PROJECT INCLUDES_____________________________________________________ */
+#include <Arduino.h>
 #include "ModbusMaster.h"
 #include <pins_arduino.h>
 

@@ -27,9 +27,12 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 #include <pin.h>
 #include "HWProfile.h"
 #include "Enum.h"
+#include "BrewTroller.h"
+#include "EEPROM.h"
+#include "Outputs.h"
+#include "Events.h"
 
 extern const int HEAT_OUTPUTS_COUNT;
-extern const byte HEAT_OUTPUTS[HEAT_OUTPUTS_COUNT][2];
 
 #ifdef PID_FLOW_CONTROL 
   #define LAST_HEAT_OUTPUT VS_PUMP // not this is mostly done for code readability as VS_PUMP = VS_STEAM

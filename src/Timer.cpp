@@ -26,6 +26,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 #include <Arduino.h>
 #include "Timer.h"
 #include "BrewTroller.h"
+#include "EEPROM.h"
 
 unsigned long buzzerCycleStart = millis(); //last time the alarm went on
 

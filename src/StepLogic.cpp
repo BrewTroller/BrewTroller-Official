@@ -27,6 +27,9 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 #include "Config.h"
 #include "BrewTroller.h"
 #include "Events.h"
+#include "EEPROM.h"
+#include "Outputs.h"
+#include "Timer.h"
 #include "StepLogic.h"
 
 unsigned long lastHop, grainInStart;

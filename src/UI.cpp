@@ -24,10 +24,20 @@ Hardware Lead: Jeremiah Dillingham (jeremiah_AT_brewtroller_DOT_com)
 Documentation, Forums and more information available at http://www.brewtroller.com
 */
 
+#include <Arduino.h>
 #include <encoder.h>
+#include <menu.h>
+#include <avr/pgmspace.h>
 #include "UI.h"
 #include "BrewTroller.h"
 #include "EEPROM.h"
+#include "BrewCore.h"
+#include "Volume.h"
+#include "Outputs.h"
+#include "Util.h"
+#include "Temp.h"
+#include "Timer.h"
+#include "StepLogic.h"
 
 #ifndef NOUI
 //*****************************************************************************************************************************
@@ -58,35 +68,36 @@ const char SPACE[] PROGMEM = " ";
 const char INIT_EEPROM[] PROGMEM = "Initialize EEPROM";
 const char CONTINUE[] PROGMEM = "Continue";
 
-prog_char FILLHLT[] PROGMEM = "Fill HLT";
-prog_char FILLMASH[] PROGMEM = "Fill Mash";
-prog_char ADDGRAIN[] PROGMEM = "Add Grain";
-prog_char MASHHEAT[] PROGMEM = "Mash Heat";
-prog_char MASHIDLE[] PROGMEM = "Mash Idle";
-prog_char SPARGEIN[] PROGMEM = "Sparge In";
-prog_char SPARGEOUT[] PROGMEM = "Sparge Out";
-prog_char BOILADDS[] PROGMEM = "Boil Additions";
-prog_char KETTLELID[] PROGMEM = "Kettle Lid";
-prog_char CHILLH2O[] PROGMEM = "Chill H2O";
-prog_char CHILLBEER[] PROGMEM = "Chill Beer";
-prog_char BOILRECIRC[] PROGMEM = "Boil Recirc";
-prog_char DRAIN[] PROGMEM = "Drain";
-prog_char HLTHEAT[] PROGMEM = "HLT Heat";
-prog_char HLTIDLE[] PROGMEM = "HLT Idle";
-prog_char KETTLEHEAT[] PROGMEM = "Kettle Heat";
-prog_char KETTLEIDLE[] PROGMEM = "Kettle Idle";
-prog_char USER1[] PROGMEM = "User Valve 1";
-prog_char USER2[] PROGMEM = "User Valve 2";
-prog_char USER3[] PROGMEM = "User Valve 3";
 
-prog_char DOUGHIN[] PROGMEM = "Dough In:";
-prog_char ACID[] PROGMEM = "Acid Rest:";
-prog_char PROTEIN[] PROGMEM = "Protein Rest:";
-prog_char SACCH[] PROGMEM = "Sacch Rest:";
-prog_char SACCH2[] PROGMEM = "Sacch2 Rest:";
-prog_char MASHOUT[] PROGMEM = "Mash Out:";
+const char FILLHLT[] PROGMEM = "Fill HLT";
+const char FILLMASH[] PROGMEM = "Fill Mash";
+const char ADDGRAIN[] PROGMEM = "Add Grain";
+const char MASHHEAT[] PROGMEM = "Mash Heat";
+const char MASHIDLE[] PROGMEM = "Mash Idle";
+const char SPARGEIN[] PROGMEM = "Sparge In";
+const char SPARGEOUT[] PROGMEM = "Sparge Out";
+const char BOILADDS[] PROGMEM = "Boil Additions";
+const char KETTLELID[] PROGMEM = "Kettle Lid";
+const char CHILLH2O[] PROGMEM = "Chill H2O";
+const char CHILLBEER[] PROGMEM = "Chill Beer";
+const char BOILRECIRC[] PROGMEM = "Boil Recirc";
+const char DRAIN[] PROGMEM = "Drain";
+const char HLTHEAT[] PROGMEM = "HLT Heat";
+const char HLTIDLE[] PROGMEM = "HLT Idle";
+const char KETTLEHEAT[] PROGMEM = "Kettle Heat";
+const char KETTLEIDLE[] PROGMEM = "Kettle Idle";
+const char USER1[] PROGMEM = "User Valve 1";
+const char USER2[] PROGMEM = "User Valve 2";
+const char USER3[] PROGMEM = "User Valve 3";
 
-PROGMEM const char *TITLE_MASHSTEP[] = {
+const char DOUGHIN[] PROGMEM = "Dough In:";
+const char ACID[] PROGMEM = "Acid Rest:";
+const char PROTEIN[] PROGMEM = "Protein Rest:";
+const char SACCH[] PROGMEM = "Sacch Rest:";
+const char SACCH2[] PROGMEM = "Sacch2 Rest:";
+const char MASHOUT[] PROGMEM = "Mash Out:";
+
+const char* const TITLE_MASHSTEP[] PROGMEM = {
   DOUGHIN,
   ACID,
   PROTEIN,
@@ -95,7 +106,7 @@ PROGMEM const char *TITLE_MASHSTEP[] = {
   MASHOUT
 };
 
-PROGMEM const char *TITLE_VLV[] = {
+const char* const TITLE_VLV[] PROGMEM = {
   FILLHLT,
   FILLMASH,
   ADDGRAIN,
@@ -124,9 +135,9 @@ const char FLYSPARGE[] PROGMEM = "Fly Sparge";
 const char CHILLNORM[] PROGMEM = "Chill Both";
 
 #ifndef UI_NO_SETUP
-  prog_char TITLE_VS_HLT[] PROGMEM = "HLT";
-  prog_char TITLE_VS_MASH[] PROGMEM = "Mash";
-  prog_char TITLE_VS_KETTLE[] PROGMEM = "Kettle";
+  const char TITLE_VS_HLT[] PROGMEM = "HLT";
+  const char TITLE_VS_MASH[] PROGMEM = "Mash";
+  const char TITLE_VS_KETTLE[] PROGMEM = "Kettle";
   
   #ifdef PID_FLOW_CONTROL
     prog_char TITLE_VS_PUMP[] PROGMEM = "Pump";
@@ -134,7 +145,7 @@ const char CHILLNORM[] PROGMEM = "Chill Both";
     prog_char TITLE_VS_STEAM[] PROGMEM = "Steam";
   #endif
   
-  PROGMEM const char *TITLE_VS[] = {
+  const char* const TITLE_VS[] PROGMEM = {
     TITLE_VS_HLT,
     TITLE_VS_MASH,
     TITLE_VS_KETTLE

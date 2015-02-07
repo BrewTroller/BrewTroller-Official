@@ -33,7 +33,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 #include "Com.h"
 
 //Function Forward Declarations
-#TODO Fix ME! Replace Forward Declarations
+#warning Fix ME! Replace Forward Declarations
 void logASCIIVersion();
 void printFieldUL(unsigned long uLong);
 void printFieldPS(const char* sText);
