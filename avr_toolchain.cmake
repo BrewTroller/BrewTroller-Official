@@ -20,6 +20,9 @@ set(CMAKE_C_COMPILER ${AVR_CC})
 set(CMAKE_CXX_COMPILER ${AVR_CXX})
 set(CMAKE_RANLIB ${AVR_RANLIB})
 SET(CMAKE_CROSSCOMPILING 1)
+#Ensure when compiling on Linux That we don't get the "-rdynamic" flag added automatically
+set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
+set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
 
 #default avr-size args
 if(NOT AVR_SIZE_ARGS)
