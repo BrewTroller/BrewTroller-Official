@@ -29,22 +29,15 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 // Special thanks to Jason von Nieda (vonnieda) for the design and code for this cool add-on to BrewTroller.
 //*****************************************************************************************************************************
 
+#include <Arduino.h>
+#include "BrewTroller.h"
+#include <Wire.h>
+#include "HWProfile.h"
 #include "Com_BTPD.h"
+#include "Config.h"
 
 #ifdef BTPD_SUPPORT
 
-#define BTPD_HLT_TEMP 0x20 // BTPD_HLT_TEMP: Displays HLT temp and setpoint on specified channel
-#define BTPD_MASH_TEMP 0x22 // BTPD_MASH_TEMP: Displays Mash temp and setpoint on specified channel
-#define BTPD_KETTLE_TEMP 0x23    // BTPD_KETTLE_TEMP: Displays Kettle temp and setpoint on specified channel
-//#define BTPD_KETTLE_TEMPTIME 0x23    // BTPD_KETTLE_TEMP: Displays Kettle temp and boil timer on specified channel
-//#define BTPD_H2O_TEMPS 0x24 // BTPD_H2O_TEMPS: Displays H2O In and H2O Out temps on specified channels
-#define BTPD_FERM_TEMP 0x24 // BTPD_FERM_TEMP: Displays Beer Out temp and Pitch temp on specified channel
-#define BTPD_TIMERS 0x25 // BTPD_FERM_TEMP: Displays Beer Out temp and Pitch temp on specified channel
-//#define BTPD_HLT_VOL 0x26 // BTPD_HLT_VOL: Displays current and target HLT volume
-//#define BTPD_MASH_VOL 0x27 // BTPD_MASH_VOL: Displays current and target Mash volume
-//#define BTPD_KETTLE_VOL 0x28 // BTPD_KETTLE_VOL: Displays current and target Kettle volume
-//#define BTPD_STEAM_PRESS 0x29 // BTPD_STEAM_PRESS: Displays current and target Steam pressure
-#define BTPD_AUX1_TEMP 0x2a
 
 #ifdef RIMS_TEMP_SENSOR
   #define BTPD_RIMS_TEMP 0x21 // THe RIMS tube temp probe temperature
