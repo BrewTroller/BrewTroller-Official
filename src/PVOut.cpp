@@ -84,7 +84,7 @@ void PVOutMUX::set(unsigned long vlvBits) {
 
 unsigned long PVOutMUX::get() { return vlvBits; }
 
-
+#ifdef PVOUT_TYPE_MODBUS
 PVOutMODBUS::PVOutMODBUS(uint8_t addr, unsigned int coilStart, uint8_t coilCount, uint8_t offset) {
     slaveAddr = addr;
     slave = ModbusMaster(RS485_SERIAL_PORT, slaveAddr);
@@ -138,3 +138,4 @@ byte PVOutMODBUS::getIDMode() {
         return slave.getResponseBuffer(0);
     return 0;
 }
+#endif

@@ -43,7 +43,8 @@
     
     unsigned long get();
   };
-  
+
+#ifdef PVOUT_TYPE_MODBUS
   class PVOutMODBUS
   {
     private:
@@ -67,4 +68,6 @@
     byte setIDMode(byte value);
     byte getIDMode();
   };
+#endif
+
 #endif //ifndef PVOUT_H
