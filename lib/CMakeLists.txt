@@ -44,49 +44,10 @@ set(ARDUINO_HEADERS
         arduino/HardwareSerial.h
         arduino/pins_arduino.h)
 
-add_avr_library(arduino ${ARDUINO_SOURCE} ${ARDUINO_HEADERS})
-
 # Build EEPROM Library
 set(EEPROM_SOURCES
     EEPROM/EEPROM.h
     EEPROM/EEPROM.cpp)
-
-add_avr_library(EEPROM ${EEPROM_SOURCES})
-
-# Build encoder Library
-set(ENCODER_SOURCES
-    encoder/encoder.cpp
-    encoder/encoder.h)
-
-add_avr_library(encoder ${ENCODER_SOURCES})
-
-# Build fastpin Library
-set(FASTPIN_SOURCES
-    fastpin/pin.h
-    fastpin/pin.cpp)
-
-add_avr_library(fastpin ${FASTPIN_SOURCES})
-
-# Build menu Library
-set(MENU_SOURCES
-    menu/menu.h
-    menu/menu.cpp)
-
-add_avr_library(menu ${MENU_SOURCES})
-
-# Build modbusmaster Library
-set(MODBUS_SOURCES
-    modbusmaster/ModbusMaster.h
-    modbusmaster/ModbusMaster.cpp)
-
-add_avr_library(modbusmaster ${MODBUS_SOURCES})
-
-# Build PID Library
-set(PID_SOURCES
-    PID_Beta6/PID_Beta6.h
-    PID_Beta6/PID_Beta6.cpp)
-
-add_avr_library(pid ${PID_SOURCES})
 
 # Build 2Wire Library
 set(TWOWIRE_SOURCES
@@ -95,11 +56,48 @@ set(TWOWIRE_SOURCES
     Wire/utility/twi.h
     Wire/utility/twi.c)
 
-add_avr_library(twowire ${TWOWIRE_SOURCES})
+# Build encoder Library
+set(ENCODER_SOURCES
+    encoder/encoder.cpp
+    encoder/encoder.h)
+
+# Build fastpin Library
+set(FASTPIN_SOURCES
+    fastpin/pin.h
+    fastpin/pin.cpp)
+
+# Build menu Library
+set(MENU_SOURCES
+    menu/menu.h
+    menu/menu.cpp)
+
+# Build modbusmaster Library
+set(MODBUS_SOURCES
+    modbusmaster/ModbusMaster.h
+    modbusmaster/ModbusMaster.cpp)
+
+# Build PID Library
+set(PID_SOURCES
+    PID_Beta6/PID_Beta6.h
+    PID_Beta6/PID_Beta6.cpp)
 
 # Build liquidcrystalfp Library
 set(liquidcrystalfp_sources
     liquidcrystalfp/LiquidCrystalFP.h
     liquidcrystalfp/LiquidCrystalFP.cpp)
 
-add_avr_library(liquidcrystalfp ${liquidcrystalfp_sources})
+# Build DS2482 Library (OneWire-TwoWire transciever)
+set(DS2482_SOURCES
+    ds2482/DS2482.h
+    ds2482/DS2482.cpp)
+
+add_avr_library(BT-libs ${ARDUINO_SOURCE} ${ARDUINO_HEADERS}
+                        ${EEPROM_SOURCES}
+                        ${TWOWIRE_SOURCES}
+                        ${ENCODER_SOURCES}
+                        ${FASTPIN_SOURCES}
+                        ${MENU_SOURCES}
+                        ${MODBUS_SOURCES}
+                        ${PID_SOURCES}
+                        ${liquidcrystalfp_sources}
+                        ${DS2482_SOURCES})
