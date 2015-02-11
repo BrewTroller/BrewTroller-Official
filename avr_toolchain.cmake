@@ -7,6 +7,7 @@
 # Find AVR toolchain executables
 find_program(AVR_CC avr-gcc)
 find_program(AVR_CXX avr-g++)
+find_program(AVR_LD avr-ld)
 find_program(AVR_OBJCOPY avr-objcopy)
 find_program(AVR_SIZE_TOOL avr-size)
 find_program(AVR_OBJDUMP avr-objdump)
@@ -59,7 +60,7 @@ function(add_avr_executable EXECUTABLE_NAME)
       ${elf_file}
       PROPERTIES
          COMPILE_FLAGS "-mmcu=${AVR_MCU}"
-         LINK_FLAGS "-mmcu=${AVR_MCU} -Wl,--gc-sections -mrelax -Wl,-Map,${map_file}"
+         LINK_FLAGS "-mmcu=${AVR_MCU} -Wl,-lm -Wl,--gc-sections -Wl,-Map,${map_file}"
    )
 
    add_custom_command(
