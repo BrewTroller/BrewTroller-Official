@@ -13,8 +13,8 @@
 
 const extern void(* softReset) (void);
 
-extern const char BT[] PROGMEM;
-extern const char BTVER[] PROGMEM;
+const char BT[] PROGMEM = "BrewTroller";
+const char BTVER[] PROGMEM = "2.7";
 
 //**********************************************************************************
 // Compile Time Logic
@@ -126,13 +126,7 @@ extern PVOutGPIO Valves;
 
 #elif defined PVOUT_TYPE_MUX
   #define PVOUT
-  extern PVOutMUX Valves(
-    MUX_LATCH_PIN,
-    MUX_DATA_PIN,
-    MUX_CLOCK_PIN,
-    MUX_ENABLE_PIN,
-    MUX_ENABLE_LOGIC
-  );
+  extern PVOutMUX Valves;
 #endif
 
 #ifdef PVOUT_TYPE_MODBUS
