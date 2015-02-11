@@ -25,6 +25,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 */
 
 #include <Arduino.h>
+#include <pin.h>
 #include "BrewCore.h"
 #include "BrewTroller.h"
 #include "Outputs.h"
