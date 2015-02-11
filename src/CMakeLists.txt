@@ -1,38 +1,43 @@
 # Source files for BrewTroller
 set(SOURCE_FILES
-    BrewCore.cpp
-    BrewTroller.cpp
-    Com.cpp
-    Com_BTnic.h
-    Com_BTPD.cpp
-    Com_RGBIO8.cpp
-    Com_RGBIO8.h
-    Com_S0ASC.cpp
-    Config.h
-    EEPROM.cpp
-    Enum.h
-    Events.cpp
-    HWProfile.h
-    Outputs.cpp
-    PVOut.h
-    StepLogic.cpp
-    Temp.cpp
-    Timer.cpp
-    UI.cpp
-    UI_LCD.h
-    Util.cpp
-    Volume.cpp)
+        BrewCore.cpp
+        BrewCore.h
+        BrewTroller.cpp
+        BrewTroller.h
+        Com.cpp
+        Com.h
+        Com_BTnic.h
+        Com_BTPD.cpp
+        Com_BTPD.h
+        Com_RGBIO8.cpp
+        Com_RGBIO8.h
+        Com_S0ASC.cpp
+        Config.h
+        EEPROM.cpp
+        EEPROM.h
+        Enum.h
+        Events.cpp
+        Events.h
+        HWProfile.h
+        Outputs.cpp
+        Outputs.h
+        PVOut.h
+        PVOut.cpp
+        StepLogic.cpp
+        StepLogic.h
+        Temp.cpp
+        Temp.h
+        Timer.cpp
+        Timer.h
+        UI.cpp
+        UI.h
+        UI_LCD.h
+        Util.cpp
+        Util.h
+        Volume.cpp
+        Volume.h)
 
-add_avr_executable(BrewTroller ${SOURCE_FILES})
+add_avr_executable(BrewTroller-${AVR_MCU} ${SOURCE_FILES})
 
 # Link libraries
-target_link_libraries(BrewTroller-${AVR_MCU}.elf
-            arduino-${AVR_MCU}
-            EEPROM-${AVR_MCU}
-            encoder-${AVR_MCU}
-            fastpin-${AVR_MCU}
-            menu-${AVR_MCU}
-            modbusmaster-${AVR_MCU}
-            pid-${AVR_MCU}
-            twowire-${AVR_MCU}
-            liquidcrystalfp-${AVR_MCU})
+target_link_libraries(BrewTroller-${AVR_MCU}.elf BT-libs)
