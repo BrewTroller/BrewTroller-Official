@@ -25,9 +25,10 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 */
 
 #include <Arduino.h>
+#include "BrewTroller.h"
+#include "HWProfile.h"
 #include "Enum.h"
 #include "Outputs.h"
-#include "BrewTroller.h"
 #include "Com.h"
 #include "UI.h"
 #include "Events.h"
