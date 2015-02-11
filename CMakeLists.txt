@@ -35,7 +35,8 @@ include_directories(lib/arduino
                     lib/modbusmaster
                     lib/PID_Beta6
                     lib/Wire
-                    lib/liquidcrystalfp)
+                    lib/liquidcrystalfp
+                    lib/ds2482)
 
-add_subdirectory(src)
 add_subdirectory(lib)
+add_subdirectory(src)
