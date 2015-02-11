@@ -25,6 +25,9 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 */
 #include <Arduino.h>
 #include "Temp.h"
+#include "HWProfile.h"
+#include "Enum.h"
+#include "BrewTroller.h"
 
 #ifdef TS_ONEWIRE
   #ifdef TS_ONEWIRE_GPIO
