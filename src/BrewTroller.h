@@ -13,8 +13,8 @@
 
 const extern void(* softReset) (void);
 
-const char BT[] PROGMEM = "BrewTroller";
-const char BTVER[] PROGMEM = "2.7";
+extern const char BT[];
+extern const char BTVER[];
 
 //**********************************************************************************
 // Compile Time Logic
@@ -185,11 +185,11 @@ extern unsigned int hoptimes[11];
 extern byte pitchTemp;
 
 //Log Strings
-extern const char LOGCMD[] PROGMEM;
-extern const char LOGDEBUG[] PROGMEM;
-extern const char LOGSYS[] PROGMEM;
-extern const char LOGCFG[] PROGMEM;
-extern const char LOGDATA[] PROGMEM;
+extern const char LOGCMD[];
+extern const char LOGDEBUG[];
+extern const char LOGSYS[];
+extern const char LOGCFG[];
+extern const char LOGDATA[];
 
 //PWM by timer globals
 #ifdef PWM_BY_TIMER
