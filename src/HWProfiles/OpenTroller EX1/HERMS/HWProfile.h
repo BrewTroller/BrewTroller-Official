@@ -4,7 +4,7 @@ OpenTroller EX1 Hardware Configuration
 */
 
 #ifndef __BREWTROLLER_HWPROFILE__
-    #error "Include "HardwareProfile.h instead of this file"
+    #error "Include HardwareProfile.h instead of this file"
 #endif
 
 #ifndef BT_HWPROFILE
