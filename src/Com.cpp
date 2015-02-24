@@ -79,7 +79,7 @@ void printFieldUL (unsigned long uLong) {
 }
 
 void printFieldPS (const char *sText) {
-  while (pgm_read_byte(sText) != 0) Serial.print(pgm_read_byte(sText++));
+  while (pgm_read_byte(sText) != 0) Serial.print(char(pgm_read_byte(sText++)));
   Serial.print("\t");
 }
 
