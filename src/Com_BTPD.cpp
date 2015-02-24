@@ -32,7 +32,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 #include <Arduino.h>
 #include "BrewTroller.h"
 #include <Wire.h>
-#include "HWProfile.h"
+#include "HardwareProfile.h"
 #include "Com_BTPD.h"
 #include "Config.h"
 

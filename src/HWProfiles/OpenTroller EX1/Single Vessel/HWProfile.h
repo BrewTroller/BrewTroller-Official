@@ -3,9 +3,12 @@ OpenTroller EX1 Hardware Configuration
   Single Vessel: Two Heat Outputs (HLT/Mash/Kettle Combined) + 5 Pump/Valve Outputs + Alarm
 */
 
+#ifndef __BREWTROLLER_HWPROFILE__
+    #error "Include "HardwareProfile.h instead of this file"
+#endif
+
 #ifndef BT_HWPROFILE
 #define BT_HWPROFILE
-  #include "Config.h"
   
   //**********************************************************************************
   // ENCODER TYPE

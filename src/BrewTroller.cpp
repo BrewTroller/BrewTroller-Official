@@ -47,7 +47,7 @@ Compiled on Arduino-0022 (http://arduino.cc/en/Main/Software)
 #include <menu.h>
 #include <ModbusMaster.h>
 
-#include "HWProfile.h"
+#include "HardwareProfile.h"
 #include "Config.h"
 #include "Enum.h"
 #include "PVOut.h"

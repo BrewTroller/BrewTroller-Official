@@ -7,7 +7,7 @@
 #include <pin.h>
 #include <PID_Beta6.h>
 
-#include "HWProfile.h"
+#include "HardwareProfile.h"
 #include "PVOut.h"
 #include "UI_LCD.h"
 

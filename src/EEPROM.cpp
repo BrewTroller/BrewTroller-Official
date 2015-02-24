@@ -29,7 +29,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 #include "BrewTroller.h"
 #include "Events.h"
 #include "EEPROM.h"
-#include "HWProfile.h"
+#include "HardwareProfile.h"
 
 void loadSetup() {
   //**********************************************************************************

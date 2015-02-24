@@ -18,7 +18,7 @@ set(SOURCE_FILES
         Enum.h
         Events.cpp
         Events.h
-        HWProfile.h
+        HardwareProfile.h
         Outputs.cpp
         Outputs.h
         PVOut.h
@@ -37,7 +37,7 @@ set(SOURCE_FILES
         Volume.cpp
         Volume.h)
 
-add_avr_executable(BrewTroller-${AVR_MCU} ${SOURCE_FILES})
+add_avr_executable(BrewTroller-${board} ${SOURCE_FILES})
 
 # Link libraries
-target_link_libraries(BrewTroller-${AVR_MCU}.elf BT-libs)
+target_link_libraries(BrewTroller-${board}.elf BT-libs)

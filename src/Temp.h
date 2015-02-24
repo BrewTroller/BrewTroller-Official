@@ -5,7 +5,7 @@
 
 #include <Arduino.h>
 #include "Temp.h"
-#include "HWProfile.h"
+#include "HardwareProfile.h"
 
 void tempInit();
 

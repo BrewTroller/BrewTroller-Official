@@ -3,9 +3,12 @@ OpenTroller EX1 Hardware Configuration
   HERMS: Two Heat Outputs (HLT, Kettle) + 4 Pump/Valve Outputs + Alarm
 */
 
+#ifndef __BREWTROLLER_HWPROFILE__
+    #error "Include "HardwareProfile.h instead of this file"
+#endif
+
 #ifndef BT_HWPROFILE
 #define BT_HWPROFILE
-  #include "Config.h"
   
   //**********************************************************************************
   // ENCODER TYPE

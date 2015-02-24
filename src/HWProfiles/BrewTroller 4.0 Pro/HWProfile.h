@@ -2,6 +2,10 @@
 BrewTroller 4.0 Pro Hardware Configuration
 */
 
+#ifndef __BREWTROLLER_HWPROFILE__
+    #error "Include "HardwareProfile.h instead of this file"
+#endif
+
 #ifndef BT_HWPROFILE
 #define BT_HWPROFILE
 

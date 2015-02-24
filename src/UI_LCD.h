@@ -29,7 +29,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 
   #include "Config.h"
   #include "Enum.h"
-  #include "HWProfile.h"
+  #include "HardwareProfile.h"
   #include <Wire.h>
   #include <LiquidCrystalFP.h>
   #include <stdlib.h> // for malloc and free

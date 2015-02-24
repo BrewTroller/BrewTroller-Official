@@ -2,7 +2,7 @@
   #define PVOUT_H
   #include <pin.h>
   #include "Config.h"
-  #include "HWProfile.h"
+  #include "HardwareProfile.h"
   #include <ModbusMaster.h>
   #include <HardwareSerial.h>
   

@@ -25,7 +25,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 */
 #include <Arduino.h>
 #include <pin.h>
-#include "HWProfile.h"
+#include "HardwareProfile.h"
 #include "Enum.h"
 #include "BrewTroller.h"
 #include "EEPROM.h"

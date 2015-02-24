@@ -4,9 +4,12 @@ OpenTroller BX1 Hardware Configuration
   I2CLCD
 */
 
+#ifndef __BREWTROLLER_HWPROFILE__
+    #error "Include "HardwareProfile.h instead of this file"
+#endif
+
 #ifndef BT_HWPROFILE
 #define BT_HWPROFILE
-  #include "Config.h"
   
   #define ENCA_PIN 3
   #define ENCB_PIN 2
