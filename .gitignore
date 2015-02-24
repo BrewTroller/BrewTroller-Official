@@ -12,4 +12,4 @@
 .iml
 
 #build directory
-build
+build/*
