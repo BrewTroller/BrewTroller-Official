@@ -1,8 +1,6 @@
 #ifndef BT_EEPROM_H
 #define BT_EEPROM_H
 
-#warning Fix me! Replace Forward Declarations
-
 #include <Arduino.h>
 
 void loadSetup();

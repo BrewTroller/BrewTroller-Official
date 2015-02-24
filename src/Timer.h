@@ -1,7 +1,6 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-#warning Fix me! Replace Forward Declarations
 #include <Arduino.h>
 
 void setTimer(byte timer, int minutes);

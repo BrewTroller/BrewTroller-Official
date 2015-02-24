@@ -1,8 +1,6 @@
 #ifndef UI_H
 #define UI_H
 
-#warning Fix me! Replace Forward Declarations
-
 #include <Arduino.h>
 #include <menu.h>
 

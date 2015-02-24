@@ -1,7 +1,6 @@
 #ifndef OUTPUTS_H
 #define OUTPUTS_H
 
-#warning Fix ME! Replace Forward declarations with class
 
 #include <Arduino.h>
 #include <pin.h>

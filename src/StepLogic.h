@@ -1,8 +1,6 @@
 #ifndef STEPLOGIC_H
 #define STEPLOGIC_H
 
-#warning Fix me! Replace Forward Declarations
-
 void programThreadsInit();
 void programThreadsUpdate();
 
