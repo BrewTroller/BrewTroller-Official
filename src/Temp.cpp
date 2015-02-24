@@ -37,34 +37,40 @@ Documentation, Forums and more information available at http://www.brewtroller.c
   #ifdef TS_ONEWIRE_I2C
     #include <DS2482.h>
     DS2482 ds(DS2482_ADDR);
+    const uint8_t dsConfig = DS2482_CONFIG_APU | DS2482_CONFIG_SPU;
+    bool masterIsConfigured = false;
   #endif
-  //One Wire Bus on 
-  
-  void tempInit() {
+  //One Wire Bus on
+
+void tempInit() {
     for (byte i = 0; i < NUM_TS; i++) temp[i] = BAD_TEMP;
     #ifdef TS_ONEWIRE_I2C
-      ds.configure(DS2482_CONFIG_APU | DS2482_CONFIG_SPU);
+    masterIsConfigured = ds.configure(dsConfig);
+    if (masterIsConfigured) {
     #endif
     ds.reset();
     ds.skip();
     ds.write(0x4E, TS_ONEWIRE_PPWR); //Write to scratchpad
     ds.write(0x4B, TS_ONEWIRE_PPWR); //Default value of TH reg (user byte 1)
     ds.write(0x46, TS_ONEWIRE_PPWR); //Default value of TL reg (user byte 2)
-  
+
     #if TS_ONEWIRE_RES == 12
       ds.write(0x7F, TS_ONEWIRE_PPWR); //Config Reg (12-bit)
     #elif TS_ONEWIRE_RES == 11
-      ds.write(0x5F, TS_ONEWIRE_PPWR); //Config Reg (11-bit)
+    ds.write(0x5F, TS_ONEWIRE_PPWR); //Config Reg (11-bit)
     #elif TS_ONEWIRE_RES == 10
       ds.write(0x3F, TS_ONEWIRE_PPWR); //Config Reg (10-bit)
     #else //Default to 9-bit
       ds.write(0x1F, TS_ONEWIRE_PPWR); //Config Reg (9-bit)
     #endif
-  
+
     ds.reset();
     ds.skip();
     ds.write(0x48, TS_ONEWIRE_PPWR); //Copy scratchpad to EEPROM
-  }
+    #ifdef TS_ONEWIRE_I2C
+    }
+    #endif
+}
 
 
   unsigned long convStart;
@@ -80,6 +86,12 @@ Documentation, Forums and more information available at http://www.brewtroller.c
   #endif
 
   void updateTemps() {
+    #ifdef TS_ONEWIRE_I2C
+      if (!masterIsConfigured) {
+          tempInit(); // if the master isn't configured, try again
+      }
+      if (!masterIsConfigured) return; // if we still aren't setup, abort
+    #endif
     if (convStart == 0) {
       ds.reset();
       ds.skip();
@@ -102,6 +114,12 @@ Documentation, Forums and more information available at http://www.brewtroller.c
   }
 
   boolean tsReady() {
+    #ifdef TS_ONEWIRE_I2C
+      if (!masterIsConfigured) {
+          tempInit(); // if the master isn't configured, try again
+      }
+      if (!masterIsConfigured) return false; // if we still aren't setup, abort
+    #endif
     #if TS_ONEWIRE_PPWR == 0 //Poll if parasite power is disabled
       if (ds.read() == 0xFF) return 1;
     #endif
@@ -115,7 +133,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
   
   //This function search for an address that is not currently assigned!
   void getDSAddr(byte addrRet[8]){
-  //Leaving stub for external functions (serial and setup) that use this function
+    //Leaving stub for external functions (serial and setup) that use this function
     byte scanAddr[8];
     ds.reset_search();
     byte limit = 0;
@@ -157,6 +175,12 @@ Documentation, Forums and more information available at http://www.brewtroller.c
   
 //Returns Int representing hundreths of degree
   int read_temp(byte* addr) {
+    #ifdef TS_ONEWIRE_I2C
+    if (!masterIsConfigured) {
+        tempInit(); // if the master isn't configured, try again
+    }
+    if (!masterIsConfigured) return BAD_TEMP; // if we still aren't setup, abort
+    #endif
     long tempOut;
     byte data[9];
     ds.reset();
