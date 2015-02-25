@@ -104,9 +104,9 @@ extern long flowRate[3];
   #include <LiquidCrystalFP.h>
 
   #ifndef UI_DISPLAY_SETUP
-    extern LCD4Bit LCD(LCD_RS_PIN, LCD_ENABLE_PIN, LCD_DATA4_PIN, LCD_DATA5_PIN, LCD_DATA6_PIN, LCD_DATA7_PIN);
+    extern LCD4Bit LCD;
   #else
-    extern LCD4Bit LCD(LCD_RS_PIN, LCD_ENABLE_PIN, LCD_DATA4_PIN, LCD_DATA5_PIN, LCD_DATA6_PIN, LCD_DATA7_PIN, LCD_BRIGHT_PIN, LCD_CONTRAST_PIN);
+    extern LCD4Bit LCD;
   #endif
 
 #elif defined UI_LCD_I2C
