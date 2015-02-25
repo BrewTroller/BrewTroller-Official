@@ -56,7 +56,8 @@ include_directories(lib/arduino
                     lib/PID_Beta6
                     lib/Wire
                     lib/liquidcrystalfp
-                    lib/ds2482)
+                    lib/ds2482
+                    lib/OneWire)
 
 add_subdirectory(lib)
 add_subdirectory(src)
