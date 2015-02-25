@@ -189,7 +189,7 @@ void tempInit() {
     #ifdef TS_ONEWIRE_FASTREAD
       for (byte i = 0; i < 2; i++)
         data[i] = ds.read();
-      if (data[0] & data[1] == 0xFF)
+      if ((data[0] & data[1]) == 0xFF)
         return BAD_TEMP;
     #else
       for (byte i = 0; i < 9; i++) data[i] = ds.read();
