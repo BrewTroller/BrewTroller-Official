@@ -49,7 +49,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 #elif defined(OT_BX1_STEAMPWM)
     #include "HWProfiles/OpenTroller BX1/Steam or PWM Pump/HWProfile.h"
 #elif defined(OT_BX1_STEAMPWMI2CLCD)
-    #include "HWProfile/OpenTroller BX1/Steam or PWM Pump I2CLCD/HWProfile.h"
+    #include "HWProfiles/OpenTroller BX1/Steam or PWM Pump I2CLCD/HWProfile.h"
 
 #elif defined(OT_DX1_HERMS)
     #include "HWProfiles/OpenTroller DX1/HERMS/HWProfile.h"
