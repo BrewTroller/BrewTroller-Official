@@ -1746,7 +1746,7 @@ unsigned long getValue(char sTitle[], unsigned long defValue, unsigned int divis
 
 unsigned long ulpow(unsigned long base, unsigned long exponent) {
   unsigned long ret = 1;
-  for (int i = 0; i < exponent; i++) {
+  for (unsigned long i = 0; i < exponent; i++) {
     ret *= base;
   }
   return ret;
