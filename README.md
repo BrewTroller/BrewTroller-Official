@@ -6,7 +6,9 @@ This is the new home of BrewTroller! (Originally forked from the now defunct OSC
 
 Known Issues
 -----
-1. BrewTroller 4.x boards with removable plug-in exansion modules may encounter erratic behaviour if the One-Wire master board is not installed.
+~~1. BrewTroller 4.x boards with removable plug-in exansion modules may encounter erratic behaviour if the One-Wire master board is not installed.~~
+2. Firmware currently builds for boards that have the atmega644p chip installed, but the resulting firmware is too big to fit on chip.
+
 
 Building
 =====
@@ -36,7 +38,7 @@ To prevent causing serious headaches all builds should be done out-of-source; bu
 To build from the build directory execute:
 
 ```
-$ cmake -Dboard={Hardware profile} ../
+$ cmake -Dboard={Hardware profile} -DAVR_MCU={mcu} ../
 $ make
 ```
 
@@ -64,6 +66,11 @@ Available Hardware profile options are:
     OT_EX1_SINGLEVESSEL    --> EX1 Single Vessel
     OT_EX1_STEAMPWM        --> EX1 Steam or PWM Pump
 If no board option is specified DX1 HERMS is built by default.
+
+Available AVR_MCU options are:
+    atmega1284p
+    atmega644p
+If no AVR_MCU option is specified atmega1284p is used by default.
 
 Uploading
 -----
