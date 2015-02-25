@@ -372,8 +372,8 @@ void setSetpoint(byte vessel, int value) {
 //**********************************************************************************
 //timers (302-305)
 //**********************************************************************************
-void setTimerRecovery(byte timer, unsigned int newMins) { 
-  if(newMins != -1) EEPROMwriteInt(302 + timer * 2, newMins); 
+void setTimerRecovery(byte timer, unsigned int newMins) {
+  if(newMins != 0) EEPROMwriteInt(302 + timer * 2, newMins);
 }
 
 //**********************************************************************************
@@ -444,8 +444,8 @@ void eepromSaveProgramThread(byte index, struct ProgramThread *thread) {
 //Delay Start (Mins) (398-399)
 //**********************************************************************************
 unsigned int getDelayMins() { return EEPROMreadInt(398); }
-void setDelayMins(unsigned int mins) { 
-  if(mins != -1) EEPROMwriteInt(398, mins); 
+void setDelayMins(unsigned int mins) {
+  if(mins != 0) EEPROMwriteInt(398, mins);
 }
 
 //**********************************************************************************

@@ -1,8 +1,6 @@
 #ifndef TEMP_H
 #define TEMP_H
 
-#warning Fix me! Replace forward declarations
-
 #include <Arduino.h>
 #include "Temp.h"
 #include "HardwareProfile.h"

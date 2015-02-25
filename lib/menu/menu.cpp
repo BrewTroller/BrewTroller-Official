@@ -32,7 +32,7 @@ void menu::setItem_P(const char *disp, byte value) {
 }
 
 /* Appends text to an existing menu item */
-void menu::appendItem(char disp[], byte value) {
+void menu::appendItem(const char* disp, byte value) {
 	byte index = this->getIndexByValue(value);
 	if (index == _itemCount) return;
 	strcat(_menuItems[index].name, disp);

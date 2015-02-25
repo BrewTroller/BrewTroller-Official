@@ -702,7 +702,7 @@ void brewStepBoil(enum StepSignal signal, struct ProgramThread *thread) {
         }
         //Timed additions (See hoptimes[] array in BrewTroller.pde)
         for (byte i = 0; i < 11; i++) {
-          if (((boilAdds ^ triggered) & (1<<(i + 1))) && timerValue[TIMER_BOIL] <= hoptimes[i] * 60000) { 
+          if (((boilAdds ^ triggered) & (1<<(i + 1))) && timerValue[TIMER_BOIL] <= hoptimes[i] * unsigned(60000)) {
             bitSet(actProfiles, VLV_HOPADD);
             lastHop = millis();
             setAlarm(1); 

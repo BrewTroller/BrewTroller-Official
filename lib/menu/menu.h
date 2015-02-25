@@ -23,7 +23,7 @@ public:
 	void setItem_P(const char *, byte);
 
 	/* Appends text to an existing menu item */
-	void appendItem(char[], byte);
+	void appendItem(const char*, byte);
 	void appendItem_P(const char *, byte);
 
 	/* Set selected by specifying index */

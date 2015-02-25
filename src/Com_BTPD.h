@@ -1,7 +1,6 @@
 #ifndef COM_BTPD_H
 #define COM_BTPD_H
 
-#warning Fix me! Replace forward declarations
 
 #ifdef BTPD_SUPPORT
 
@@ -24,7 +23,7 @@ void sendVsTemp(byte chan, byte sensor, byte vessel);
 
 void sendVsVol(byte chan, byte vessel);
 
-void sendStringBTPD(byte chan, char *string);
+void sendStringBTPD(byte chan, const char *string);
 
 void sendFloat1BTPD(byte chan, float line);
 

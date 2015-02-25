@@ -91,6 +91,18 @@ set(DS2482_SOURCES
     ds2482/DS2482.h
     ds2482/DS2482.cpp)
 
+#disable some compiler warnings for libraries
+set_source_files_properties(${ARDUINO_SOURCE} ${ARDUINO_HEADERS}
+                            ${EEPROM_SOURCES}
+                            ${TWOWIRE_SOURCES}
+                            ${ENCODER_SOURCES}
+                            ${FASTPIN_SOURCES}
+                            ${MENU_SOURCES}
+                            ${MODBUS_SOURCES}
+                            ${PID_SOURCES}
+                            ${liquidcrystalfp_sources}
+                            ${DS2482_SOURCES} PROPERTIES COMPILE_FLAGS "-Wno-sign-compare -Wno-unused-variable -Wno-strict-aliasing -Wno-attributes -Wno-parentheses -Wno-return-type -Wno-maybe-uninitialized")
+
 add_avr_library(BT-libs ${ARDUINO_SOURCE} ${ARDUINO_HEADERS}
                         ${EEPROM_SOURCES}
                         ${TWOWIRE_SOURCES}

@@ -29,24 +29,20 @@ set(board  "OT_DX1_HERMS" CACHE STRING "BrewTroller Hardware Board Target, avail
            OT_EX1_SINGLEVESSEL    --> EX1 Single Vessel
            OT_EX1_STEAMPWM        --> EX1 Steam or PWM Pump") # Default to DX1 Herms build
 
-ADD_DEFINITIONS("-D${board}")
-MESSAGE(STATUS "Building BrewTroller for   " ${board})
+add_definitions("-D${board}")
+message(STATUS "Building BrewTroller for   " ${board})
 
 # Set Processor Vars
-set(AVR_MCU atmega1284p)
+set(AVR_MCU atmega1284p CACHE STRING "Hardware targets, available options:
+          atmega1284p
+          atmega644p")
 set(MCU_SPEED "16000000UL")
 
 # Set Compiler flags
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fshort-enums -Wall -funsigned-char -funsigned-bitfields -ffunction-sections -fdata-sections -Os")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fshort-enums -Wall -Wno-switch -Wno-return-type -Wno-maybe-uninitialized -Wno-sequence-point -funsigned-char -funsigned-bitfields -ffunction-sections -fdata-sections -std=c++11 -Os")
+
 add_definitions("-DF_CPU=${MCU_SPEED}")
-add_definitions("-fpack-struct")
-add_definitions("-fshort-enums")
-add_definitions("-Wall")
-add_definitions("-funsigned-char")
-add_definitions("-funsigned-bitfields")
-add_definitions("-ffunction-sections")
-add_definitions("-fdata-sections")
-add_definitions("-std=c++11")
-add_definitions("-Os")
 
 include(avr_toolchain.cmake)
 
