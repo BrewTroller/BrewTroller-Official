@@ -78,7 +78,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
       
       void update() {      }
       
-      void print(byte iRow, byte iCol, char sText[]){
+      void print(byte iRow, byte iCol, const char* sText){
         _lcd->setCursor(iCol, iRow);
         #ifdef LCD_DELAY_CURSOR
           delayMicroseconds(LCD_DELAY_CURSOR);
@@ -107,7 +107,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
         _lcd->begin(20, 4);
       }
       
-      void center(byte iRow, byte iCol, char sText[], byte fieldWidth){
+      void center(byte iRow, byte iCol, const char* sText, byte fieldWidth){
         rPad(iRow, iCol, "", fieldWidth, ' ');
         if (strlen(sText) < fieldWidth) _lcd->setCursor(iCol + ((fieldWidth - strlen(sText)) / 2), iRow);
         else _lcd->setCursor(iCol, iRow);
@@ -125,7 +125,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
       
       } 
       
-      char lPad(byte iRow, byte iCol, char sText[], byte length, char pad) {
+      void lPad(byte iRow, byte iCol, const char* sText, byte length, const char pad) {
         _lcd->setCursor(iCol, iRow);
         #ifdef LCD_DELAY_CURSOR
           delayMicroseconds(LCD_DELAY_CURSOR);
@@ -149,7 +149,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
       
       }  
       
-      char rPad(byte iRow, byte iCol, char sText[], byte length, char pad) {
+      void rPad(byte iRow, byte iCol, const char* sText, byte length, const char pad) {
         _lcd->setCursor(iCol, iRow);
         #ifdef LCD_DELAY_CURSOR
           delayMicroseconds(LCD_DELAY_CURSOR);
@@ -258,15 +258,15 @@ Documentation, Forums and more information available at http://www.brewtroller.c
         fastWrite = (i2cLcdGetVersion() > 968 ? 1 : 0);
       }
       
-      void print(byte iRow, byte iCol, char sText[]){
+      void print(byte iRow, byte iCol, const char* sText){
         byte pos = iRow * 20 + iCol;
-        memcpy((byte*)&screen[pos], sText, min(strlen(sText), 80-pos));
+        memcpy((byte*)&screen[pos], sText, min(strlen(sText), uint8_t(80-pos)));
       }  
       
       //Version of PrintLCD reading from PROGMEM
       void print_P(byte iRow, byte iCol, const char *sText){
         byte pos = iRow * 20 + iCol;
-        memcpy_P((byte*)&screen[pos], sText, min(strlen_P(sText), 80-pos));
+        memcpy_P((byte*)&screen[pos], sText, min(strlen_P(sText), uint8_t(80-pos)));
       } 
       
       void clear() {
@@ -274,7 +274,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
         i2cLcdClear();
       }
       
-      void center(byte iRow, byte iCol, char sText[], byte fieldWidth){
+      void center(byte iRow, byte iCol, const char* sText, byte fieldWidth){
         byte sLen = strlen(sText);
         byte textStart = (fieldWidth - sLen) / 2;
         char s[21];
@@ -284,7 +284,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
         print(iRow, iCol, s);
       }
         
-      char lPad(byte iRow, byte iCol, char sText[], byte length, char pad) {
+      void lPad(byte iRow, byte iCol, const char* sText, byte length, const char pad) {
         char s[21];
         byte sLen = strlen(sText);
         byte textStart = length - sLen;
@@ -294,7 +294,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
         print(iRow, iCol, s);
       }  
       
-      char rPad(byte iRow, byte iCol, char sText[], byte length, char pad) {
+      void rPad(byte iRow, byte iCol, const char* sText, byte length, const char pad) {
         char s[21];
         byte sLen = strlen(sText);
         memcpy(s, sText, sLen);

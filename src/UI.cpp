@@ -1553,7 +1553,7 @@ void warnBoil(unsigned long preboilVol) {
   Glues together menu, Encoder and LCD objects
 */
 
-byte scrollMenu(char sTitle[], menu *objMenu) {
+byte scrollMenu(const char* sTitle, menu *objMenu) {
   Encoder.setMin(0);
   Encoder.setMax(objMenu->getItemCount() - 1);
   //Force refresh in case selected value was set
@@ -1581,7 +1581,7 @@ byte scrollMenu(char sTitle[], menu *objMenu) {
   }
 }
 
-void drawMenu(char sTitle[], menu *objMenu) {
+void drawMenu(const char* sTitle, menu *objMenu) {
   LCD.clear();
   if (sTitle != NULL) LCD.print(0, 0, sTitle);
 
@@ -1814,7 +1814,7 @@ unsigned long getHexValue(char sTitle[], unsigned long defValue) {
           }
         }
       }
-      sprintf(buf, "%02x", retValue);
+      sprintf(buf, "%02lx", retValue);
       LCD.print(1, valuePos - 1, buf);
       LCD.print(1, valuePos - 3, "0x");
     }
@@ -2826,7 +2826,7 @@ const uint8_t ku8MBResponseTimedOut           = 0xE2;
     PVOutMODBUS tempMB(PVOUT_MODBUS_ADDRINIT, getVlvModbusReg(board), getVlvModbusCoilCount(board), getVlvModbusOffset(board));
     
     byte result = 1;
-    while (result = tempMB.detect()) {
+    while ((result = tempMB.detect())) {
       LCD.clear();
       LCD.print_P(0, 0, PSTR("Click/hold to reset"));
       LCD.print_P(1, 0, PSTR("output board then"));

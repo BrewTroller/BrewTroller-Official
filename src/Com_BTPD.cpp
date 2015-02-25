@@ -147,7 +147,7 @@ void sendVsVol(byte chan, byte vessel) {
   sendFloatsBTPD(chan, tgtVol[vessel] / 1000.0, volAvg[vessel] / 1000.0);
 }
 
-void sendStringBTPD(byte chan, char *string) {
+void sendStringBTPD(byte chan, const char *string) {
   Wire.beginTransmission(chan);
   Wire.write((uint8_t *)string, strlen(string));
   Wire.endTransmission();

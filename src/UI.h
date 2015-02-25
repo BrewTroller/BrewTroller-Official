@@ -49,8 +49,8 @@ void screenRefresh();
 void screenInit();
 void screenEnter();
 
-byte scrollMenu(char sTitle[], menu *objMenu);
-void drawMenu(char sTitle[], menu *objMenu);
+byte scrollMenu(const char* sTitle, menu *objMenu);
+void drawMenu(const char* sTitle, menu *objMenu);
 byte getChoice(menu *objMenu, byte iRow);
 boolean confirmChoice(const char *choice, byte row);
 boolean confirmAbort();
