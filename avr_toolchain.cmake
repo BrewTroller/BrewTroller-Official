@@ -7,7 +7,6 @@
 # Find AVR toolchain executables
 find_program(AVR_CC avr-gcc)
 find_program(AVR_CXX avr-g++)
-find_program(AVR_LD avr-ld)
 find_program(AVR_OBJCOPY avr-objcopy)
 find_program(AVR_SIZE_TOOL avr-size)
 find_program(AVR_OBJDUMP avr-objdump)
