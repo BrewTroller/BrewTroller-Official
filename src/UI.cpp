@@ -1383,7 +1383,6 @@ void editProgram(byte pgm) {
 void showProgCalcs(byte pgm) {
   menu calcsMenu(3, 6);
   unsigned long value;
-  char valtxt[8];
 
   calcsMenu.setItem_P(PSTR("Strike Temp:"), 0);
   value = calcStrikeTemp(pgm);
