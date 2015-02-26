@@ -39,8 +39,8 @@ set(AVR_MCU atmega1284p CACHE STRING "Hardware targets, available options:
 set(MCU_SPEED "16000000UL")
 
 # Set Compiler flags
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fshort-enums -Wall -funsigned-char -funsigned-bitfields -ffunction-sections -fdata-sections -Os")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fshort-enums -Wall -Wno-switch -Wno-return-type -Wno-maybe-uninitialized -Wno-sequence-point -funsigned-char -funsigned-bitfields -ffunction-sections -fdata-sections -std=c++11 -Os")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mcall-prologues -fno-inline-small-functions -fno-split-wide-types -fshort-enums -Wall -funsigned-char -funsigned-bitfields -ffunction-sections -fdata-sections -Os")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcall-prologues -fno-inline-small-functions -fno-split-wide-types -fshort-enums -Wall -Wno-switch -Wno-return-type -Wno-maybe-uninitialized -Wno-sequence-point -funsigned-char -funsigned-bitfields -ffunction-sections -fdata-sections -std=c++11 -Os")
 
 add_definitions("-DF_CPU=${MCU_SPEED}")
 
