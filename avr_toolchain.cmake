@@ -22,6 +22,10 @@ SET(CMAKE_CROSSCOMPILING 1)
 #Ensure when compiling on Linux That we don't get the "-rdynamic" flag added automatically
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
+#Ensure that CMAKE doens't automatically add the headerpad_max_install_names and the search_paths_first linker flags
+#  When these two flags are automatically set, we get errors that ld cannot find symbol arch_paths_first, and it generates an elf that nm cannot read
+set(CMAKE_C_LINK_FLAGS "")
+set(CMAKE_CXX_LINK_FLAGS "")
 
 #default avr-size args
 if(NOT AVR_SIZE_ARGS)
