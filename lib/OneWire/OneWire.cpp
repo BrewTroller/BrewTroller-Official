@@ -259,7 +259,7 @@ uint8_t OneWire::read() {
 //
 void OneWire::select( uint8_t rom[8])
 {
-    int i;
+    uint8_t i;
 
     write(0x55);           // Choose ROM
 
@@ -293,7 +293,7 @@ void OneWire::reset_search()
   LastDiscrepancy = 0;
   LastDeviceFlag = FALSE;
   LastFamilyDiscrepancy = 0;
-  for(int i = 7; ; i--)
+  for(uint8_t i = 7; ; i--)
     {
     ROM_NO[i] = 0;
     if ( i == 0) break;
