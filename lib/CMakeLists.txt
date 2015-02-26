@@ -6,7 +6,6 @@ set(ARDUINO_SOURCE
         arduino/HardwareSerial.cpp
         arduino/HID.cpp
         arduino/IPAddress.cpp
-        arduino/main.cpp
         arduino/new.cpp
         arduino/Print.cpp
         arduino/Stream.cpp

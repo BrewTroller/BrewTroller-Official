@@ -401,3 +401,17 @@ void loop() {
     //Core BrewTroller process code (BrewCore.pde)
     brewCore();
 }
+
+int main(void)
+{
+    init();
+
+    setup();
+
+    for (;;) {
+        loop();
+        if (serialEventRun) serialEventRun();
+    }
+
+    return 0;
+}
