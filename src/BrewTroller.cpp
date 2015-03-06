@@ -54,7 +54,7 @@ Compiled on Arduino-0022 (http://arduino.cc/en/Main/Software)
 #include "UI_LCD.h"
 #include <avr/eeprom.h>
 #include <EEPROM.h>
-#include "wiring_private.h"
+#include <wiring_private.h>
 #include <encoder.h>
 #include "Com_RGBIO8.h"
 #include "UI.h"

@@ -60,7 +60,7 @@ void logASCIIVersion() {
   printFieldPS(LOGSYS);     // keyword "SYS"
   Serial.print("VER\t");  // Version record
   printFieldPS(BTVER);      // BT Version
-  printFieldUL(BUILD);      // Build #
+  printFieldUL(BUILDNUM);      // Build #
   #if COM_SERIAL0 == BTNIC || (COM_SERIAL0 == ASCII && COMSCHEMA > 0)
     printFieldUL(COM_SERIAL0);  // Protocol Type
     printFieldUL(COMSCHEMA);// Protocol Schema

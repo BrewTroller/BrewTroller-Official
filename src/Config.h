@@ -1,5 +1,7 @@
 #ifndef BT_CONFIGURATION
 #define BT_CONFIGURATION
+
+#include <stdint.h>
 #include "Enum.h"
 
 //*****************************************************************************************************************************
@@ -92,15 +94,15 @@
 // safely decoupling the #defines values from loop-control.
 #if defined PID_FLOW_CONTROL
   static const int HEAT_OUTPUTS_COUNT = 4;
-  static const byte HEAT_OUTPUTS[HEAT_OUTPUTS_COUNT][2] = {{VS_HLT, TS_HLT}, {VS_MASH, TS_MASH}, {VS_KETTLE, TS_KETTLE}, {VS_PUMP, TS_MASH}};
+  static const uint8_t HEAT_OUTPUTS[HEAT_OUTPUTS_COUNT][2] = {{VS_HLT, TS_HLT}, {VS_MASH, TS_MASH}, {VS_KETTLE, TS_KETTLE}, {VS_PUMP, TS_MASH}};
 #else
   static const int HEAT_OUTPUTS_COUNT = 3;
-  static const byte HEAT_OUTPUTS[HEAT_OUTPUTS_COUNT][2] = {{VS_HLT, TS_HLT}, {VS_MASH, TS_MASH}, {VS_KETTLE, TS_KETTLE}};
+  static const uint8_t HEAT_OUTPUTS[HEAT_OUTPUTS_COUNT][2] = {{VS_HLT, TS_HLT}, {VS_MASH, TS_MASH}, {VS_KETTLE, TS_KETTLE}};
 #endif
 // These two should be used as the array index when operating on a HEAT_OUTPUT array.
 // They need to be variables instead of #defines because of use as index subscripts.
-static const byte VS = 0;
-static const byte TS = 1;
+static const uint8_t VS = 0;
+static const uint8_t TS = 1;
 
 //**********************************************************************************
 // PID Output Power Limit

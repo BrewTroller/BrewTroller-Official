@@ -1,7 +1,7 @@
 #ifndef BREWTROLLER_H
 #define BREWTROLLER_H
 
-#define BUILD 3
+#define BUILDNUM 3
 
 #include <Arduino.h>
 #include <pin.h>

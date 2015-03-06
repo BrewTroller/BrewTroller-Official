@@ -63,6 +63,7 @@ unsigned long getValue_P(const char *sTitle, unsigned long defValue, unsigned in
 unsigned long getValue(char sTitle[], unsigned long defValue, unsigned int divisor, unsigned long maxValue, const char *dispUnit);
 unsigned long ulpow(unsigned long base, unsigned long exponent);
 unsigned long getHexValue(char sTitle[], unsigned long defValue);
+char* concatPSTRS(char* dst, const char* one, const char* two);
 
 void UIinitEEPROM();
 
