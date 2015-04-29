@@ -27,6 +27,8 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 #include "Config.h"
 #ifndef NOUI
 
+//TODO: Namespace Strings into Top-Level NS (UI::Strings) and into use-case NSes (::MainMenu)
+
 //Generic Menu strings
 extern const char OK[];
 extern const char CANCEL[];
@@ -47,8 +49,12 @@ extern const char OFF[];
 extern const char COLON[];
 extern const char TEMPBLANK[];
 extern const char VOLBLANK[];
-extern const char AUTO_S[]; //This is named with _S postfix to avoid naming collision
-                            // In the future all of these strings should be namespaced to prevent collisions
+extern const char AUTO_S[];
+extern const char MANUAL_S[];
+extern const char SET_TIMER[];
+extern const char PAUSE_TIMER[];
+extern const char START_TIMER[];
+extern const char COLON_SPACE[];
 
 //Home screen strings
 extern const char BUILD[];
@@ -93,6 +99,12 @@ extern const char SACCH[];
 extern const char SACCH2[];
 extern const char MASHOUT[];
 extern const char ENDMASH[];
+#ifdef DIRECT_FIRED_RIMS
+    extern const char BADTEMP[];
+    extern const char OCTOTHORPE[];
+    extern const char ASTERISK[];
+    extern const char DASH[];
+#endif
 
 //Sparge step strings
 extern const char SPARGE[];
@@ -102,6 +114,8 @@ extern const char FLYSPARGE[];
 
 //Boil step strings
 extern const char BOIL[];
+extern const char BOIL_AUTO[];
+extern const char BOIL_MAN[];
 
 //Chill step state strings
 extern const char CHILL[];
@@ -111,10 +125,82 @@ extern const char IN[];
 extern const char OUT[];
 extern const char CHILLNORM[];
 
+//AUX Screen Strings
+extern const char AUX_TEMPS[];
+extern const char AUX[];
+extern const char ONE[];
+extern const char TWO[];
+#ifndef DIRECT_FIRED_RIMS
+    extern const char THREE[];
+#endif
+
+//Main Menu Strings
+extern const char EDIT_PROGRAM[];
+extern const char START_PROGRAM[];
+extern const char VALVE_ON[]; //Also used in Boil Menu
+extern const char VALVE_OFF[]; // Also used in Boil Menu
+extern const char RESET_ALL[];
+extern const char SYSTEM_SETUP[];
+extern const char DRAIN_ERR1[];
+extern const char DRAIN_ERR2[];
+extern const char DRAIN_ERR3[];
+
+//Fill Menu Strings
+extern const char AUTO_FILL[];
+extern const char HLT_TARGET[]; // Also used in Sparge Menu
+extern const char MASH_TARGET[];
+extern const char HLT_TARGET_VOL[]; // Also used in Sparge Menu
+extern const char MASH_TARGET_VOL[];
+
+//Mash Menu Strings
+extern const char HLT_SETPOINT[];
+extern const char MASH_SETPOINT[];
+extern const char MASH_TIMER[];
+
+//Sparge Menu Strings
+extern const char AUTO_IN[];
+extern const char AUTO_OUT[];
+extern const char AUTO_FLY[];
+extern const char KETTLE_TARGET[];
+extern const char KETTLE_TARGET_VOL[];
+
+//Boil Menu Strings
+extern const char BOIL_CTRL[];
+extern const char BOIL_TEMP[];
+extern const char BOIL_POWER[];
+extern const char BOIL_TIMER[];
+
+//Program Menu Strings
+extern const char PROG_NAME[];
+extern const char EDIT_PROG[];
+extern const char GRAIN_TEMP[];
+extern const char START[];
+extern const char DELAY_START[];
+extern const char START_FAILED[];
+extern const char START_ERR1[];
+extern const char START_ERR2[];
+extern const char START_ERR3[];
+
 //Vessel Strings
 extern const char TITLE_VS_HLT[];
 extern const char TITLE_VS_MASH[];
 extern const char TITLE_VS_KETTLE[];
+
+//E-Stop Strings
+extern const char ESTOP_TRIGGERED[];
+extern const char CLEAR_ALARM[];
+extern const char CLEAR_ESTOP[];
+
+//Program Strings
+extern const char FAILED_ADV1[];
+extern const char FAILED_ADV2[];
+
+//Direct Fired RIMS Strings
+#ifdef DIRECT_FIRED_RIMS
+    extern const char AT[];
+    extern const char SET[];
+    extern const char RIMS[];
+#endif
 
 #ifdef PID_FLOW_CONTROL
     extern const char TITLE_VS_PUMP[];

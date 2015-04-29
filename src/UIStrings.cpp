@@ -47,6 +47,11 @@ const char OFF[] PROGMEM = "Off";
 const char TEMPBLANK[] PROGMEM = "----";
 const char VOLBLANK[] PROGMEM = "--.---";
 const char AUTO_S[] PROGMEM = "Auto";
+const char MANUAL_S[] PROGMEM = "Manual";
+const char SET_TIMER[] PROGMEM = "Set Timer";
+const char PAUSE_TIMER[] PROGMEM = "Pause Timer";
+const char START_TIMER[] PROGMEM = "Start Timer";
+const char COLON_SPACE[] PROGMEM = ": ";
 
 
 //Home screen strings
@@ -93,6 +98,12 @@ const char SACCH[] PROGMEM = "Sacch";
 const char SACCH2[] PROGMEM = "Sacch2";
 const char MASHOUT[] PROGMEM = "Mash Out";
 const char ENDMASH[] PROGMEM = "End Mash";
+#ifdef DIRECT_FIRED_RIMS
+    const char BADTEMP[] PROGMEM = "12345678----";
+    const char OCTOTHORPE[] PROGMEM = "#";
+    const char ASTERISK[] PROGMEM = "*";
+    const char DASH[] PROGMEM = "-";
+#endif
 
 //Sparge step strings
 const char SPARGE[] PROGMEM = "Sparge";
@@ -102,6 +113,8 @@ const char FLYSPARGE[] PROGMEM = "Fly Sparge";
 
 //Boil step strings
 const char BOIL[] PROGMEM = "Boil";
+const char BOIL_AUTO[] PROGMEM = "  Auto";
+const char BOIL_MAN[] PROGMEM = "Manual";
 
 //Chill step state strings
 const char CHILL[] PROGMEM = "Chill";
@@ -111,10 +124,82 @@ const char IN[] PROGMEM = "In";
 const char OUT[] PROGMEM = "Out";
 const char CHILLNORM[] PROGMEM = "Chill Both";
 
+//AUX Screen Strings
+const char AUX_TEMPS[] PROGMEM = "AUX Temps";
+const char AUX[] PROGMEM = "AUX";
+const char ONE[] = "AUX1";
+const char TWO[] = "AUX2";
+#ifndef DIRECT_FIRED_RIMS
+const char THREE[] = "AUX3";
+#endif
+
+//Main Menu Strings
+const char EDIT_PROGRAM[] PROGMEM = "Edit Program";
+const char START_PROGRAM[] PROGMEM = "Start Program";
+const char VALVE_ON[] PROGMEM = ": On";
+const char VALVE_OFF[] PROGMEM = ": Off";
+const char RESET_ALL[] PROGMEM = "Reset All";
+const char SYSTEM_SETUP[] PROGMEM = "System Setup";
+const char DRAIN_ERR1[] PROGMEM = "Cannot drain while";
+const char DRAIN_ERR2[] PROGMEM = "mash or boil zone";
+const char DRAIN_ERR3[] PROGMEM = "is active";
+
+//Fill Menu Strings
+const char AUTO_FILL[] PROGMEM = "Auto Fill";
+const char HLT_TARGET[] PROGMEM = "HLT Target";
+const char MASH_TARGET[]  PROGMEM = "Mash Target";
+const char HLT_TARGET_VOL[] PROGMEM = "HLT Target Vol";
+const char MASH_TARGET_VOL[] PROGMEM = "Mash Target Vol";
+
+//Mash Menu Strings
+const char HLT_SETPOINT[] PROGMEM = "HLT Setpoint";
+const char MASH_SETPOINT[] PROGMEM = "Mash Setpoint";
+const char MASH_TIMER[] PROGMEM = "Mash Timer";
+
+//Sparge Menu Strings
+const char AUTO_IN[] PROGMEM = "Auto In";
+const char AUTO_OUT[] PROGMEM = "Auto Out";
+const char AUTO_FLY[] PROGMEM = "Auto Fly";
+const char KETTLE_TARGET[] PROGMEM = "Kettle Target";
+const char KETTLE_TARGET_VOL[] PROGMEM = "Kettle Target Vol";
+
+//Boil Menu Strings
+const char BOIL_CTRL[] PROGMEM = "Boil Ctrl: ";
+const char BOIL_TEMP[] PROGMEM = "Boil Temp";
+const char BOIL_POWER[] PROGMEM = "Boil Power";
+const char BOIL_TIMER[] PROGMEM = "Boil Timer";
+
+//Program Menu Strings
+const char PROG_NAME[] PROGMEM = "Program Name:";
+const char EDIT_PROG[] PROGMEM = "Edit Program";
+const char GRAIN_TEMP[] PROGMEM = "Grain Temp";
+const char START[] PROGMEM = "Start";
+const char DELAY_START[] PROGMEM = "Delay Start";
+const char START_FAILED[] PROGMEM = "Program start failed";
+const char START_ERR1[] PROGMEM = "Cannot start program";
+const char START_ERR2[] PROGMEM = "while mash zone is";
+const char START_ERR3[] PROGMEM = "active.";
+
 //Vessel Strings
 const char TITLE_VS_HLT[] PROGMEM = "HLT";
 const char TITLE_VS_MASH[] PROGMEM = "Mash";
 const char TITLE_VS_KETTLE[] PROGMEM = "Kettle";
+
+//E-Stop Strings
+const char ESTOP_TRIGGERED[] PROGMEM = "E-Stop Triggered";
+const char CLEAR_ALARM[] PROGMEM = ">Clear Alarm";
+const char CLEAR_ESTOP[] PROGMEM = " Clear E-Stop";
+
+//Program Strings
+const char FAILED_ADV1[] PROGMEM = "Failed to advance";
+const char FAILED_ADV2[] PROGMEM = "program.";
+
+//Direct Fired RIMS Strings
+#ifdef DIRECT_FIRED_RIMS
+    const char AT[] PROGMEM = "At";
+    const char SET[] PROGMEM = "Set";
+    const char RIMS[] PROGMEM = "RIMS";
+#endif
 
 #ifdef PID_FLOW_CONTROL
     const char TITLE_VS_PUMP[] PROGMEM = "Pump";
