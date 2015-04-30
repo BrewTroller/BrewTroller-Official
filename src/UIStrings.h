@@ -25,6 +25,8 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 #define __BT_UI_STRINGS_H__
 
 #include "Config.h"
+#include "BrewTroller.h" 
+//TODO: Refactor configuration macros from BrewTroller.h to Config.h, and remove this include
 #ifndef NOUI
 
 //TODO: Namespace Strings into Top-Level NS (UI::Strings) and into use-case NSes (::MainMenu)
@@ -55,6 +57,7 @@ extern const char SET_TIMER[];
 extern const char PAUSE_TIMER[];
 extern const char START_TIMER[];
 extern const char COLON_SPACE[];
+extern const char PERC_SYM[];
 
 //Home screen strings
 extern const char BUILD[];
@@ -153,7 +156,7 @@ extern const char HLT_TARGET_VOL[]; // Also used in Sparge Menu
 extern const char MASH_TARGET_VOL[];
 
 //Mash Menu Strings
-extern const char HLT_SETPOINT[];
+extern const char HLT_SETPOINT[]; // Also used in Edit Prog menu
 extern const char MASH_SETPOINT[];
 extern const char MASH_TIMER[];
 
@@ -180,6 +183,45 @@ extern const char START_FAILED[];
 extern const char START_ERR1[];
 extern const char START_ERR2[];
 extern const char START_ERR3[];
+extern const char BATCH_VOL[];
+extern const char GRAIN_WT[];
+extern const char BOIL_LEN[];
+extern const char MINUTES_IND[];
+extern const char MASH_RATIO[];
+extern const char RATIO_TO_1[];
+extern const char NO_SPARGE[];
+extern const char HLT_TEMP[];
+extern const char SPARGE_TEMP[];
+extern const char PITCH_TEMP[];
+extern const char MASH_SCHED[];
+extern const char HEAT_STRIKE_IN[];
+extern const char MASH[];
+extern const char UNKWN[];
+extern const char PROG_CALCS[];
+extern const char BATCH_VOLUME[];
+extern const char GRAIN_WEIGHT[];
+extern const char RATIO_UNITS[];
+extern const char STRIKE_TEMP[];
+extern const char STRIKE_VOL[];
+extern const char SPARGE_VOL[];
+extern const char PREBOIL_VOL[];
+extern const char GRAIN_VOL[];
+extern const char GRAIN_LOSS[];
+//Hop Schedule
+extern const char AT_BOIL[];
+extern const char MIN_SPACE[];
+extern const char MIN_2SPACE[];
+extern const char MIN_3SPACE[];
+extern const char ZERO[];
+//HLT Warning
+extern const char HLT_CAP_WARN[];
+//Mash Warning
+extern const char MASH_CAP_WARN[];
+//Boil Warning
+extern const char BOIL_CAP_WARN[];
+//Program Strings
+extern const char FAILED_ADV1[];
+extern const char FAILED_ADV2[];
 
 //Vessel Strings
 extern const char TITLE_VS_HLT[];
@@ -190,10 +232,6 @@ extern const char TITLE_VS_KETTLE[];
 extern const char ESTOP_TRIGGERED[];
 extern const char CLEAR_ALARM[];
 extern const char CLEAR_ESTOP[];
-
-//Program Strings
-extern const char FAILED_ADV1[];
-extern const char FAILED_ADV2[];
 
 //Direct Fired RIMS Strings
 #ifdef DIRECT_FIRED_RIMS
@@ -208,7 +246,42 @@ extern const char FAILED_ADV2[];
     extern const char TITLE_VS_STEAM[];
 #endif
 
+//Abort Confirm Dialog
+extern const char ABORT_OP1[];
+extern const char ABORT_OP2[];
+extern const char ABORT_OP3[];
+extern const char RESET[];
+
+//Confirm Delete Dialog
+extern const char DELETE_ITEM[];
+extern const char DELETE[];
+
+//Print Timer
+extern const char TIMER_SEP[];
+
+//System Setup Menu
 #ifndef UI_NO_SETUP
+    extern const char TEMP_SENSORS[];
+    extern const char OUTPUTS[];
+    extern const char VOLS_CAPS[];
+    #ifdef PVOUT
+        extern const char VALVE_PROFILES[];
+        #ifdef PVOUT_TYPE_MODBUS
+            extern const char RS485_OUTPUTS[];
+        #endif
+    #endif
+    #ifdef UI_DISPLAY_SETUP
+        extern const char DISPLAY_S[];
+    #endif
+    #ifdef RGBIO8_ENABLE
+        #ifdef RGBIO8_SETUP
+            extern const char RGB_SETUP[];
+        #endif
+    #endif
+    #ifdef DIGITAL_INPUTS
+        extern const char TRIGGERS[];
+    #endif
+    extern const char RESET_CONFIG[];
 
     extern const char* const TITLE_VS[];
 

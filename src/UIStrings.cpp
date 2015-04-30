@@ -52,6 +52,7 @@ const char SET_TIMER[] PROGMEM = "Set Timer";
 const char PAUSE_TIMER[] PROGMEM = "Pause Timer";
 const char START_TIMER[] PROGMEM = "Start Timer";
 const char COLON_SPACE[] PROGMEM = ": ";
+const char PERC_SYM[] PROGMEM = "%";
 
 
 //Home screen strings
@@ -136,8 +137,8 @@ const char THREE[] = "AUX3";
 //Main Menu Strings
 const char EDIT_PROGRAM[] PROGMEM = "Edit Program";
 const char START_PROGRAM[] PROGMEM = "Start Program";
-const char VALVE_ON[] PROGMEM = ": On";
-const char VALVE_OFF[] PROGMEM = ": Off";
+const char VALVE_ON[] PROGMEM = ": On"; // Also used in Hop Schedule Edit
+const char VALVE_OFF[] PROGMEM = ": Off"; // Also used in Hop Schedule Edit
 const char RESET_ALL[] PROGMEM = "Reset All";
 const char SYSTEM_SETUP[] PROGMEM = "System Setup";
 const char DRAIN_ERR1[] PROGMEM = "Cannot drain while";
@@ -179,6 +180,49 @@ const char START_FAILED[] PROGMEM = "Program start failed";
 const char START_ERR1[] PROGMEM = "Cannot start program";
 const char START_ERR2[] PROGMEM = "while mash zone is";
 const char START_ERR3[] PROGMEM = "active.";
+const char BATCH_VOL[] PROGMEM = "Batch Vol:";
+const char GRAIN_WT[] PROGMEM = "Grain Wt:";
+const char BOIL_LEN[] PROGMEM = "Boil Length";
+const char MINUTES_IND[] PROGMEM = " Min";
+const char MASH_RATIO[] PROGMEM = "Mash Ratio";
+const char RATIO_TO_1[] PROGMEM = ":1";
+const char NO_SPARGE[] PROGMEM = "NoSparge";
+const char HLT_TEMP[] PROGMEM = "HLT Temp:";
+const char SPARGE_TEMP[] PROGMEM = "Sparge Temp";
+const char PITCH_TEMP[] PROGMEM = "Pitch Temp";
+const char MASH_SCHED[] PROGMEM = "Mash Schedule";
+const char HEAT_STRIKE_IN[] PROGMEM = "Heat Strike In:";
+const char MASH[] PROGMEM = "MASH";
+const char UNKWN[] PROGMEM = "UNKWN";
+const char PROG_CALCS[] = "Program Calcs";
+const char BATCH_VOLUME[] PROGMEM = "Batch Volume";
+const char GRAIN_WEIGHT[] PROGMEM = "Grain Weight";
+#ifdef USE_METRIC
+    const char RATIO_UNITS[] PROGMEM = " l/kg";
+#else
+    const char RATIO_UNITS[] PROGMEM = "qts/lb";
+#endif
+const char STRIKE_TEMP[] PROGMEM = "Strike Temp:";
+const char STRIKE_VOL[] PROGMEM = "Strike Vol:";
+const char SPARGE_VOL[] PROGMEM = "Sparge Vol:";
+const char PREBOIL_VOL[] PROGMEM = "Preboil Vol:";
+const char GRAIN_VOL[] PROGMEM = "Grain Vol:";
+const char GRAIN_LOSS[] PROGMEM = "Grain Loss:";
+//Hop Schedule
+const char AT_BOIL[] PROGMEM = "At Boil";
+const char MIN_SPACE[] PROGMEM = " Min";
+const char MIN_2SPACE[] PROGMEM = "  Min";
+const char MIN_3SPACE[] PROGMEM = "   Min";
+const char ZERO[] PROGMEM = "0";
+//HLT Warning
+const char HLT_CAP_WARN[] PROGMEM = "HLT Capacity Issue";
+//Mash Warning
+const char MASH_CAP_WARN[] PROGMEM = "Mash Capacity Issue";
+//Boil Warning
+const char BOIL_CAP_WARN[] PROGMEM = "Boil Capacity Issue";
+//Program Strings
+const char FAILED_ADV1[] PROGMEM = "Failed to advance";
+const char FAILED_ADV2[] PROGMEM = "program.";
 
 //Vessel Strings
 const char TITLE_VS_HLT[] PROGMEM = "HLT";
@@ -189,10 +233,6 @@ const char TITLE_VS_KETTLE[] PROGMEM = "Kettle";
 const char ESTOP_TRIGGERED[] PROGMEM = "E-Stop Triggered";
 const char CLEAR_ALARM[] PROGMEM = ">Clear Alarm";
 const char CLEAR_ESTOP[] PROGMEM = " Clear E-Stop";
-
-//Program Strings
-const char FAILED_ADV1[] PROGMEM = "Failed to advance";
-const char FAILED_ADV2[] PROGMEM = "program.";
 
 //Direct Fired RIMS Strings
 #ifdef DIRECT_FIRED_RIMS
@@ -207,7 +247,44 @@ const char FAILED_ADV2[] PROGMEM = "program.";
     const char TITLE_VS_STEAM[] PROGMEM = "Steam";
 #endif
 
+//Abort Confirm Dialog
+const char ABORT_OP1[] PROGMEM = "Abort operation and";
+const char ABORT_OP2[] PROGMEM = "reset setpoints,";
+const char ABORT_OP3[] PROGMEM = "timers and outputs?";
+const char RESET[] PROGMEM = "Reset";
+
+//Confirm Delete Dialog
+const char DELETE_ITEM[] PROGMEM = "Delete Item?";
+const char DELETE[] PROGMEM = "Delete";
+
+//Print Timer
+const char TIMER_SEP[] PROGMEM = ":  :";
+
+
+//System Setup Menu
 #ifndef UI_NO_SETUP
+    const char TEMP_SENSORS[] PROGMEM = "Temperature Sensors";
+    const char OUTPUTS[] PROGMEM = "Outputs";
+    const char VOLS_CAPS[] PROGMEM = "Volume/Capacity";
+    #ifdef PVOUT
+        const char VALVE_PROFILES[] PROGMEM = "Valve Profiles";
+        #ifdef PVOUT_TYPE_MODBUS
+            const char RS485_OUTPUTS[] PROGMEM = "RS485 Outputs";
+        #endif
+    #endif
+    #ifdef UI_DISPLAY_SETUP
+        const char DISPLAY_S[] PROGMEM = "Display";
+    #endif
+    #ifdef RGBIO8_ENABLE
+        #ifdef RGBIO8_SETUP
+            const char RGB_SETUP[] PROGMEM = "RGB Setup";
+        #endif
+    #endif
+    #ifdef DIGITAL_INPUTS
+        const char TRIGGERS[] PROGMEM = "Triggers";
+    #endif
+    const char RESET_CONFIG[] PROGMEM = "Reset Configuration?";
+
 
     const char* const TITLE_VS[] PROGMEM = {
         TITLE_VS_HLT,
