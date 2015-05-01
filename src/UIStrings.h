@@ -58,6 +58,7 @@ extern const char PAUSE_TIMER[];
 extern const char START_TIMER[];
 extern const char COLON_SPACE[];
 extern const char PERC_SYM[];
+extern const char EMPTY[];
 
 //Home screen strings
 extern const char BUILD[];
@@ -131,10 +132,10 @@ extern const char CHILLNORM[];
 //AUX Screen Strings
 extern const char AUX_TEMPS[];
 extern const char AUX[];
-extern const char ONE[];
-extern const char TWO[];
+extern const char AUX_ONE[];
+extern const char AUX_TWO[];
 #ifndef DIRECT_FIRED_RIMS
-    extern const char THREE[];
+    extern const char AUX_THREE[];
 #endif
 
 //Main Menu Strings
@@ -212,7 +213,7 @@ extern const char AT_BOIL[];
 extern const char MIN_SPACE[];
 extern const char MIN_2SPACE[];
 extern const char MIN_3SPACE[];
-extern const char ZERO[];
+extern const char ZERO[]; // Also used in valve profile config menu
 //HLT Warning
 extern const char HLT_CAP_WARN[];
 //Mash Warning
@@ -254,7 +255,7 @@ extern const char RESET[];
 
 //Confirm Delete Dialog
 extern const char DELETE_ITEM[];
-extern const char DELETE[];
+extern const char DELETE[]; // Also used in Volume Calibration Menu
 
 //Print Timer
 extern const char TIMER_SEP[];
@@ -276,6 +277,10 @@ extern const char TIMER_SEP[];
     #ifdef RGBIO8_ENABLE
         #ifdef RGBIO8_SETUP
             extern const char RGB_SETUP[];
+            extern const char TARGET_ADDR[];
+            extern const char SET_ADDR[];
+            extern const char IDENTIFY[];
+            extern const char RESTART[];
         #endif
     #endif
     #ifdef DIGITAL_INPUTS
@@ -285,10 +290,6 @@ extern const char TIMER_SEP[];
 
     extern const char* const TITLE_VS[];
 
-    extern const char PIDCYCLE[];
-    extern const char PIDGAIN[];
-    extern const char HYSTERESIS[];
-
     #ifdef PID_FLOW_CONTROL
         extern const char PUMPFLOW[];
     #elif defined USESTEAM
@@ -297,9 +298,76 @@ extern const char TIMER_SEP[];
         extern const char STEAMZERO[];
     #endif
 
+    //Temp sensor assign menu
+    extern const char BREW_KETTLE[];
+    extern const char WATER_IN[];
+    extern const char WATER_OUT[];
+    extern const char BEER_OUT[];
+    extern const char AUX1[];
+    extern const char AUX2[];
+    extern const char AUX3[];
+    #ifdef RIMS_TEMP_SENSOR
+        extern const char RIMS_SENSOR[];
+    #endif
+    extern const char ASSIGN_SENSOR[];
+    extern const char SCAN_BUS[];
+    extern const char DELETE_ADDRESS[];
+    extern const char DISCONNECT_WARN1[];
+    extern const char DISCONNECT_WARN2[];
+    extern const char ASSIGN_BAD_TEMP[];
+
+    //Output Config Menu
+    extern const char HLT_MODE[];
+    extern const char MASH_MODE[];
+    extern const char KETTLE_MODE[];
+    #ifdef PID_FLOW_CONTROL
+        extern const char SPARGE_PUMP_MODE[];
+    #elif defined USESTEAM
+        extern const char STEAM_MODE[];
+        extern const char PRES_UNIT[];
+        extern const char CALIB_ZERO[];
+    #endif
+    extern const char PID_MODE[];
+    extern const char ON_OFF_MODE[];
+    extern const char PIDCYCLE[];
+    extern const char PIDGAIN[];
+    extern const char HYSTERESIS[];
+
+    //PID Config Menu
+    extern const char PID_SEP[];
+
+    //Volumes Config Menu
+    extern const char EVAP_RATE[];
     extern const char CAPACITY[];
     extern const char DEADSPACE[];
     extern const char CALIBRATION[];
+    extern const char EVAP_RATE_UNIT[];
+
+    //Volume Calibration Menu
+    extern const char OPEN_PAREN[];
+    extern const char CLOSE_PAREN[];
+    extern const char OPEN[];
+    extern const char CURR_VOL[];
+    extern const char CALIBRATE[];
+    extern const char UPDATE[];
+    extern const char TO[];
+    extern const char MANUAL_ENTRY[];
+    extern const char MANUAL_VOL_ENTRY[];
+
+    //Valve Configuration Menu
+    extern const char TEST[];
+    extern const char SAVE[];
+    extern const char ONE[];
+    extern const char CARROT[];
+    extern const char OPEN_SQR[];
+    extern const char CLOSE_SQR[];
+
+    //MODBUS Output Config Menu
+    extern const char BOARD[];
+    extern const char DISABLED[];
+    extern const char CONNECTED[];
+    extern const char TIMEOUT[];
+    extern const char ERROR[];
 
 #endif //UI_NO_SETUP
 

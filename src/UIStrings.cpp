@@ -53,6 +53,7 @@ const char PAUSE_TIMER[] PROGMEM = "Pause Timer";
 const char START_TIMER[] PROGMEM = "Start Timer";
 const char COLON_SPACE[] PROGMEM = ": ";
 const char PERC_SYM[] PROGMEM = "%";
+const char EMPTY[] PROGMEM = "";
 
 
 //Home screen strings
@@ -128,10 +129,10 @@ const char CHILLNORM[] PROGMEM = "Chill Both";
 //AUX Screen Strings
 const char AUX_TEMPS[] PROGMEM = "AUX Temps";
 const char AUX[] PROGMEM = "AUX";
-const char ONE[] = "AUX1";
-const char TWO[] = "AUX2";
+const char AUX_ONE[] PROGMEM = "AUX1";
+const char AUX_TWO[] PROGMEM = "AUX2";
 #ifndef DIRECT_FIRED_RIMS
-const char THREE[] = "AUX3";
+const char AUX_THREE[] PROGMEM = "AUX3";
 #endif
 
 //Main Menu Strings
@@ -166,8 +167,8 @@ const char KETTLE_TARGET_VOL[] PROGMEM = "Kettle Target Vol";
 
 //Boil Menu Strings
 const char BOIL_CTRL[] PROGMEM = "Boil Ctrl: ";
-const char BOIL_TEMP[] PROGMEM = "Boil Temp";
-const char BOIL_POWER[] PROGMEM = "Boil Power";
+const char BOIL_TEMP[] PROGMEM = "Boil Temp"; // Also used in system setup (outputs config)
+const char BOIL_POWER[] PROGMEM = "Boil Power"; // Also used in system setup (outputs config)
 const char BOIL_TIMER[] PROGMEM = "Boil Timer";
 
 //Program Menu Strings
@@ -213,7 +214,7 @@ const char AT_BOIL[] PROGMEM = "At Boil";
 const char MIN_SPACE[] PROGMEM = " Min";
 const char MIN_2SPACE[] PROGMEM = "  Min";
 const char MIN_3SPACE[] PROGMEM = "   Min";
-const char ZERO[] PROGMEM = "0";
+const char ZERO[] PROGMEM = "0"; // Also used in Valve profile config menu
 //HLT Warning
 const char HLT_CAP_WARN[] PROGMEM = "HLT Capacity Issue";
 //Mash Warning
@@ -255,7 +256,7 @@ const char RESET[] PROGMEM = "Reset";
 
 //Confirm Delete Dialog
 const char DELETE_ITEM[] PROGMEM = "Delete Item?";
-const char DELETE[] PROGMEM = "Delete";
+const char DELETE[] PROGMEM = "Delete"; // Also used in Volume Calibration menu
 
 //Print Timer
 const char TIMER_SEP[] PROGMEM = ":  :";
@@ -278,6 +279,10 @@ const char TIMER_SEP[] PROGMEM = ":  :";
     #ifdef RGBIO8_ENABLE
         #ifdef RGBIO8_SETUP
             const char RGB_SETUP[] PROGMEM = "RGB Setup";
+            const char TARGET_ADDR[] PROGMEM = "Target Addr:";
+            const char SET_ADDR[] PROGMEM = "Set Address";
+            const char IDENTIFY[] PROGMEM = "Identify";
+            const char RESTART[] PROGMEM = "Restart";
         #endif
     #endif
     #ifdef DIGITAL_INPUTS
@@ -298,10 +303,6 @@ const char TIMER_SEP[] PROGMEM = ":  :";
         #endif
     };
 
-    const char PIDCYCLE[] PROGMEM = " PID Cycle";
-    const char PIDGAIN[] PROGMEM = " PID Gain";
-    const char HYSTERESIS[] PROGMEM = " Hysteresis";
-
     #ifdef PID_FLOW_CONTROL
         const char PUMPFLOW[] PROGMEM = "Pump Flow Rate";
     #elif defined USESTEAM
@@ -310,9 +311,84 @@ const char TIMER_SEP[] PROGMEM = ":  :";
         const char STEAMZERO[] PROGMEM = "Steam Zero Calib";
     #endif
 
+    //Temp sennsor Assign Menu
+    const char BREW_KETTLE[] PROGMEM = "Brew Kettle";
+    const char WATER_IN[] PROGMEM = "H20 In";
+    const char WATER_OUT[] PROGMEM = "H20 Out";
+    const char BEER_OUT[] PROGMEM = "Beer Out";
+    const char AUX1[] PROGMEM = "Aux 1";
+    const char AUX2[] PROGMEM = "Aux 2";
+    const char AUX3[] PROGMEM = "Aux 3";
+    #ifdef RIMS_TEMP_SENSOR
+        const char RIMS_SENSOR[] PROGMEM = "RIMS";
+    #endif
+    const char ASSIGN_SENSOR[] PROGMEM = "Assign Temp Sensor";
+    const char SCAN_BUS[] PROGMEM = "Scan Bus";
+    const char DELETE_ADDRESS[] PROGMEM = "Delete Address";
+    const char DISCONNECT_WARN1[] PROGMEM = "Disconnect all other";
+    const char DISCONNECT_WARN2[] PROGMEM = "temp sensors now";
+    const char ASSIGN_BAD_TEMP[] PROGMEM = "---";
+
+    //Output Config Menu
+    const char HLT_MODE[] PROGMEM = "HLT Mode: ";
+    const char MASH_MODE[] PROGMEM = "Mash Mode: ";
+    const char KETTLE_MODE[] PROGMEM = "Kettle Mode: ";
+    #ifdef PID_FLOW_CONTROL
+        const char SPARGE_PUMP_MODE[] PROGMEM = "Sparge Pump: ";
+    #elif defined USESTEAM
+        const char STEAM_MODE[] PROGMEM = "Steam Mode: ";
+        const char PRES_UNIT[] PROGMEM = "mV/kPa";
+        const char CALIB_ZERO[] PROGMEM = "Calibrate Zero?";
+    #endif
+    const char PID_MODE[] PROGMEM = "PID";
+    const char ON_OFF_MODE[] PROGMEM = "On/Off";
+    const char PIDCYCLE[] PROGMEM = " PID Cycle";
+    const char PIDGAIN[] PROGMEM = " PID Gain";
+    const char HYSTERESIS[] PROGMEM = " Hysteresis";
+
+    //PID Config Menu
+    const char PID_SEP[] PROGMEM = "P:     I:     D:    ";
+
+    //Volumes Config Menu
+    const char EVAP_RATE[] PROGMEM = "Evaporation Rate";
     const char CAPACITY[] PROGMEM = " Capacity";
     const char DEADSPACE[] PROGMEM = " Dead Space";
     const char CALIBRATION[] PROGMEM = " Calibration";
+    #ifdef BOIL_OFF_GALLONS
+        #ifdef  USEMETRIC
+            const char EVAP_RATE_UNIT[] PROGMEM = "l/hr";
+        #else
+            const char EVAP_RATE_UNIT[] PROGMEM = "0.1g/hr";
+        #endif
+        #else
+            const char EVAP_RATE_UNIT[] PROGMEM = "%/hr";
+    #endif
+
+    //Volume Calibration Menu
+    const char OPEN_PAREN[] PROGMEM = " (";
+    const char CLOSE_PAREN[] PROGMEM = ")";
+    const char OPEN[] PROGMEM = "OPEN";
+    const char CURR_VOL[] PROGMEM = "Current Volume:";
+    const char CALIBRATE[] PROGMEM = "Calibrate";
+    const char UPDATE[] PROGMEM = "Update ";
+    const char TO[] PROGMEM = " TO ";
+    const char MANUAL_ENTRY[] PROGMEM = "Manual Entry";
+    const char MANUAL_VOL_ENTRY[] PROGMEM = "Manual Volume Entry";
+
+    //Valve Configuration Menu
+    const char TEST[] PROGMEM = "Test";
+    const char SAVE[] PROGMEM = "Save";
+    const char ONE[] PROGMEM = "1";
+    const char CARROT[] PROGMEM = "^";
+    const char OPEN_SQR[] PROGMEM = "[";
+    const char CLOSE_SQR[] PROGMEM = "]";
+
+    //MODBUS Ouptut Config Menu
+    const char BOARD[] PROGMEM = "Board ";
+    const char DISABLED[] PROGMEM = ": DISABLED";
+    const char CONNECTED[] PROGMEM = ": CONNECTED";
+    const char TIMEOUT[] PROGMEM = ": TIMEOUT";
+    const char ERROR[] PROGMEM = "ERROR";
 
 #endif //UI_NO_SETUP
 
