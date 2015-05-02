@@ -2738,30 +2738,30 @@ void cfgMODBUSOutputs() {
 void cfgMODBUSOutputBoard(byte board) {
     while(1) {
         menu boardMenu(3, 8);
-        boardMenu.setItem_P(PSTR("Address: "), 0);
+        boardMenu.setItem_P(ADDRESS, 0);
         byte addr = getVlvModbusAddr(board);
         if (addr != PVOUT_MODBUS_ADDRNONE)
             boardMenu.appendItem(itoa(addr, buf, 10), 0);
         else
-            boardMenu.appendItem_P(PSTR("N/A"), 0);
+            boardMenu.appendItem_P(NA, 0);
         
-        boardMenu.setItem_P(PSTR("Register: "), 1);
+        boardMenu.setItem_P(REGISTER, 1);
         boardMenu.appendItem(itoa(getVlvModbusReg(board), buf, 10), 1);
-        boardMenu.setItem_P(PSTR("Count: "), 2);
+        boardMenu.setItem_P(COUNT, 2);
         boardMenu.appendItem(itoa(getVlvModbusCoilCount(board), buf, 10), 2);
-        boardMenu.setItem_P(PSTR("Offset: "), 3);
+        boardMenu.setItem_P(OFFSET, 3);
         boardMenu.appendItem(itoa(getVlvModbusOffset(board), buf, 10), 3);
         
         if (addr == PVOUT_MODBUS_ADDRNONE)
-            boardMenu.setItem_P(PSTR("Auto Assign"), 4);
+            boardMenu.setItem_P(AUTO_ASSIGN, 4);
         
         if (ValvesMB[board]) {
-            boardMenu.setItem_P(PSTR("ID Mode: "), 5);
+            boardMenu.setItem_P(ID_MODE, 5);
             boardMenu.appendItem_P((ValvesMB[board]->getIDMode()) ? ON : OFF, 5);
         }
         
         if (addr != PVOUT_MODBUS_ADDRNONE)      
-            boardMenu.setItem_P(PSTR("Delete"), 6);
+            boardMenu.setItem_P(DELETE, 6);
         
         boardMenu.setItem_P(EXIT, 255);
         
@@ -2770,13 +2770,13 @@ void cfgMODBUSOutputBoard(byte board) {
         byte lastOption = scrollMenu(title, &boardMenu);
         if (lastOption == 0) {
             byte addr = getVlvModbusAddr(board);
-            setVlvModbusAddr(board, getValue_P(PSTR("RS485 Relay Address"), addr == PVOUT_MODBUS_ADDRNONE ? PVOUT_MODBUS_BASEADDR + board : addr, 1, 255, PSTR("")));
+            setVlvModbusAddr(board, getValue_P(RELAY_ADDRESS, addr == PVOUT_MODBUS_ADDRNONE ? PVOUT_MODBUS_BASEADDR + board : addr, 1, 255, EMPTY));
         } else if (lastOption == 1)
-            setVlvModbusReg(board, getValue_P(PSTR("Coil Register"), getVlvModbusReg(board), 1, 65536, PSTR("")));
+            setVlvModbusReg(board, getValue_P(COIL_REGISTER, getVlvModbusReg(board), 1, 65536, EMPTY));
         else if (lastOption == 2)
-            setVlvModbusCoilCount(board, getValue_P(PSTR("Coil Count"), getVlvModbusCoilCount(board), 1, 32, PSTR("")));
+            setVlvModbusCoilCount(board, getValue_P(COIL_COUNT, getVlvModbusCoilCount(board), 1, 32, EMPTY));
         else if (lastOption == 3)
-            setVlvModbusOffset(board, getValue_P(PSTR("Output Offset"), getVlvModbusOffset(board), 1, 31, PSTR("")));
+            setVlvModbusOffset(board, getValue_P(OUTPUT_OFFSET, getVlvModbusOffset(board), 1, 31, EMPTY));
         else if (lastOption == 4)
             cfgMODBUSOutputAssign(board);
         else if (lastOption == 5)
@@ -2797,26 +2797,26 @@ void cfgMODBUSOutputAssign(byte board) {
     byte result = 1;
     while ((result = tempMB.detect())) {
         LCD.clear();
-        LCD.print_P(0, 0, PSTR("Click/hold to reset"));
-        LCD.print_P(1, 0, PSTR("output board then"));
-        LCD.print_P(2, 0, PSTR("click to activate."));
+        LCD.print_P(0, 0, CLICK_RESET);
+        LCD.print_P(1, 0, OUTPUT_BOARD);
+        LCD.print_P(2, 0, CLICK_TO_ACTIVATE);
         menu choiceMenu(1, 2);
         if (result == ku8MBResponseTimedOut) {
-            choiceMenu.setItem_P(PSTR("Timeout"), 0);
+            choiceMenu.setItem_P(ASSIGN_TIMEOUT, 0);
         } else {
-            choiceMenu.setItem_P(PSTR("Error "), 0);
+            choiceMenu.setItem_P(ASSIGN_ERROR, 0);
             choiceMenu.appendItem(itoa(result, buf, 16), 0);
         }
-        choiceMenu.appendItem_P(PSTR(": Retry?"), 0);
+        choiceMenu.appendItem_P(ASSIGN_RETRY, 0);
         choiceMenu.setItem_P(ABORT, 1);
         if(getChoice(&choiceMenu, 3))
             return;      
     }
-    byte newAddr = getValue_P(PSTR("New Address"), PVOUT_MODBUS_BASEADDR + board, 1, 254, PSTR(""));
+    byte newAddr = getValue_P(NEW_ADDRESS, PVOUT_MODBUS_BASEADDR + board, 1, 254, EMPTY);
     if (tempMB.setAddr(newAddr)) {
         LCD.clear();
-        LCD.print_P(1, 1, PSTR("Update Failed"));
-        LCD.print_P(2, 4, PSTR("> Continue <"));
+        LCD.print_P(1, 1, UPDATE_FAIL);
+        LCD.print_P(2, 4, UPDATE_FAIL_CONTINUE);
         while (!Encoder.ok()) brewCore();
     } else {
         setVlvModbusAddr(board, newAddr);
@@ -2834,11 +2834,11 @@ void adjustLCD() {
     Encoder.setMax(3);
     
     LCD.clear();
-    LCD.print_P(0,0,PSTR("Adjust LCD"));
-    LCD.print_P(1, 1, PSTR("Brightness:"));
-    LCD.print_P(2, 3, PSTR("Contrast:"));
+    LCD.print_P(0,0, ADJUST_LCD);
+    LCD.print_P(1, 1, BRIGHTNESS);
+    LCD.print_P(2, 3, CONTRAST);
     LCD.print_P(3, 1, CANCEL);
-    LCD.print_P(3, 15, PSTR("Save"));
+    LCD.print_P(3, 15, SAVE);
     byte bright = LCD.getBright();
     byte contrast = LCD.getContrast();
     byte origBright = bright;
@@ -2919,19 +2919,19 @@ void cfgTriggers() {
     menu triggerMenu(3, 6);
     
     while(1) {
-        triggerMenu.setItem_P(PSTR("E-Stop: "), 0);
-        triggerMenu.setItem_P(PSTR("Sparge Max: "), 1);
-        triggerMenu.setItem_P(PSTR("HLT Min: "), 2);
-        triggerMenu.setItem_P(PSTR("Mash Min: "), 3);
-        triggerMenu.setItem_P(PSTR("Kettle Min: "), 4);
-        triggerMenu.setItem_P(PSTR("Exit"), 255);
+        triggerMenu.setItem_P(ESTOP, 0);
+        triggerMenu.setItem_P(SPARGE_MAX, 1);
+        triggerMenu.setItem_P(HLT_MIN, 2);
+        triggerMenu.setItem_P(MASH_MIN, 3);
+        triggerMenu.setItem_P(KETTLE_MIN, 4);
+        triggerMenu.setItem_P(EXIT, 255);
         for (byte i = 0; i < 5; i++) {
             if (getTriggerPin(i)) triggerMenu.appendItem(itoa(getTriggerPin(i), buf, 10), i);
-            else triggerMenu.appendItem_P(PSTR("None"), i);
+            else triggerMenu.appendItem_P(NONE, i);
         }
         
         byte lastOption = scrollMenu("Trigger Assignment", &triggerMenu);
-        if (lastOption < 5) setTriggerPin(lastOption, getValue_P(PSTR("Input Pin (0=None):"), getTriggerPin(lastOption), 1, DIGIN_COUNT, PSTR("")));
+        if (lastOption < 5) setTriggerPin(lastOption, getValue_P(INPUT_PIN_NONE, getTriggerPin(lastOption), 1, DIGIN_COUNT, EMPTY));
         else return;
     }
 }

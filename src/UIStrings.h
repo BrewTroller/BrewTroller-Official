@@ -363,11 +363,51 @@ extern const char TIMER_SEP[];
     extern const char CLOSE_SQR[];
 
     //MODBUS Output Config Menu
-    extern const char BOARD[];
-    extern const char DISABLED[];
-    extern const char CONNECTED[];
-    extern const char TIMEOUT[];
-    extern const char ERROR[];
+    #if defined PVOUT && defined PVOUT_TYPE_MODBUS
+        extern const char BOARD[];
+        extern const char DISABLED[];
+        extern const char CONNECTED[];
+        extern const char TIMEOUT[];
+        extern const char ERROR[];
+        extern const char ADDRESS[];
+        extern const char NA[];
+        extern const char REGISTER[];
+        extern const char COUNT[];
+        extern const char OFFSET[];
+        extern const char AUTO_ASSIGN[];
+        extern const char ID_MODE[];
+        extern const char RELAY_ADDRESS[];
+        extern const char COIL_REGISTER[];
+        extern const char COIL_COUNT[];
+        extern const char OUTPUT_OFFSET[];
+        extern const char CLICK_RESET[];
+        extern const char OUTPUT_BOARD[];
+        extern const char CLICK_TO_ACTIVATE[];
+        extern const char ASSIGN_TIMEOUT[];
+        extern const char ASSIGN_ERROR[];
+        extern const char ASSIGN_RETRY[];
+        extern const char NEW_ADDRESS[];
+        extern const char UPDATE_FAIL[];
+        extern const char UPDATE_FAIL_CONTINUE[];
+    #endif
+
+    //Adjust LCD Menu
+    #ifdef UI_DISPLAY_SETUP
+        extern const char ADJUST_LCD[];
+        extern const char BRIGHTNESS[];
+        extern const char CONTRAST[];
+    #endif
+
+    //Triggers Menu
+    #ifdef DIGITAL_INPUTS
+        extern const char ESTOP[];
+        extern const char SPARGE_MAX[];
+        extern const char HLT_MIN[];
+        extern const char MASH_MIN[];
+        extern const char KETTLE_MIN[];
+        extern const char NONE[];
+extern const char INPUT_PIN_NONE[];
+    #endif
 
 #endif //UI_NO_SETUP
 

@@ -377,19 +377,58 @@ const char TIMER_SEP[] PROGMEM = ":  :";
 
     //Valve Configuration Menu
     const char TEST[] PROGMEM = "Test";
-    const char SAVE[] PROGMEM = "Save";
+    const char SAVE[] PROGMEM = "Save"; // Also used in Adjust LCD Menu
     const char ONE[] PROGMEM = "1";
     const char CARROT[] PROGMEM = "^";
     const char OPEN_SQR[] PROGMEM = "[";
     const char CLOSE_SQR[] PROGMEM = "]";
 
     //MODBUS Ouptut Config Menu
-    const char BOARD[] PROGMEM = "Board ";
-    const char DISABLED[] PROGMEM = ": DISABLED";
-    const char CONNECTED[] PROGMEM = ": CONNECTED";
-    const char TIMEOUT[] PROGMEM = ": TIMEOUT";
-    const char ERROR[] PROGMEM = "ERROR";
+    #if defined PVOUT && defined PVOUT_TYPE_MODBUS
+        const char BOARD[] PROGMEM = "Board ";
+        const char DISABLED[] PROGMEM = ": DISABLED";
+        const char CONNECTED[] PROGMEM = ": CONNECTED";
+        const char TIMEOUT[] PROGMEM = ": TIMEOUT";
+        const char ERROR[] PROGMEM = "ERROR";
+        const char ADDRESS[] PROGMEM = "Address: ";
+        const char NA[] PROGMEM = "N/A";
+        const char REGISTER[] PROGMEM = "Register: ";
+        const char COUNT[] PROGMEM = "Count: ";
+        const char OFFSET[] PROGMEM = "Offset: ";
+        const char AUTO_ASSIGN[] PROGMEM = "Auto Assign";
+        const char ID_MODE[] PROGMEM = "ID Mode: ";
+        const char RELAY_ADDRESS[] PROGMEM = "RS485 Relay Address";
+        const char COIL_REGISTER[] PROGMEM = "Coil Register";
+        const char COIL_COUNT[] PROGMEM = "Coil Count";
+        const char OUTPUT_OFFSET[] PROGMEM = "Output Offset";
+        const char CLICK_RESET[] PROGMEM = "Click/hold to reset";
+        const char OUTPUT_BOARD[] PROGMEM = "output board then";
+        const char CLICK_TO_ACTIVATE[] PROGMEM = "click to activate.";
+        const char ASSIGN_TIMEOUT[] PROGMEM = "Timeout";
+        const char ASSIGN_ERROR[] PROGMEM = "Error ";
+        const char ASSIGN_RETRY[] PROGMEM = ": Retry?";
+        const char NEW_ADDRESS[] PROGMEM = "New Address";
+        const char UPDATE_FAIL[] PROGMEM = "Update Failed";
+        const char UPDATE_FAIL_CONTINUE[] PROGMEM = "> Continue <";
+    #endif
 
+    //Adjust LCD Menu
+    #ifdef UI_DISPLAY_SETUP
+        const char ADJUST_LCD[] PROGMEM = "Adjust LCD";
+        const char BRIGHTNESS[] PROGMEM = "Brightness:";
+        const char CONTRAST[] PROGMEM = "Contrast:";
+    #endif
+
+    //Triggers Menu
+    #ifdef DIGITAL_INPUTS
+        const char ESTOP[] PROGMEM = "E-Stop: ";
+        const char SPARGE_MAX[] PROGMEM = "Sparge Max: ";
+        const char HLT_MIN[] PROGMEM = "HLT Min: ";
+        const char MASH_MIN[] PROGMEM = "Mash Min: ";
+        const char KETTLE_MIN[] PROGMEM = "Kettle Min: ";
+        const char NONE[] PROGMEM = "None";
+        const char INPUT_PIN_NONE[] PROGMEM = "Input Pin (0=None):";
+    #endif
 #endif //UI_NO_SETUP
 
 const char HLTDESC[] PROGMEM = "Hot Liquor Tank";
