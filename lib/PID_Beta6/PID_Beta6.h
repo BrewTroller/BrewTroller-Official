@@ -9,8 +9,8 @@ class PID
 
   public:
 
-  #define AUTO	1
-  #define MANUAL	0
+  static const uint8_t AUTO_MODE = 1;
+  static const uint8_t MANUAL_MODE = 0;
   #define LIBRARY_VERSION	0.6
 
   //commonly used functions **************************************************************************
