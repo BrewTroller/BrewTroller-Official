@@ -219,10 +219,10 @@ void pidInit() {
     pid[vessel].SetInputLimits(0, 25500);
     pid[vessel].SetOutputLimits(0, PIDCycle[vessel] * pidLimits[vessel]);
     pid[vessel].SetTunings(getPIDp(vessel), getPIDi(vessel), getPIDd(vessel));
-    pid[vessel].SetMode(AUTO);
+    pid[vessel].SetMode(PID::AUTO_MODE);
     pid[vessel].SetSampleTime(PID_CYCLE_TIME);
   }
-  pid[VS_KETTLE].SetMode(MANUAL);
+  pid[VS_KETTLE].SetMode(PID::MANUAL_MODE);
 
 
   #ifdef PID_FLOW_CONTROL
@@ -250,7 +250,7 @@ void pidInit() {
     #endif
     pid[VS_STEAM].SetOutputLimits(0, PIDCycle[VS_STEAM] * PIDLIMIT_STEAM);
     pid[VS_STEAM].SetTunings(getPIDp(VS_STEAM), getPIDi(VS_STEAM), getPIDd(VS_STEAM));
-    pid[VS_STEAM].SetMode(AUTO);
+    pid[VS_STEAM].SetMode(PID::AUTO_MODE);
     pid[VS_STEAM].SetSampleTime(PID_CYCLE_TIME);
   #endif
 
@@ -359,7 +359,7 @@ void processHeatOutputsPIDEnabled(const byte vessel[]) {
   if (vessel[VS] != VS_STEAM && vessel[VS] != VS_KETTLE && temp[vessel[TS]] == BAD_TEMP) {
     PIDOutput[vessel[VS]] = 0;
   } else {
-    if (pid[vessel[VS]].GetMode() == AUTO) {
+    if (pid[vessel[VS]].GetMode() == PID::AUTO_MODE) {
       #ifdef PID_FLOW_CONTROL
         if(vessel[VS] == VS_PUMP) PIDInput[vessel[VS]] = flowRate[VS_KETTLE];
       #else
