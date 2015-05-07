@@ -238,6 +238,11 @@ static const uint8_t TS = 1;
 //#define MASH_AVG_AUX1
 //#define MASH_AVG_AUX2
 //#define MASH_AVG_AUX3
+
+//Enable Mash Avergaing Logic if any Mash_AVG_AUXx options were enabled
+#if defined MASH_AVG_AUX1 || defined MASH_AVG_AUX2 || defined MASH_AVG_AUX3
+    #define MASH_AVG
+#endif
 //**********************************************************************************
 
 

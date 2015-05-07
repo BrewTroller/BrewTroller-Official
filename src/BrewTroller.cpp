@@ -75,11 +75,6 @@ const char BTVER[] PROGMEM = "2.7";
 // Compile Time Logic
 //**********************************************************************************
 
-//Enable Mash Avergaing Logic if any Mash_AVG_AUXx options were enabled
-#if defined MASH_AVG_AUX1 || defined MASH_AVG_AUX2 || defined MASH_AVG_AUX3
-  #define MASH_AVG
-#endif
-
 #ifdef USEMETRIC
   #define SETPOINT_MULT 50
   #define SETPOINT_DIV 2
@@ -183,11 +178,9 @@ boolean autoValve[NUM_AV];
 
 //Create the appropriate 'Valves' object for the hardware configuration (GPIO, MUX, MODBUS)
 #if defined PVOUT_TYPE_GPIO
-#define PVOUT
 PVOutGPIO Valves(PVOUT_COUNT);
 
 #elif defined PVOUT_TYPE_MUX
-  #define PVOUT
   PVOutMUX Valves( 
     MUX_LATCH_PIN,
     MUX_DATA_PIN,
