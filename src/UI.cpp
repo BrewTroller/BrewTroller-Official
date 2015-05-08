@@ -39,6 +39,7 @@
 #include "Timer.h"
 #include "StepLogic.h"
 #include "UIStrings.h"
+#include "Com_RGBIO8.h"
 
 #ifndef NOUI
 //**********************************************************************************
@@ -59,35 +60,35 @@
 
 
 const char* const TITLE_MASHSTEP[] PROGMEM = {
-    DOUGHIN,
-    ACID,
-    PROTEIN,
-    SACCH,
-    SACCH2,
-    MASHOUT
+    UIStrings::MashStep::DOUGHIN,
+    UIStrings::MashStep::ACID,
+    UIStrings::MashStep::PROTEIN,
+    UIStrings::MashStep::SACCH,
+    UIStrings::MashStep::SACCH2,
+    UIStrings::MashStep::MASHOUT
 };
 
 const char* const TITLE_VLV[] PROGMEM = {
-    FILLHLT,
-    FILLMASH,
-    ADDGRAIN,
-    MASHHEAT,
-    MASHIDLE,
-    SPARGEIN,
-    SPARGEOUT,
-    BOILADDS,
-    KETTLELID,
-    CHILLH2O,
-    CHILLBEER,
-    BOILRECIRC,
-    DRAIN,
-    HLTHEAT,
-    HLTIDLE,
-    KETTLEHEAT,
-    KETTLEIDLE,
-    USER1,
-    USER2,
-    USER3
+    UIStrings::ValveProfile::FILLHLT,
+    UIStrings::ValveProfile::FILLMASH,
+    UIStrings::ValveProfile::ADDGRAIN,
+    UIStrings::ValveProfile::MASHHEAT,
+    UIStrings::ValveProfile::MASHIDLE,
+    UIStrings::ValveProfile::SPARGEIN,
+    UIStrings::ValveProfile::SPARGEOUT,
+    UIStrings::ValveProfile::BOILADDS,
+    UIStrings::ValveProfile::KETTLELID,
+    UIStrings::ValveProfile::CHILLH2O,
+    UIStrings::ValveProfile::CHILLBEER,
+    UIStrings::ValveProfile::BOILRECIRC,
+    UIStrings::ValveProfile::DRAIN,
+    UIStrings::ValveProfile::HLTHEAT,
+    UIStrings::ValveProfile::HLTIDLE,
+    UIStrings::ValveProfile::KETTLEHEAT,
+    UIStrings::ValveProfile::KETTLEIDLE,
+    UIStrings::ValveProfile::USER1,
+    UIStrings::ValveProfile::USER2,
+    UIStrings::ValveProfile::USER3
 };
 
 
@@ -152,8 +153,8 @@ void uiInit() {
     //Check to see if EEPROM Initialization is needed
     if (checkConfig()) {
         LCD.clear();
-        LCD.print_P(0, 0, MISSING_CONFIG);
-        if (confirmChoice(INIT_EEPROM, 3)) UIinitEEPROM();
+        LCD.print_P(0, 0, UIStrings::EEPROMInit::MISSING_CONFIG);
+        if (confirmChoice(UIStrings::EEPROMInit::INIT_EEPROM, 3)) UIinitEEPROM();
         LCD.clear();
     }
     
@@ -164,8 +165,8 @@ void uiInit() {
 
 void UIinitEEPROM() {
     LCD.clear();
-    LCD.print_P(1, 0, INIT_EEPROM);
-    LCD.print_P(2, 3, PLEASE_WAIT);
+    LCD.print_P(1, 0, UIStrings::EEPROMInit::INIT_EEPROM);
+    LCD.print_P(2, 3, UIStrings::EEPROMInit::PLEASE_WAIT);
     LCD.update();
     initEEPROM();
     //Apply any EEPROM updates
@@ -287,21 +288,21 @@ void screenInit() {
         LCD.writeCustChar(1, 2, 4);
         LCD.print_P(1, 4, BT);
         LCD.print_P(1, 16, BTVER);
-        LCD.print_P(2, 4, BUILD);
+        LCD.print_P(2, 4, UIStrings::HomeScreen:: BUILD);
         LCD.lPad(2, 10, itoa(BUILDNUM, buf, 10), 4, '0');
-        LCD.print_P(3, 0, BT_URL);
+        LCD.print_P(3, 0, UIStrings::HomeScreen::BT_URL);
 #endif
         
     }
     else if (activeScreen == SCREEN_FILL) {
         //Screen Init: Fill/Refill
-        if (brewStepIsActive(BREWSTEP_FILL)) LCD.print_P(0, 1, FILL);
-        else if (brewStepIsActive(BREWSTEP_REFILL)) LCD.print_P(0, 1, REFILL);
-        else LCD.print_P(0, 0, FILL);
-        LCD.print_P(0, 11, TITLE_VS_HLT);
-        LCD.print_P(0, 16, TITLE_VS_MASH);
-        LCD.print_P(1, 1, TARGET);
-        LCD.print_P(2, 1, ACTUAL);
+        if (brewStepIsActive(BREWSTEP_FILL)) LCD.print_P(0, 1, UIStrings::FillScreen::FILL);
+        else if (brewStepIsActive(BREWSTEP_REFILL)) LCD.print_P(0, 1, UIStrings::FillScreen::REFILL);
+        else LCD.print_P(0, 0, UIStrings::FillScreen::FILL);
+        LCD.print_P(0, 11, UIStrings::Vessel::TITLE_VS_HLT);
+        LCD.print_P(0, 16, UIStrings::Vessel::TITLE_VS_MASH);
+        LCD.print_P(1, 1, UIStrings::Generic::TARGET);
+        LCD.print_P(2, 1, UIStrings::Generic::ACTUAL);
         vftoa(tgtVol[VS_HLT], buf, 1000, 1);
         truncFloat(buf, 5);
         LCD.lPad(1, 9, buf, 5, ' ');
@@ -310,9 +311,9 @@ void screenInit() {
         LCD.lPad(1, 15, buf, 5, ' ');
         
         if (screenLock) {
-            LCD.print_P(3, 0, GREATER_SYM);
-            LCD.print_P(3, 10, LESS_SYM);
-            LCD.print_P(3, 1, CONTINUE);
+            LCD.print_P(3, 0, UIStrings::Generic::GREATER_SYM);
+            LCD.print_P(3, 10, UIStrings::Generic::LESS_SYM);
+            LCD.print_P(3, 1, UIStrings::Generic::CONTINUE);
             Encoder.setMin(0);
             Encoder.setMax(5);
             Encoder.setCount(0);
@@ -324,68 +325,69 @@ void screenInit() {
         //Delay Start Indication
         timerLastPrint = 0;
         
-        if (brewStepIsActive(BREWSTEP_DELAY)) LCD.print_P(0, 1, DELAY);
-        else if (brewStepIsActive(BREWSTEP_PREHEAT)) LCD.print_P(0, 1, PREHEAT);
-        else if (brewStepIsActive(BREWSTEP_DOUGHIN)) LCD.print_P(0, 1, DOUGHIN);
-        else if (brewStepIsActive(BREWSTEP_ACID)) LCD.print_P(0, 1, ACID);
-        else if (brewStepIsActive(BREWSTEP_PROTEIN)) LCD.print_P(0, 1, PROTEIN);
-        else if (brewStepIsActive(BREWSTEP_SACCH)) LCD.print_P(0, 1, SACCH);
-        else if (brewStepIsActive(BREWSTEP_SACCH2)) LCD.print_P(0, 1, SACCH2);
-        else if (brewStepIsActive(BREWSTEP_MASHOUT)) LCD.print_P(0, 1, MASHOUT);
-        else if (brewStepIsActive(BREWSTEP_MASHHOLD)) LCD.print_P(0, 1, ENDMASH);
-        else LCD.print_P(0, 0, TITLE_VS_MASH);
+        if (brewStepIsActive(BREWSTEP_DELAY)) LCD.print_P(0, 1, UIStrings::MashStep::DELAY);
+        else if (brewStepIsActive(BREWSTEP_PREHEAT)) LCD.print_P(0, 1, UIStrings::MashStep::PREHEAT);
+        else if (brewStepIsActive(BREWSTEP_DOUGHIN)) LCD.print_P(0, 1, UIStrings::MashStep::DOUGHIN);
+        else if (brewStepIsActive(BREWSTEP_ACID)) LCD.print_P(0, 1, UIStrings::MashStep::ACID);
+        else if (brewStepIsActive(BREWSTEP_PROTEIN)) LCD.print_P(0, 1, UIStrings::MashStep::PROTEIN);
+        else if (brewStepIsActive(BREWSTEP_SACCH)) LCD.print_P(0, 1, UIStrings::MashStep::SACCH);
+        else if (brewStepIsActive(BREWSTEP_SACCH2)) LCD.print_P(0, 1, UIStrings::MashStep::SACCH2);
+        else if (brewStepIsActive(BREWSTEP_MASHOUT)) LCD.print_P(0, 1, UIStrings::MashStep::MASHOUT);
+        else if (brewStepIsActive(BREWSTEP_MASHHOLD)) LCD.print_P(0, 1, UIStrings::MashStep::ENDMASH);
+        else LCD.print_P(0, 0, UIStrings::Vessel::TITLE_VS_MASH);
         // For DIRECT_FIRED_RIMS (and possibly just RIMS), we need a different layout here.
 #ifdef DIRECT_FIRED_RIMS
         // This is the RIMS screen
-        LCD.print_P(0, 9, AT);
-        LCD.print_P(0, 15, SET);
-        LCD.print_P(1, 1, TITLE_VS_HLT);
-        LCD.print_P(2, 1, TITLE_VS_MASH);
-        LCD.print_P(3, 1, RIMS);
+        LCD.print_P(0, 9, UIStrings::DFRims::AT);
+        LCD.print_P(0, 15, UIStrings::DFRims::SET);
+        LCD.print_P(1, 1, UIStrings::Vessel::TITLE_VS_HLT);
+        LCD.print_P(2, 1, UIStrings::Vessel::TITLE_VS_MASH);
+        LCD.print_P(3, 1, UIStrings::DFRims::RIMS);
         
-        LCD.print_P(1, 13, TUNIT);
-        LCD.print_P(1, 19, TUNIT);
-        LCD.print_P(2, 13, TUNIT);
-        LCD.print_P(2, 19, TUNIT);
-        LCD.print_P(3, 13, TUNIT);
-        LCD.print_P(3, 19, TUNIT);
+        LCD.print_P(1, 13, UIStrings::Units::TUNIT);
+        LCD.print_P(1, 19, UIStrings::Units::TUNIT);
+        LCD.print_P(2, 13, UIStrings::Units::TUNIT);
+        LCD.print_P(2, 19, UIStrings::Units::TUNIT);
+        LCD.print_P(3, 13, UIStrings::Units::TUNIT);
+        LCD.print_P(3, 19, UIStrings::Units::TUNIT);
         
 #else
         // This is the standard screen
-        LCD.print_P(0, 11, TITLE_VS_HLT);
-        LCD.print_P(0, 16, TITLE_VS_HLT);
-        LCD.print_P(1, 1, TARGET);
-        LCD.print_P(2, 1, ACTUAL);
+        LCD.print_P(0, 11, UIStrings::Vessel::TITLE_VS_HLT);
+        LCD.print_P(0, 16, UIStrings::Vessel::TITLE_VS_HLT);
+        LCD.print_P(1, 1, UIStrings::Generic::TARGET);
+        LCD.print_P(2, 1, UIStrings::Generic::ACTUAL);
         
-        LCD.print_P(1, 13, TUNIT);
-        LCD.print_P(1, 19, TUNIT);
-        LCD.print_P(2, 13, TUNIT);
-        LCD.print_P(2, 19, TUNIT);
+        LCD.print_P(1, 13, UIStrings::Units::TUNIT);
+        LCD.print_P(1, 19, UIStrings::Units::TUNIT);
+        LCD.print_P(2, 13, UIStrings::Units::TUNIT);
+        LCD.print_P(2, 19, UIStrings::Units::TUNIT);
 #endif
         
     }
     else if (activeScreen == SCREEN_SPARGE) {
         //Screen Init: Sparge
-        if (brewStepIsActive(BREWSTEP_SPARGE)) LCD.print_P(0, 1, SPARGE);
-        else if (brewStepIsActive(BREWSTEP_GRAININ)) LCD.print_P(0, 1, GRAININ);
-        else LCD.print_P(0, 0, SPARGE);
-        LCD.print_P(1, 1, TITLE_VS_HLT);
-        LCD.print_P(2, 1, TITLE_VS_MASH);
-        LCD.print_P(3, 1, TITLE_VS_KETTLE);
-        LCD.print_P(1, 8, TEMPBLANK);
-        LCD.print_P(2, 8, TEMPBLANK);
-        LCD.print_P(3, 8, TEMPBLANK);
-        LCD.print_P(1, 14, VOLBLANK);
-        LCD.print_P(2, 14, VOLBLANK);
-        LCD.print_P(3, 14, VOLBLANK);
-        LCD.print_P(1, 12, TUNIT);
-        LCD.print_P(2, 12, TUNIT);
-        LCD.print_P(3, 12, TUNIT);
+        if (brewStepIsActive(BREWSTEP_SPARGE)) LCD.print_P(0, 1, UIStrings::SpargeScreen::SPARGE);
+        //TODO: Clarify Why Grain In Step Uses Sparge Screen
+        else if (brewStepIsActive(BREWSTEP_GRAININ)) LCD.print_P(0, 1, UIStrings::GrainInScreen::GRAININ);
+        else LCD.print_P(0, 0, UIStrings::SpargeScreen::SPARGE);
+        LCD.print_P(1, 1, UIStrings::Vessel::TITLE_VS_HLT);
+        LCD.print_P(2, 1, UIStrings::Vessel::TITLE_VS_MASH);
+        LCD.print_P(3, 1, UIStrings::Vessel::TITLE_VS_KETTLE);
+        LCD.print_P(1, 8, UIStrings::Generic::TEMPBLANK);
+        LCD.print_P(2, 8, UIStrings::Generic::TEMPBLANK);
+        LCD.print_P(3, 8, UIStrings::Generic::TEMPBLANK);
+        LCD.print_P(1, 14, UIStrings::Generic::VOLBLANK);
+        LCD.print_P(2, 14, UIStrings::Generic::VOLBLANK);
+        LCD.print_P(3, 14, UIStrings::Generic::VOLBLANK);
+        LCD.print_P(1, 12, UIStrings::Units::TUNIT);
+        LCD.print_P(2, 12, UIStrings::Units::TUNIT);
+        LCD.print_P(3, 12, UIStrings::Units::TUNIT);
         
         if (screenLock) {
-            LCD.print_P(0, 8, GREATER_SYM);
-            LCD.print_P(0, 19, LESS_SYM);
-            LCD.print_P(0, 10, CONTINUE);
+            LCD.print_P(0, 8, UIStrings::Generic::GREATER_SYM);
+            LCD.print_P(0, 19, UIStrings::Generic::LESS_SYM);
+            LCD.print_P(0, 10, UIStrings::Generic::CONTINUE);
             Encoder.setMin(0);
             Encoder.setMax(7);
             Encoder.setCount(0);
@@ -395,9 +397,9 @@ void screenInit() {
     else if (activeScreen == SCREEN_BOIL) {
         //Screen Init: Boil
         timerLastPrint = 0;
-        if (brewStepIsActive(BREWSTEP_BOIL)) LCD.print_P(0, 1, BOIL);
-        else LCD.print_P(0,0,BOIL);
-        LCD.print_P(1, 19, TUNIT);
+        if (brewStepIsActive(BREWSTEP_BOIL)) LCD.print_P(0, 1, UIStrings::BoilScreen::BOIL);
+        else LCD.print_P(0,0, UIStrings::BoilScreen::BOIL);
+        LCD.print_P(1, 19, UIStrings::Units::TUNIT);
         
         if (screenLock) {
             Encoder.setMin(0);
@@ -410,22 +412,22 @@ void screenInit() {
     }
     else if (activeScreen == SCREEN_CHILL) {
         //Screen Init: Chill
-        if (brewStepIsActive(BREWSTEP_CHILL)) LCD.print_P(0, 1, CHILL);
-        else LCD.print_P(0, 0, CHILL);
-        LCD.print_P(0, 10, BEER);
-        LCD.print_P(0, 17, H20);
-        LCD.print_P(1, 6, IN);
-        LCD.print_P(2, 5, OUT);
+        if (brewStepIsActive(BREWSTEP_CHILL)) LCD.print_P(0, 1, UIStrings::ChillScreen::CHILL);
+        else LCD.print_P(0, 0, UIStrings::ChillScreen::CHILL);
+        LCD.print_P(0, 10, UIStrings::ChillScreen::BEER);
+        LCD.print_P(0, 17, UIStrings::ChillScreen::H20);
+        LCD.print_P(1, 6, UIStrings::ChillScreen::IN);
+        LCD.print_P(2, 5, UIStrings::ChillScreen::OUT);
         
-        LCD.print_P(1, 13, TUNIT);
-        LCD.print_P(1, 19, TUNIT);
-        LCD.print_P(2, 13, TUNIT);
-        LCD.print_P(2, 19, TUNIT);
+        LCD.print_P(1, 13, UIStrings::Units::TUNIT);
+        LCD.print_P(1, 19, UIStrings::Units::TUNIT);
+        LCD.print_P(2, 13, UIStrings::Units::TUNIT);
+        LCD.print_P(2, 19, UIStrings::Units::TUNIT);
         
         if (screenLock) {
-            LCD.print_P(3, 0, GREATER_SYM);
-            LCD.print_P(3, 11, LESS_SYM);
-            LCD.print_P(3, 2, CONTINUE);
+            LCD.print_P(3, 0, UIStrings::Generic::GREATER_SYM);
+            LCD.print_P(3, 11, UIStrings::Generic::LESS_SYM);
+            LCD.print_P(3, 2, UIStrings::Generic::CONTINUE);
             Encoder.setMin(0);
             Encoder.setMax(6);
             Encoder.setCount(0);
@@ -434,14 +436,14 @@ void screenInit() {
     }
     else if (activeScreen == SCREEN_AUX) {
         //Screen Init: AUX
-        LCD.print_P(0,0, AUX_TEMPS);
-        LCD.print_P(1,1, AUX_ONE);
-        LCD.print_P(2,1, AUX_TWO);
-        LCD.print_P(1, 11, TUNIT);
-        LCD.print_P(2, 11, TUNIT);
+        LCD.print_P(0,0, UIStrings::AUXScreen::AUX_TEMPS);
+        LCD.print_P(1,1, UIStrings::AUXScreen::AUX_ONE);
+        LCD.print_P(2,1, UIStrings::AUXScreen::AUX_TWO);
+        LCD.print_P(1, 11, UIStrings::Units::TUNIT);
+        LCD.print_P(2, 11, UIStrings::Units::TUNIT);
 #ifndef DIRECT_FIRED_RIMS
-        LCD.print_P(3, 1, AUX_THREE);
-        LCD.print_P(3, 11, TUNIT);
+        LCD.print_P(3, 1, UIStrings::AUXScreen::AUX_THREE);
+        LCD.print_P(3, 11, UIStrings::Units::TUNIT);
 #endif
         
     }
@@ -468,22 +470,22 @@ void screenRefresh() {
         truncFloat(buf, 5);
         LCD.lPad(2, 15, buf, 5, spacePad);
         
-        if (vlvConfigIsActive(VLV_FILLHLT)) LCD.print_P(3, 11, ON);
-        else LCD.print_P(3, 11, OFF);
+        if (vlvConfigIsActive(VLV_FILLHLT)) LCD.print_P(3, 11, UIStrings::Generic::ON);
+        else LCD.print_P(3, 11, UIStrings::Generic::OFF);
         
-        if (vlvConfigIsActive(VLV_FILLMASH)) LCD.print_P(3, 18, ON);
-        else LCD.print_P(3, 17, OFF);
+        if (vlvConfigIsActive(VLV_FILLMASH)) LCD.print_P(3, 18, UIStrings::Generic::ON);
+        else LCD.print_P(3, 17, UIStrings::Generic::OFF);
         
         if (screenLock) {
             int encValue = Encoder.change();
             if (encValue >= 0) {
                 LCD.rPad(3, 1, "", 9, spacePad);
-                if (encValue == 0) LCD.print_P(3, 1, CONTINUE);
-                else if (encValue == 1) LCD.print_P(3, 1, FILLHLT);
-                else if (encValue == 2) LCD.print_P(3, 1, FILLMASH);
-                else if (encValue == 3) LCD.print_P(3, 1, FILLBOTH);
-                else if (encValue == 4) LCD.print_P(3, 2, ALLOFF);
-                else if (encValue == 5) LCD.print_P(3, 3, MENU);
+                if (encValue == 0) LCD.print_P(3, 1, UIStrings::Generic::CONTINUE);
+                else if (encValue == 1) LCD.print_P(3, 1, UIStrings::ValveProfile::FILLHLT);
+                else if (encValue == 2) LCD.print_P(3, 1, UIStrings::ValveProfile::FILLMASH);
+                else if (encValue == 3) LCD.print_P(3, 1, UIStrings::SpargeScreen::FILLBOTH);
+                else if (encValue == 4) LCD.print_P(3, 2, UIStrings::Shared::ALLOFF);
+                else if (encValue == 5) LCD.print_P(3, 3, UIStrings::Generic::MENU);
             }
         }
         
@@ -504,7 +506,7 @@ void screenRefresh() {
             vftoa(temp[temps[i]], buf, 100, 1);
             truncFloat(buf, 4);
             if (temp[temps[i]] == BAD_TEMP) {
-                LCD.print_P(i + 1, 1, BADTEMP);
+                LCD.print_P(i + 1, 1, UIStrings::MashStep::BADTEMP);
                 // LCD.print_P(i + 1, 9, PSTR("----"));
             } else {
                 LCD.lPad(i + 1, 9, buf, 4, ' ');
@@ -512,11 +514,11 @@ void screenRefresh() {
             if (PIDEnabled[vessels[i]]) {
                 // There is no good way to currently show this.
                 // Removing for now.
-                LCD.print_P(i + 1, 6, OCTOTHORPE);
+                LCD.print_P(i + 1, 6, UIStrings::MashStep::OCTOTHORPE);
             } else if (heatStatus[heatSources[i]]) {
-                LCD.print_P(i + 1, 6, ASTERISK);
+                LCD.print_P(i + 1, 6, UIStrings::MashStep::ASTERISK);
             } else {
-                LCD.print_P(i + 1, 6, DASH);
+                LCD.print_P(i + 1, 6, UIStrings::MashStep::DASH);
             }
             // This over-writes the RIMS row, so commented out.
             //    printTimer(TIMER_MASH, 3, 0);
@@ -529,21 +531,21 @@ void screenRefresh() {
             vftoa(temp[i], buf, 100, 1);
             truncFloat(buf, 4);
             if (temp[i] == BAD_TEMP) {
-                LCD.print_P(2, i * 6 + 9, TEMPBLANK);
+                LCD.print_P(2, i * 6 + 9, UIStrings::Generic::TEMPBLANK);
             } else {
                 LCD.lPad(2, i * 6 + 9, buf, 4, ' ');
             }
             byte pct;
             if (PIDEnabled[i]) {
                 pct = PIDOutput[i] / PIDCycle[i];
-                if (pct == 0) strcpy_P(buf, OFF);
-                else if (pct == 100) concatPSTRS(buf, SPACE, ON);
+                if (pct == 0) strcpy_P(buf, UIStrings::Generic::OFF);
+                else if (pct == 100) concatPSTRS(buf, UIStrings::Generic::SPACE, UIStrings::Generic::ON);
                 else { itoa(pct, buf, 10); strcat(buf, "%"); }
             } else if (heatStatus[i]) {
-                concatPSTRS(buf, SPACE, ON);
+                concatPSTRS(buf, UIStrings::Generic::SPACE, UIStrings::Generic::ON);
                 pct = 100;
             } else {
-                strcpy_P(buf, OFF);
+                strcpy_P(buf, UIStrings::Generic::OFF);
                 pct = 0;
             }
             LCD.lPad(3, i * 6 + 11, buf, 3, ' ');
@@ -585,14 +587,14 @@ void screenRefresh() {
             if (encValue >= 0) {
                 LCD.rPad(0, 9, "", 10, ' ');
                 
-                if (encValue == 0) LCD.print_P(0, 10, CONTINUE);
-                else if (encValue == 1) LCD.print_P(0, 9, SPARGEIN);
-                else if (encValue == 2) LCD.print_P(0, 9, SPARGEOUT);
-                else if (encValue == 3) LCD.print_P(0, 9, FLYSPARGE);
-                else if (encValue == 4) LCD.print_P(0, 9, MASHHEAT);
-                else if (encValue == 5) LCD.print_P(0, 9, MASHIDLE);
-                else if (encValue == 6) LCD.print_P(0, 11, ALLOFF);
-                else if (encValue == 7) LCD.print_P(0, 12, MENU);
+                if (encValue == 0) LCD.print_P(0, 10, UIStrings::Generic::CONTINUE);
+                else if (encValue == 1) LCD.print_P(0, 9, UIStrings::ValveProfile::SPARGEIN);
+                else if (encValue == 2) LCD.print_P(0, 9, UIStrings::ValveProfile::SPARGEOUT);
+                else if (encValue == 3) LCD.print_P(0, 9, UIStrings::SpargeScreen::FLYSPARGE);
+                else if (encValue == 4) LCD.print_P(0, 9, UIStrings::ValveProfile::MASHHEAT);
+                else if (encValue == 5) LCD.print_P(0, 9, UIStrings::ValveProfile::MASHIDLE);
+                else if (encValue == 6) LCD.print_P(0, 11, UIStrings::Shared::ALLOFF);
+                else if (encValue == 7) LCD.print_P(0, 12, UIStrings::Generic::MENU);
             }
         }
         
@@ -601,7 +603,7 @@ void screenRefresh() {
         for (byte i = TS_HLT; i <= TS_KETTLE; i++) {
             vftoa(temp[i], buf, 100, 1);
             truncFloat(buf, 4);
-            if (temp[i] == BAD_TEMP) LCD.print_P(i + 1, 8, TEMPBLANK); else LCD.lPad(i + 1, 8, buf, 4, ' ');
+            if (temp[i] == BAD_TEMP) LCD.print_P(i + 1, 8, UIStrings::Generic::TEMPBLANK); else LCD.lPad(i + 1, 8, buf, 4, ' ');
         }
     }
     else if (activeScreen == SCREEN_BOIL) {
@@ -609,13 +611,13 @@ void screenRefresh() {
         if (screenLock) {
             switch (boilControlState) {
                 case CONTROLSTATE_OFF:
-                    LCD.print_P(0, 17, OFF);
+                    LCD.print_P(0, 17, UIStrings::Generic::OFF);
                     break;
                 case CONTROLSTATE_AUTO:
-                    LCD.print_P(0, 14, BOIL_AUTO);
+                    LCD.print_P(0, 14, UIStrings::BoilScreen::BOIL_AUTO);
                     break;
                 case CONTROLSTATE_ON:
-                    LCD.print_P(0, 14, BOIL_MAN);
+                    LCD.print_P(0, 14, UIStrings::Generic::MANUAL);
                     break;
             }
         }
@@ -628,18 +630,18 @@ void screenRefresh() {
         
         if (PIDEnabled[TS_KETTLE]) {
             byte pct = PIDOutput[TS_KETTLE] / PIDCycle[TS_KETTLE];
-            if (pct == 0) strcpy_P(buf, OFF);
-            else if (pct == 100) concatPSTRS(buf, SPACE, ON);
+            if (pct == 0) strcpy_P(buf, UIStrings::Generic::OFF);
+            else if (pct == 100) concatPSTRS(buf, UIStrings::Generic::SPACE, UIStrings::Generic::ON);
             else { itoa(pct, buf, 10); strcat(buf, "%"); }
         } else if (heatStatus[TS_KETTLE]) {
-            concatPSTRS(buf, SPACE, ON);
+            concatPSTRS(buf, UIStrings::Generic::SPACE, UIStrings::Generic::ON);
         } else {
-            strcpy_P(buf, OFF);
+            strcpy_P(buf, UIStrings::Generic::OFF);
         }
         LCD.lPad(3, 17, buf, 3, ' ');
         vftoa(temp[TS_KETTLE], buf, 100, 1);
         truncFloat(buf, 5);
-        if (temp[TS_KETTLE] == BAD_TEMP) LCD.print_P(1, 14, TEMPBLANK); else LCD.lPad(1, 14, buf, 5, ' ');
+        if (temp[TS_KETTLE] == BAD_TEMP) LCD.print_P(1, 14, UIStrings::Generic::TEMPBLANK); else LCD.lPad(1, 14, buf, 5, ' ');
         if (screenLock) {
             if (boilControlState != CONTROLSTATE_OFF) {
                 int encValue = Encoder.change();
@@ -659,21 +661,21 @@ void screenRefresh() {
             int encValue = Encoder.change();
             if (encValue >= 0) {
                 LCD.rPad(3, 1, "", 10, ' ');
-                if (encValue == 0) LCD.print_P(3, 2, CONTINUE);
-                else if (encValue == 1) LCD.print_P(3, 1, CHILLNORM);
-                else if (encValue == 2) LCD.print_P(3, 1, CHILLH2O);
-                else if (encValue == 3) LCD.print_P(3, 1, CHILLBEER);
-                else if (encValue == 4) LCD.print_P(3, 2, ALLOFF);
-                else if (encValue == 5) LCD.print_P(3, 4, AUTO_S);
-                else if (encValue == 6) LCD.print_P(3, 3, ABORT);
+                if (encValue == 0) LCD.print_P(3, 2, UIStrings::Generic::CONTINUE);
+                else if (encValue == 1) LCD.print_P(3, 1, UIStrings::ChillScreen::CHILL_BOTH);
+                else if (encValue == 2) LCD.print_P(3, 1, UIStrings::ValveProfile::CHILLH2O);
+                else if (encValue == 3) LCD.print_P(3, 1, UIStrings::ValveProfile::CHILLBEER);
+                else if (encValue == 4) LCD.print_P(3, 2, UIStrings::Shared::ALLOFF);
+                else if (encValue == 5) LCD.print_P(3, 4, UIStrings::Generic::AUTO);
+                else if (encValue == 6) LCD.print_P(3, 3, UIStrings::Generic::ABORT);
             }
         }
-        if (temp[TS_KETTLE] == BAD_TEMP) LCD.print_P(1, 10, TEMPBLANK); else LCD.lPad(1, 10, itoa(temp[TS_KETTLE] / 100, buf, 10), 4, ' ');
-        if (temp[TS_BEEROUT] == BAD_TEMP) LCD.print_P(2, 10, TEMPBLANK); else LCD.lPad(2, 10, itoa(temp[TS_BEEROUT] / 100, buf, 10), 4, ' ');
-        if (temp[TS_H2OIN] == BAD_TEMP) LCD.print_P(1, 15, TEMPBLANK); else LCD.lPad(1, 15, itoa(temp[TS_H2OIN] / 100, buf, 10), 4, ' ');
-        if (temp[TS_H2OOUT] == BAD_TEMP) LCD.print_P(2, 15, TEMPBLANK); else LCD.lPad(2, 15, itoa(temp[TS_H2OOUT] / 100, buf, 10), 4, ' ');
-        if (vlvConfigIsActive(VLV_CHILLBEER)) LCD.print_P(3, 12, ON); else LCD.print_P(3, 11, OFF);
-        if (vlvConfigIsActive(VLV_CHILLH2O)) LCD.print_P(3, 18, ON); else LCD.print_P(3, 17, OFF);
+        if (temp[TS_KETTLE] == BAD_TEMP) LCD.print_P(1, 10, UIStrings::Generic::TEMPBLANK); else LCD.lPad(1, 10, itoa(temp[TS_KETTLE] / 100, buf, 10), 4, ' ');
+        if (temp[TS_BEEROUT] == BAD_TEMP) LCD.print_P(2, 10, UIStrings::Generic::TEMPBLANK); else LCD.lPad(2, 10, itoa(temp[TS_BEEROUT] / 100, buf, 10), 4, ' ');
+        if (temp[TS_H2OIN] == BAD_TEMP) LCD.print_P(1, 15, UIStrings::Generic::TEMPBLANK); else LCD.lPad(1, 15, itoa(temp[TS_H2OIN] / 100, buf, 10), 4, ' ');
+        if (temp[TS_H2OOUT] == BAD_TEMP) LCD.print_P(2, 15, UIStrings::Generic::TEMPBLANK); else LCD.lPad(2, 15, itoa(temp[TS_H2OOUT] / 100, buf, 10), 4, ' ');
+        if (vlvConfigIsActive(VLV_CHILLBEER)) LCD.print_P(3, 12, UIStrings::Generic::ON); else LCD.print_P(3, 11, UIStrings::Generic::OFF);
+        if (vlvConfigIsActive(VLV_CHILLH2O)) LCD.print_P(3, 18, UIStrings::Generic::ON); else LCD.print_P(3, 17, UIStrings::Generic::OFF);
         
     }
     else if (activeScreen == SCREEN_AUX) {
@@ -685,7 +687,7 @@ void screenRefresh() {
 #endif
             {
                 if (temp[i] == BAD_TEMP) {
-                    LCD.print_P(i - 5, 5, TEMPBLANK);
+                    LCD.print_P(i - 5, 5, UIStrings::Generic::TEMPBLANK);
                 } else {
                     vftoa(temp[i], buf, 100, 1);
                     truncFloat(buf, 4);
@@ -713,29 +715,29 @@ void screenEnter() {
                 
                 while(1) {
                     //Item updated on each cycle
-                    homeMenu.setItem_P(EXIT, 255);
-                    homeMenu.setItem_P(EDIT_PROGRAM, 1);
-                    homeMenu.setItem_P(START_PROGRAM, 2);
+                    homeMenu.setItem_P(UIStrings::Generic::EXIT, 255);
+                    homeMenu.setItem_P(UIStrings::MainMenu::EDIT_PROGRAM, 1);
+                    homeMenu.setItem_P(UIStrings::MainMenu::START_PROGRAM, 2);
                     
-                    homeMenu.setItem_P(DRAIN, 3);
-                    if (vlvConfigIsActive(VLV_DRAIN)) homeMenu.appendItem_P(VALVE_ON, 3);
-                    else homeMenu.appendItem_P(VALVE_OFF, 3);
+                    homeMenu.setItem_P(UIStrings::ValveProfile::DRAIN, 3);
+                    if (vlvConfigIsActive(VLV_DRAIN)) homeMenu.appendItem_P(UIStrings::Shared::VALVE_ON, 3);
+                    else homeMenu.appendItem_P(UIStrings::Shared::VALVE_OFF, 3);
                     
-                    homeMenu.setItem_P(USER1, 4);
-                    if (vlvConfigIsActive(VLV_USER1)) homeMenu.appendItem_P(VALVE_ON, 4);
-                    else homeMenu.appendItem_P(VALVE_OFF, 4);
+                    homeMenu.setItem_P(UIStrings::ValveProfile::USER1, 4);
+                    if (vlvConfigIsActive(VLV_USER1)) homeMenu.appendItem_P(UIStrings::Shared::VALVE_ON, 4);
+                    else homeMenu.appendItem_P(UIStrings::Shared::VALVE_OFF, 4);
                     
-                    homeMenu.setItem_P(USER2, 5);
-                    if (vlvConfigIsActive(VLV_USER2)) homeMenu.appendItem_P(VALVE_ON, 5);
-                    else homeMenu.appendItem_P(VALVE_OFF, 5);
+                    homeMenu.setItem_P(UIStrings::ValveProfile::USER2, 5);
+                    if (vlvConfigIsActive(VLV_USER2)) homeMenu.appendItem_P(UIStrings::Shared::VALVE_ON, 5);
+                    else homeMenu.appendItem_P(UIStrings::Shared::VALVE_OFF, 5);
                     
-                    homeMenu.setItem_P(USER3, 6);
-                    if (vlvConfigIsActive(VLV_USER3)) homeMenu.appendItem_P(VALVE_ON, 6);
-                    else homeMenu.appendItem_P(VALVE_OFF, 6);
+                    homeMenu.setItem_P(UIStrings::ValveProfile::USER3, 6);
+                    if (vlvConfigIsActive(VLV_USER3)) homeMenu.appendItem_P(UIStrings::Shared::VALVE_ON, 6);
+                    else homeMenu.appendItem_P(UIStrings::Shared::VALVE_OFF, 6);
                     
-                    homeMenu.setItem_P(RESET_ALL, 7);
+                    homeMenu.setItem_P(UIStrings::MainMenu::RESET_ALL, 7);
 #ifndef UI_NO_SETUP
-                    homeMenu.setItem_P(SYSTEM_SETUP, 8);
+                    homeMenu.setItem_P(UIStrings::MainMenu::SYSTEM_SETUP, 8);
 #endif
                     
                     byte lastOption = scrollMenu("Main Menu", &homeMenu);
@@ -754,12 +756,12 @@ void screenEnter() {
                         else {
                             if (zoneIsActive(ZONE_MASH) || zoneIsActive(ZONE_BOIL)) {
                                 LCD.clear();
-                                LCD.print_P(0, 0, DRAIN_ERR1);
-                                LCD.print_P(1, 0, DRAIN_ERR2);
-                                LCD.print_P(2, 0, DRAIN_ERR3);
-                                LCD.print(3, 4, GREATER_SYM);
-                                LCD.print_P(3, 6, CONTINUE);
-                                LCD.print(3, 15, LESS_SYM);
+                                LCD.print_P(0, 0, UIStrings::MainMenu::DRAIN_ERR1);
+                                LCD.print_P(1, 0, UIStrings::MainMenu::DRAIN_ERR2);
+                                LCD.print_P(2, 0, UIStrings::MainMenu::DRAIN_ERR3);
+                                LCD.print(3, 4, UIStrings::Generic::GREATER_SYM);
+                                LCD.print_P(3, 6, UIStrings::Generic::CONTINUE);
+                                LCD.print(3, 15, UIStrings::Generic::LESS_SYM);
                                 while (!Encoder.ok()) brewCore();
                             } else bitSet(actProfiles, VLV_DRAIN);
                         }
@@ -801,17 +803,17 @@ void screenEnter() {
                 else if (encValue == 4) { autoValve[AV_FILL] = 0; bitClear(actProfiles, VLV_FILLHLT); bitClear(actProfiles, VLV_FILLMASH);}
                 else if (encValue == 5) {
                     menu fillMenu(3, 6);
-                    fillMenu.setItem_P(AUTO_FILL, 0);
-                    fillMenu.setItem_P(HLT_TARGET, 1);
-                    fillMenu.setItem_P(MASH_TARGET, 2);
-                    fillMenu.setItem_P(CONTINUE, 3);
-                    fillMenu.setItem_P(ABORT, 4);
-                    fillMenu.setItem_P(EXIT, 255);
+                    fillMenu.setItem_P(UIStrings::FillMenu::AUTO_FILL, 0);
+                    fillMenu.setItem_P(UIStrings::Shared::HLT_TARGET, 1);
+                    fillMenu.setItem_P(UIStrings::FillMenu::MASH_TARGET, 2);
+                    fillMenu.setItem_P(UIStrings::Generic::CONTINUE, 3);
+                    fillMenu.setItem_P(UIStrings::Generic::ABORT, 4);
+                    fillMenu.setItem_P(UIStrings::Generic::EXIT, 255);
                     
                     byte lastOption = scrollMenu("Fill Menu", &fillMenu);
                     if (lastOption == 0) { if(tgtVol[VS_HLT] || tgtVol[VS_MASH]) autoValve[AV_FILL] = 1; }
-                    else if (lastOption == 1) tgtVol[VS_HLT] = getValue_P(HLT_TARGET_VOL, tgtVol[VS_HLT], 1000, 9999999, VOLUNIT);
-                    else if (lastOption == 2) tgtVol[VS_MASH] = getValue_P(MASH_TARGET_VOL, tgtVol[VS_MASH], 1000, 9999999, VOLUNIT);
+                    else if (lastOption == 1) tgtVol[VS_HLT] = getValue_P(UIStrings::Shared::HLT_TARGET_VOL, tgtVol[VS_HLT], 1000, 9999999, UIStrings::Units::VOLUNIT);
+                    else if (lastOption == 2) tgtVol[VS_MASH] = getValue_P(UIStrings::FillMenu::MASH_TARGET_VOL, tgtVol[VS_MASH], 1000, 9999999, UIStrings::Units::VOLUNIT);
                     else if (lastOption == 3) continueClick();
                     else if (lastOption == 4) {
                         if (confirmAbort()) {
@@ -828,34 +830,34 @@ void screenEnter() {
                 //Screen Enter: Preheat/Mash
                 menu mashMenu(3, 7);
                 
-                mashMenu.setItem_P(HLT_SETPOINT, 0);
-                mashMenu.appendItem_P(COLON, 0);
+                mashMenu.setItem_P(UIStrings::Shared::HLT_SETPOINT, 0);
+                mashMenu.appendItem_P(UIStrings::Generic::COLON, 0);
                 vftoa(setpoint[VS_HLT], buf, 100, 1);
                 truncFloat(buf, 4);
                 mashMenu.appendItem(buf, 0);
-                mashMenu.appendItem_P(TUNIT, 0);
+                mashMenu.appendItem_P(UIStrings::Units::TUNIT, 0);
                 
-                mashMenu.setItem_P(MASH_SETPOINT, 1);
-                mashMenu.appendItem_P(COLON, 1);
+                mashMenu.setItem_P(UIStrings::MashMenu::MASH_SETPOINT, 1);
+                mashMenu.appendItem_P(UIStrings::Generic::COLON, 1);
                 vftoa(setpoint[VS_MASH], buf, 100, 1);
                 truncFloat(buf, 4);
                 mashMenu.appendItem(buf, 1);
-                mashMenu.appendItem_P(TUNIT, 1);
+                mashMenu.appendItem_P(UIStrings::Units::TUNIT, 1);
                 
-                mashMenu.setItem_P(SET_TIMER, 2);
+                mashMenu.setItem_P(UIStrings::Generic::SET_TIMER, 2);
                 
-                if (timerStatus[TIMER_MASH]) mashMenu.setItem_P(PAUSE_TIMER, 3);
-                else mashMenu.setItem_P(START_TIMER, 3);
+                if (timerStatus[TIMER_MASH]) mashMenu.setItem_P(UIStrings::Generic::PAUSE_TIMER, 3);
+                else mashMenu.setItem_P(UIStrings::Generic::START_TIMER, 3);
                 
-                mashMenu.setItem_P(CONTINUE, 4);
-                mashMenu.setItem_P(ABORT, 5);
-                mashMenu.setItem_P(EXIT, 255);
+                mashMenu.setItem_P(UIStrings::Generic::CONTINUE, 4);
+                mashMenu.setItem_P(UIStrings::Generic::ABORT, 5);
+                mashMenu.setItem_P(UIStrings::Generic::EXIT, 255);
                 
                 byte lastOption = scrollMenu("Mash Menu", &mashMenu);
-                if (lastOption == 0) setSetpoint(VS_HLT, getValue_P(HLT_SETPOINT, setpoint[VS_HLT] / SETPOINT_MULT, SETPOINT_DIV, 255, TUNIT));
-                else if (lastOption == 1) setSetpoint(VS_MASH, getValue_P(MASH_SETPOINT, setpoint[VS_MASH] / SETPOINT_MULT, SETPOINT_DIV, 255, TUNIT));
+                if (lastOption == 0) setSetpoint(VS_HLT, getValue_P(UIStrings::Shared::HLT_SETPOINT, setpoint[VS_HLT] / SETPOINT_MULT, SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
+                else if (lastOption == 1) setSetpoint(VS_MASH, getValue_P(UIStrings::MashMenu::MASH_SETPOINT, setpoint[VS_MASH] / SETPOINT_MULT, SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
                 else if (lastOption == 2) {
-                    setTimer(TIMER_MASH, getTimerValue(MASH_TIMER, timerValue[TIMER_MASH] / 60000, 1));
+                    setTimer(TIMER_MASH, getTimerValue(UIStrings::MashMenu::MASH_TIMER, timerValue[TIMER_MASH] / 60000, 1));
                     //Force Preheated
                     preheated[VS_MASH] = 1;
                 }
@@ -918,20 +920,20 @@ void screenEnter() {
                 else if (encValue == 6) { resetSpargeValves(); }
                 else if (encValue == 7) {
                     menu spargeMenu(3, 8);
-                    spargeMenu.setItem_P(AUTO_IN, 0);
-                    spargeMenu.setItem_P(AUTO_OUT, 1);
-                    spargeMenu.setItem_P(AUTO_FLY, 2);
-                    spargeMenu.setItem_P(HLT_TARGET, 3);
-                    spargeMenu.setItem_P(KETTLE_TARGET, 4);
-                    spargeMenu.setItem_P(CONTINUE, 5);
-                    spargeMenu.setItem_P(ABORT, 6);
-                    spargeMenu.setItem_P(EXIT, 255);
+                    spargeMenu.setItem_P(UIStrings::SpargeMenu::AUTO_IN, 0);
+                    spargeMenu.setItem_P(UIStrings::SpargeMenu::AUTO_OUT, 1);
+                    spargeMenu.setItem_P(UIStrings::SpargeMenu::AUTO_FLY, 2);
+                    spargeMenu.setItem_P(UIStrings::Shared::HLT_TARGET, 3);
+                    spargeMenu.setItem_P(UIStrings::SpargeMenu::KETTLE_TARGET, 4);
+                    spargeMenu.setItem_P(UIStrings::Generic::CONTINUE, 5);
+                    spargeMenu.setItem_P(UIStrings::Generic::ABORT, 6);
+                    spargeMenu.setItem_P(UIStrings::Generic::EXIT, 255);
                     byte lastOption = scrollMenu("Sparge Menu", &spargeMenu);
                     if (lastOption == 0) { resetSpargeValves(); if(tgtVol[VS_HLT]) autoValve[AV_SPARGEIN] = 1; }
                     else if (lastOption == 1) { resetSpargeValves(); if(tgtVol[VS_KETTLE]) autoValve[AV_SPARGEOUT] = 1; }
                     else if (lastOption == 2) { resetSpargeValves(); if(tgtVol[VS_KETTLE]) autoValve[AV_FLYSPARGE] = 1; }
-                    else if (lastOption == 3) tgtVol[VS_HLT] = getValue_P(HLT_TARGET_VOL, tgtVol[VS_HLT], 1000, 9999999, VOLUNIT);
-                    else if (lastOption == 4) tgtVol[VS_KETTLE] = getValue_P(KETTLE_TARGET_VOL, tgtVol[VS_KETTLE], 1000, 9999999, VOLUNIT);
+                    else if (lastOption == 3) tgtVol[VS_HLT] = getValue_P(UIStrings::Shared::HLT_TARGET_VOL, tgtVol[VS_HLT], 1000, 9999999, UIStrings::Units::VOLUNIT);
+                    else if (lastOption == 4) tgtVol[VS_KETTLE] = getValue_P(UIStrings::SpargeMenu::KETTLE_TARGET_VOL, tgtVol[VS_KETTLE], 1000, 9999999, UIStrings::Units::VOLUNIT);
                     else if (lastOption == 5) continueClick();
                     else if (lastOption == 6) {
                         if (confirmAbort()) {
@@ -948,47 +950,47 @@ void screenEnter() {
             } else if (activeScreen == SCREEN_BOIL) {
                 //Screen Enter: Boil
                 menu boilMenu(3, 9);
-                boilMenu.setItem_P(SET_TIMER, 0);
+                boilMenu.setItem_P(UIStrings::Generic::SET_TIMER, 0);
                 
-                if (timerStatus[TIMER_BOIL]) boilMenu.setItem_P(PAUSE_TIMER, 1);
-                else boilMenu.setItem_P(START_TIMER, 1);
+                if (timerStatus[TIMER_BOIL]) boilMenu.setItem_P(UIStrings::Generic::PAUSE_TIMER, 1);
+                else boilMenu.setItem_P(UIStrings::Generic::START_TIMER, 1);
                 
-                boilMenu.setItem_P(BOIL_CTRL, 2);
+                boilMenu.setItem_P(UIStrings::BoilMenu::BOIL_CTRL, 2);
                 switch (boilControlState) {
                     case CONTROLSTATE_OFF:
-                        boilMenu.appendItem_P(OFF, 2);
+                        boilMenu.appendItem_P(UIStrings::Generic::OFF, 2);
                         break;
                     case CONTROLSTATE_AUTO:
-                        boilMenu.appendItem_P(AUTO_S, 2);
+                        boilMenu.appendItem_P(UIStrings::Generic::AUTO, 2);
                         break;
                     case CONTROLSTATE_ON:
-                        boilMenu.appendItem_P(MANUAL_S, 2);
+                        boilMenu.appendItem_P(UIStrings::Generic::MANUAL, 2);
                         break;
                 }
                 
                 
-                boilMenu.setItem_P(BOIL_TEMP, 3);
-                boilMenu.appendItem_P(COLON_SPACE, 3);
+                boilMenu.setItem_P(UIStrings::BoilMenu::BOIL_TEMP, 3);
+                boilMenu.appendItem_P(UIStrings::Generic::COLON_SPACE, 3);
                 vftoa(getBoilTemp() * SETPOINT_MULT, buf, 100, 1);
                 truncFloat(buf, 5);
                 boilMenu.appendItem(buf, 3);
-                boilMenu.appendItem_P(TUNIT, 3);
+                boilMenu.appendItem_P(UIStrings::Units::TUNIT, 3);
                 
-                boilMenu.setItem_P(BOIL_POWER, 4);
-                boilMenu.appendItem_P(COLON_SPACE, 4);
+                boilMenu.setItem_P(UIStrings::BoilMenu::BOIL_POWER, 4);
+                boilMenu.appendItem_P(UIStrings::Generic::COLON_SPACE, 4);
                 boilMenu.appendItem(itoa(boilPwr, buf, 10), 4);
                 boilMenu.appendItem("%", 4);
                 
-                boilMenu.setItem_P(BOILRECIRC, 5);
-                if (vlvConfigIsActive(VLV_BOILRECIRC)) boilMenu.appendItem_P(VALVE_ON, 5);
-                else boilMenu.appendItem_P(VALVE_OFF, 5);
+                boilMenu.setItem_P(UIStrings::ValveProfile::BOILRECIRC, 5);
+                if (vlvConfigIsActive(VLV_BOILRECIRC)) boilMenu.appendItem_P(UIStrings::Shared::VALVE_ON, 5);
+                else boilMenu.appendItem_P(UIStrings::Shared::VALVE_OFF, 5);
                 
-                boilMenu.setItem_P(CONTINUE, 6);
-                boilMenu.setItem_P(ABORT, 7);
-                boilMenu.setItem_P(EXIT, 255);
+                boilMenu.setItem_P(UIStrings::Generic::CONTINUE, 6);
+                boilMenu.setItem_P(UIStrings::Generic::ABORT, 7);
+                boilMenu.setItem_P(UIStrings::Generic::EXIT, 255);
                 byte lastOption = scrollMenu("Boil Menu", &boilMenu);
                 if (lastOption == 0) {
-                    setTimer(TIMER_BOIL, getTimerValue(BOIL_TIMER, timerValue[TIMER_BOIL] / 60000, 2));
+                    setTimer(TIMER_BOIL, getTimerValue(UIStrings::BoilMenu::BOIL_TIMER, timerValue[TIMER_BOIL] / 60000, 2));
                     //Force Preheated
                     preheated[VS_KETTLE] = 1;
                 }
@@ -999,10 +1001,10 @@ void screenEnter() {
                 }
                 else if (lastOption == 2) boilControlMenu();
                 else if (lastOption == 3) {
-                    setBoilTemp(getValue_P(BOIL_TEMP, getBoilTemp(), SETPOINT_DIV, 255, TUNIT));
+                    setBoilTemp(getValue_P(UIStrings::BoilMenu::BOIL_TEMP, getBoilTemp(), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
                     setSetpoint(VS_KETTLE, getBoilTemp() * SETPOINT_MULT);
                 }
-                else if (lastOption == 4) setBoilPwr(getValue_P(BOIL_POWER, boilPwr, 1, min(PIDLIMIT_KETTLE, 100), PERC_SYM));
+                else if (lastOption == 4) setBoilPwr(getValue_P(UIStrings::BoilMenu::BOIL_POWER, boilPwr, 1, min(PIDLIMIT_KETTLE, 100), UIStrings::Generic::PERC_SYM));
                 else if (lastOption == 5) {
                     if (vlvConfigIsActive(VLV_BOILRECIRC)) bitClear(actProfiles, VLV_BOILRECIRC);
                     else bitSet(actProfiles, VLV_BOILRECIRC);
@@ -1042,17 +1044,17 @@ void screenEnter() {
 
 void uiEstop() {
     LCD.clear();
-    LCD.print_P(0, 0, ESTOP_TRIGGERED);
+    LCD.print_P(0, 0, UIStrings::EStop::ESTOP_TRIGGERED);
     Encoder.setMin(0);
     Encoder.setMax(1);
     Encoder.setCount(0);
-    LCD.print_P(1, 0, CLEAR_ALARM);
-    LCD.print_P(2, 0, CLEAR_ESTOP);
+    LCD.print_P(1, 0, UIStrings::EStop::CLEAR_ALARM);
+    LCD.print_P(2, 0, UIStrings::EStop::CLEAR_ESTOP);
     
     while (estop) {
         if (Encoder.change() >= 0) {
-            LCD.print_P(2 - Encoder.getCount(), 0, SPACE);
-            LCD.print_P(Encoder.getCount() + 1, 0, GREATER_SYM);
+            LCD.print_P(2 - Encoder.getCount(), 0, UIStrings::Generic::SPACE);
+            LCD.print_P(Encoder.getCount() + 1, 0, UIStrings::Generic::GREATER_SYM);
             LCD.update();
         }
         if (Encoder.ok()) {
@@ -1066,9 +1068,9 @@ void uiEstop() {
 
 void boilControlMenu() {
     menu boilMenu(3, 3);
-    boilMenu.setItem_P(OFF, CONTROLSTATE_OFF);
-    boilMenu.setItem_P(AUTO_S, CONTROLSTATE_AUTO);
-    boilMenu.setItem_P(MANUAL_S, CONTROLSTATE_ON);
+    boilMenu.setItem_P(UIStrings::Generic::OFF, CONTROLSTATE_OFF);
+    boilMenu.setItem_P(UIStrings::Generic::AUTO, CONTROLSTATE_AUTO);
+    boilMenu.setItem_P(UIStrings::Generic::MANUAL, CONTROLSTATE_ON);
     byte lastOption = scrollMenu("Boil Control Menu", &boilMenu);
     if (lastOption < NUM_CONTROLSTATES) boilControlState = (ControlState) lastOption;
     switch (boilControlState) {
@@ -1103,11 +1105,11 @@ void continueClick() {
 
 void stepAdvanceFailDialog() {
     LCD.clear();
-    LCD.print_P(0, 0, FAILED_ADV1);
-    LCD.print_P(1, 0, FAILED_ADV2);
-    LCD.print_P(3, 4, GREATER_SYM);
-    LCD.print_P(3, 6, CONTINUE);
-    LCD.print_P(3, 15, LESS_SYM);
+    LCD.print_P(0, 0, UIStrings::Program::StepError::FAILED_ADV1);
+    LCD.print_P(1, 0, UIStrings::Program::StepError::FAILED_ADV2);
+    LCD.print_P(3, 4, UIStrings::Generic::GREATER_SYM);
+    LCD.print_P(3, 6, UIStrings::Generic::CONTINUE);
+    LCD.print_P(3, 15, UIStrings::Generic::LESS_SYM);
     while (!Encoder.ok()) brewCore();
 }
 
@@ -1121,7 +1123,7 @@ void editProgramMenu() {
     byte profile = scrollMenu("Edit Program", &progMenu);
     if (profile < 20) {
         progMenu.getSelectedRow(itemDesc);
-        getString(PROG_NAME, itemDesc, 19);
+        getString(UIStrings::Program::ProgramMenu::PROG_NAME, itemDesc, 19);
         setProgName(profile, itemDesc);
         editProgram(profile);
     }
@@ -1147,41 +1149,41 @@ void startProgramMenu() {
             if (spargeVol > getCapacity(VS_HLT)) warnHLT(spargeVol);
             if (mashVol + grainVol > getCapacity(VS_MASH)) warnMash(mashVol, grainVol);
             if (preboilVol > getCapacity(VS_KETTLE)) warnBoil(preboilVol);
-            startMenu.setItem_P(EDIT_PROG, 0);
+            startMenu.setItem_P(UIStrings::Program::ProgramMenu::EDIT_PROG, 0);
             
-            startMenu.setItem_P(GRAIN_TEMP, 1);
-            startMenu.appendItem_P(COLON, 1);
+            startMenu.setItem_P(UIStrings::Program::ProgramMenu::GRAIN_TEMP, 1);
+            startMenu.appendItem_P(UIStrings::Generic::COLON, 1);
             startMenu.appendItem(itoa(getGrainTemp() / SETPOINT_DIV, buf, 10), 1);
-            startMenu.appendItem_P(TUNIT, 1);
+            startMenu.appendItem_P(UIStrings::Units::TUNIT, 1);
             
-            startMenu.setItem_P(START, 2);
-            startMenu.setItem_P(DELAY_START, 3);
-            startMenu.setItem_P(EXIT, 255);
+            startMenu.setItem_P(UIStrings::Program::ProgramMenu::START, 2);
+            startMenu.setItem_P(UIStrings::Program::ProgramMenu::DELAY_START, 3);
+            startMenu.setItem_P(UIStrings::Generic::EXIT, 255);
             
             lastOption = scrollMenu(progName, &startMenu);
             if (lastOption == 0) editProgram(profile);
-            else if (lastOption == 1) setGrainTemp(getValue_P(GRAIN_TEMP, getGrainTemp(), SETPOINT_DIV, 255, TUNIT));
+            else if (lastOption == 1) setGrainTemp(getValue_P(UIStrings::Program::ProgramMenu::GRAIN_TEMP, getGrainTemp(), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
             else if (lastOption == 2 || lastOption == 3) {
                 if (zoneIsActive(ZONE_MASH)) {
                     LCD.clear();
-                    LCD.print_P(0, 0, START_ERR1);
-                    LCD.print_P(1, 0, START_ERR2);
-                    LCD.print_P(2, 0, START_ERR3);
-                    LCD.print_P(3, 4, GREATER_SYM);
-                    LCD.print_P(3, 6, CONTINUE);
-                    LCD.print_P(3, 15, LESS_SYM);
+                    LCD.print_P(0, 0, UIStrings::Program::ProgramMenu::START_ERR1);
+                    LCD.print_P(1, 0, UIStrings::Program::ProgramMenu::START_ERR2);
+                    LCD.print_P(2, 0, UIStrings::Program::ProgramMenu::START_ERR3);
+                    LCD.print_P(3, 4, UIStrings::Generic::GREATER_SYM);
+                    LCD.print_P(3, 6, UIStrings::Generic::CONTINUE);
+                    LCD.print_P(3, 15, UIStrings::Generic::LESS_SYM);
                     while (!Encoder.ok()) brewCore();
                 } else {
                     if (lastOption == 3) {
                         //Delay Start
-                        setDelayMins(getTimerValue(DELAY_START, getDelayMins(), 23));
+                        setDelayMins(getTimerValue(UIStrings::Program::ProgramMenu::DELAY_START, getDelayMins(), 23));
                     }
                     if (!programThreadInit(profile)) {
                         LCD.clear();
-                        LCD.print_P(1, 0, START_FAILED);
-                        LCD.print_P(3, 4, GREATER_SYM);
-                        LCD.print_P(3, 6, CONTINUE);
-                        LCD.print_P(3, 15, LESS_SYM);
+                        LCD.print_P(1, 0, UIStrings::Program::ProgramMenu::START_FAILED);
+                        LCD.print_P(3, 4, UIStrings::Generic::GREATER_SYM);
+                        LCD.print_P(3, 6, UIStrings::Generic::CONTINUE);
+                        LCD.print_P(3, 15, UIStrings::Generic::LESS_SYM);
                         while (!Encoder.ok()) brewCore();
                     } else {
                         setActive(SCREEN_FILL);
@@ -1199,80 +1201,80 @@ void editProgram(byte pgm) {
     
     while (1) {
         Serial.println("EditProg call");
-        progMenu.setItem_P(BATCH_VOL, 0);
+        progMenu.setItem_P(UIStrings::Program::ProgramMenu::BATCH_VOL, 0);
         vftoa(getProgBatchVol(pgm), buf, 1000, 1);
         truncFloat(buf, 5);
         progMenu.appendItem(buf, 0);
-        progMenu.appendItem_P(VOLUNIT, 0);
+        progMenu.appendItem_P(UIStrings::Units::VOLUNIT, 0);
         
-        progMenu.setItem_P(GRAIN_WT, 1);
+        progMenu.setItem_P(UIStrings::Program::ProgramMenu::GRAIN_WT, 1);
         vftoa(getProgGrain(pgm), buf, 1000, 1);
         truncFloat(buf, 7);
         progMenu.appendItem(buf, 1);
-        progMenu.appendItem_P(WTUNIT, 1);
+        progMenu.appendItem_P(UIStrings::Units::WTUNIT, 1);
         
         
-        progMenu.setItem_P(BOIL_LEN, 2);
-        progMenu.appendItem_P(COLON, 2);
+        progMenu.setItem_P(UIStrings::Program::ProgramMenu::BOIL_LEN, 2);
+        progMenu.appendItem_P(UIStrings::Generic::COLON, 2);
         progMenu.appendItem(itoa(getProgBoil(pgm), buf, 10), 2);
-        progMenu.appendItem_P(MINUTES_IND, 2);
+        progMenu.appendItem_P(UIStrings::Program::ProgramMenu::MINUTES_IND, 2);
         
-        progMenu.setItem_P(MASH_RATIO, 3);
-        progMenu.appendItem_P(COLON, 3);
+        progMenu.setItem_P(UIStrings::Program::ProgramMenu::MASH_RATIO, 3);
+        progMenu.appendItem_P(UIStrings::Generic::COLON, 3);
         unsigned int mashRatio = getProgRatio(pgm);
         if (mashRatio) {
             vftoa(mashRatio, buf, 100, 1);
             truncFloat(buf, 4);
             progMenu.appendItem(buf, 3);
-            progMenu.appendItem_P(RATIO_TO_1, 3);
+            progMenu.appendItem_P(UIStrings::Program::ProgramMenu::RATIO_TO_1, 3);
         }
         else {
-            progMenu.appendItem_P(NO_SPARGE, 3);
+            progMenu.appendItem_P(UIStrings::Program::ProgramMenu::NO_SPARGE, 3);
         }
         
-        progMenu.setItem_P(HLT_TEMP, 4);
+        progMenu.setItem_P(UIStrings::Program::ProgramMenu::HLT_TEMP, 4);
         vftoa(getProgHLT(pgm) * SETPOINT_MULT, buf, 100, 1);
         truncFloat(buf, 4);
         progMenu.appendItem(buf, 4);
-        progMenu.appendItem_P(TUNIT, 4);
+        progMenu.appendItem_P(UIStrings::Units::TUNIT, 4);
         
-        progMenu.setItem_P(SPARGE_TEMP, 5);
-        progMenu.appendItem_P(COLON, 5);
+        progMenu.setItem_P(UIStrings::Program::ProgramMenu::SPARGE_TEMP, 5);
+        progMenu.appendItem_P(UIStrings::Generic::COLON, 5);
         vftoa(getProgSparge(pgm) * SETPOINT_MULT, buf, 100, 1);
         truncFloat(buf, 4);
         progMenu.appendItem(buf, 5);
-        progMenu.appendItem_P(TUNIT, 5);
+        progMenu.appendItem_P(UIStrings::Units::TUNIT, 5);
         
-        progMenu.setItem_P(PITCH_TEMP, 6);
-        progMenu.appendItem_P(COLON, 6);
+        progMenu.setItem_P(UIStrings::Program::ProgramMenu::PITCH_TEMP, 6);
+        progMenu.appendItem_P(UIStrings::Generic::COLON, 6);
         vftoa(getProgPitch(pgm) * SETPOINT_MULT, buf, 100, 1);
         truncFloat(buf, 4);
         progMenu.appendItem(buf, 6);
-        progMenu.appendItem_P(TUNIT, 6);
+        progMenu.appendItem_P(UIStrings::Units::TUNIT, 6);
         
-        progMenu.setItem_P(MASH_SCHED, 7);
+        progMenu.setItem_P(UIStrings::Program::ProgramMenu::MASH_SCHED, 7);
         
-        progMenu.setItem_P(HEAT_STRIKE_IN, 8);
+        progMenu.setItem_P(UIStrings::Program::ProgramMenu::HEAT_STRIKE_IN, 8);
         byte MLHeatSrc = getProgMLHeatSrc(pgm);
-        if (MLHeatSrc == VS_HLT) progMenu.appendItem_P(TITLE_VS_HLT, 8);
-        else if (MLHeatSrc == VS_MASH) progMenu.appendItem_P(MASH, 8);
-        else progMenu.appendItem_P(UNKWN, 8);
+        if (MLHeatSrc == VS_HLT) progMenu.appendItem_P(UIStrings::Vessel::TITLE_VS_HLT, 8);
+        else if (MLHeatSrc == VS_MASH) progMenu.appendItem_P(UIStrings::Program::ProgramMenu::MASH, 8);
+        else progMenu.appendItem_P(UIStrings::Program::ProgramMenu::UNKWN, 8);
         
-        progMenu.setItem_P(BOILADDS, 9);
-        progMenu.setItem_P(PROG_CALCS, 10);
-        progMenu.setItem_P(EXIT, 255);
+        progMenu.setItem_P(UIStrings::ValveProfile::BOILADDS, 9); // Hop/Boil Adds Edit
+        progMenu.setItem_P(UIStrings::Program::ProgramMenu::PROG_CALCS, 10);
+        progMenu.setItem_P(UIStrings::Generic::EXIT, 255);
         
         byte lastOption = scrollMenu("Program Parameters", &progMenu);
         
-        if (lastOption == 0) setProgBatchVol(pgm, getValue_P(BATCH_VOLUME, getProgBatchVol(pgm), 1000, 9999999, VOLUNIT));
-        else if (lastOption == 1) setProgGrain(pgm, getValue_P(GRAIN_WEIGHT, getProgGrain(pgm), 1000, 9999999, WTUNIT));
-        else if (lastOption == 2) setProgBoil(pgm, getTimerValue(BOIL_LEN, getProgBoil(pgm), 2));
+        if (lastOption == 0) setProgBatchVol(pgm, getValue_P(UIStrings::Program::ProgramMenu::BATCH_VOLUME, getProgBatchVol(pgm), 1000, 9999999, UIStrings::Units::VOLUNIT));
+        else if (lastOption == 1) setProgGrain(pgm, getValue_P(UIStrings::Program::ProgramMenu::GRAIN_WEIGHT, getProgGrain(pgm), 1000, 9999999, UIStrings::Units::WTUNIT));
+        else if (lastOption == 2) setProgBoil(pgm, getTimerValue(UIStrings::Program::ProgramMenu::BOIL_LEN, getProgBoil(pgm), 2));
         else if (lastOption == 3) {
-            setProgRatio(pgm, getValue_P(MASH_RATIO, getProgRatio(pgm), 100, 999, RATIO_UNITS));
+            setProgRatio(pgm, getValue_P(UIStrings::Program::ProgramMenu::MASH_RATIO, getProgRatio(pgm), 100, 999, UIStrings::Program::ProgramMenu::RATIO_UNITS));
         }
-        else if (lastOption == 4) setProgHLT(pgm, getValue_P(HLT_SETPOINT, getProgHLT(pgm), SETPOINT_DIV, 255, TUNIT));
-        else if (lastOption == 5) setProgSparge(pgm, getValue_P(SPARGE_TEMP, getProgSparge(pgm), SETPOINT_DIV, 255, TUNIT));
-        else if (lastOption == 6) setProgPitch(pgm, getValue_P(PITCH_TEMP, getProgPitch(pgm), SETPOINT_DIV, 255, TUNIT));
+        else if (lastOption == 4) setProgHLT(pgm, getValue_P(UIStrings::Shared::HLT_SETPOINT, getProgHLT(pgm), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
+        else if (lastOption == 5) setProgSparge(pgm, getValue_P(UIStrings::Program::ProgramMenu::SPARGE_TEMP, getProgSparge(pgm), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
+        else if (lastOption == 6) setProgPitch(pgm, getValue_P(UIStrings::Program::ProgramMenu::PITCH_TEMP, getProgPitch(pgm), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
         else if (lastOption == 7) editMashSchedule(pgm);
         else if (lastOption == 8) setProgMLHeatSrc(pgm, MLHeatSrcMenu(getProgMLHeatSrc(pgm)));
         else if (lastOption == 9) setProgAdds(pgm, editHopSchedule(getProgAdds(pgm)));
@@ -1292,47 +1294,47 @@ void showProgCalcs(byte pgm) {
     menu calcsMenu(3, 6);
     unsigned long value;
     
-    calcsMenu.setItem_P(STRIKE_TEMP, 0);
+    calcsMenu.setItem_P(UIStrings::Program::ProgramMenu::STRIKE_TEMP, 0);
     value = calcStrikeTemp(pgm);
     vftoa(value * SETPOINT_MULT, buf, 100, 1);
     truncFloat(buf, 3);
     calcsMenu.appendItem(buf, 0);
-    calcsMenu.appendItem_P(TUNIT, 0);
+    calcsMenu.appendItem_P(UIStrings::Units::TUNIT, 0);
     
-    calcsMenu.setItem_P(STRIKE_VOL, 1);
+    calcsMenu.setItem_P(UIStrings::Program::ProgramMenu::STRIKE_VOL, 1);
     value = calcStrikeVol(pgm);
     vftoa(value, buf, 1000, 1);
     truncFloat(buf, 4);
     calcsMenu.appendItem(buf, 1);
-    calcsMenu.appendItem_P(VOLUNIT, 1);
+    calcsMenu.appendItem_P(UIStrings::Units::VOLUNIT, 1);
     
-    calcsMenu.setItem_P(SPARGE_VOL, 2);
+    calcsMenu.setItem_P(UIStrings::Program::ProgramMenu::SPARGE_VOL, 2);
     value = calcSpargeVol(pgm);
     vftoa(value, buf, 1000, 1);
     truncFloat(buf, 4);
     calcsMenu.appendItem(buf, 2);
-    calcsMenu.appendItem_P(VOLUNIT, 2);
+    calcsMenu.appendItem_P(UIStrings::Units::VOLUNIT, 2);
     
-    calcsMenu.setItem_P(PREBOIL_VOL, 3);
+    calcsMenu.setItem_P(UIStrings::Program::ProgramMenu::PREBOIL_VOL, 3);
     value = calcPreboilVol(pgm);
     vftoa(value, buf, 1000, 1);
     truncFloat(buf, 4);
     calcsMenu.appendItem(buf, 3);
-    calcsMenu.appendItem_P(VOLUNIT, 3);
+    calcsMenu.appendItem_P(UIStrings::Units::VOLUNIT, 3);
     
-    calcsMenu.setItem_P(GRAIN_VOL, 4);
+    calcsMenu.setItem_P(UIStrings::Program::ProgramMenu::GRAIN_VOL, 4);
     value = calcGrainVolume(pgm);
     vftoa(value, buf, 1000, 1);
     truncFloat(buf, 4);
     calcsMenu.appendItem(buf, 4);
-    calcsMenu.appendItem_P(VOLUNIT, 4);
+    calcsMenu.appendItem_P(UIStrings::Units::VOLUNIT, 4);
     
-    calcsMenu.setItem_P(GRAIN_LOSS, 5);
+    calcsMenu.setItem_P(UIStrings::Program::ProgramMenu::GRAIN_LOSS, 5);
     value = calcGrainLoss(pgm);
     vftoa(value, buf, 1000, 1);
     truncFloat(buf, 4);
     calcsMenu.appendItem(buf, 5);
-    calcsMenu.appendItem_P(VOLUNIT, 5);
+    calcsMenu.appendItem_P(UIStrings::Units::VOLUNIT, 5);
     
     scrollMenu("Program Calcs", &calcsMenu);
 }
@@ -1349,8 +1351,8 @@ void editMashSchedule(byte pgm) {
     while (1) {
         
         for (byte i = 0; i < MASHSTEP_COUNT; i++) {
-            mashMenu.setItem(concatPSTRS(buf, (char*)pgm_read_word(&TITLE_MASHSTEP[i]), COLON), i << 4 | OPT_SETMINS);
-            mashMenu.setItem(concatPSTRS(buf, (char*)pgm_read_word(&TITLE_MASHSTEP[i]), COLON), i << 4 | OPT_SETTEMP);
+            mashMenu.setItem(concatPSTRS(buf, (char*)pgm_read_word(&TITLE_MASHSTEP[i]), UIStrings::Generic::COLON), i << 4 | OPT_SETMINS);
+            mashMenu.setItem(concatPSTRS(buf, (char*)pgm_read_word(&TITLE_MASHSTEP[i]), UIStrings::Generic::COLON), i << 4 | OPT_SETTEMP);
             
             mashMenu.appendItem(itoa(getProgMashMins(pgm, i), buf, 10), i << 4 | OPT_SETMINS);
             mashMenu.appendItem(" min", i << 4 | OPT_SETMINS);
@@ -1358,16 +1360,16 @@ void editMashSchedule(byte pgm) {
             vftoa(getProgMashTemp(pgm, i) * SETPOINT_MULT, buf, 100, 1);
             truncFloat(buf, 4);
             mashMenu.appendItem(buf, i << 4 | OPT_SETTEMP);
-            mashMenu.appendItem_P(TUNIT, i << 4 | OPT_SETTEMP);
+            mashMenu.appendItem_P(UIStrings::Units::TUNIT, i << 4 | OPT_SETTEMP);
         }
-        mashMenu.setItem_P(EXIT, 255);
+        mashMenu.setItem_P(UIStrings::Generic::EXIT, 255);
         byte lastOption = scrollMenu("Mash Schedule", &mashMenu);
         byte mashstep = lastOption>>4;
         
         if ((lastOption & B00001111) == OPT_SETMINS)
             setProgMashMins(pgm, mashstep, getTimerValue((char*)pgm_read_word(&(TITLE_MASHSTEP[mashstep])), getProgMashMins(pgm, mashstep), 1));
         else if ((lastOption & B00001111) == OPT_SETTEMP)
-            setProgMashTemp(pgm, mashstep, getValue_P((char*)pgm_read_word(&(TITLE_MASHSTEP[mashstep])), getProgMashTemp(pgm, mashstep), SETPOINT_DIV, 255, TUNIT));
+            setProgMashTemp(pgm, mashstep, getValue_P((char*)pgm_read_word(&(TITLE_MASHSTEP[mashstep])), getProgMashTemp(pgm, mashstep), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
         else return;
     }
 }
@@ -1377,29 +1379,29 @@ unsigned int editHopSchedule (unsigned int sched) {
     menu hopMenu(3, 13);
     
     while (1) {
-        hopMenu.setItem_P(AT_BOIL, 0);
+        hopMenu.setItem_P(UIStrings::Program::HopSchedule::AT_BOIL, 0);
         if (retVal & 1) {
-            hopMenu.appendItem_P(VALVE_ON, 0);
+            hopMenu.appendItem_P(UIStrings::Shared::VALVE_ON, 0);
         }
         else {
-            hopMenu.appendItem_P(VALVE_OFF, 0);
+            hopMenu.appendItem_P(UIStrings::Shared::VALVE_OFF, 0);
         }
         for (byte i = 0; i < 10; i++) {
             hopMenu.setItem(itoa(hoptimes[i], buf, 10), i + 1);
-            if (i == 0) hopMenu.appendItem_P(MIN_SPACE, i + 1);
-            else if (i < 9) hopMenu.appendItem_P(MIN_2SPACE, i + 1);
-            else hopMenu.appendItem_P(MIN_3SPACE, i + 1);
-            if (retVal & (1<<(i + 1))) hopMenu.appendItem_P(VALVE_ON, i + 1); else hopMenu.appendItem_P(VALVE_OFF, i + 1);
+            if (i == 0) hopMenu.appendItem_P(UIStrings::Program::HopSchedule::MIN_SPACE, i + 1);
+            else if (i < 9) hopMenu.appendItem_P(UIStrings::Program::HopSchedule::MIN_2SPACE, i + 1);
+            else hopMenu.appendItem_P(UIStrings::Program::HopSchedule::MIN_3SPACE, i + 1);
+            if (retVal & (1<<(i + 1))) hopMenu.appendItem_P(UIStrings::Shared::VALVE_ON, i + 1); else hopMenu.appendItem_P(UIStrings::Shared::VALVE_OFF, i + 1);
         }
-        hopMenu.setItem_P(ZERO, 11);
-        hopMenu.appendItem_P(MIN_3SPACE, 11);
+        hopMenu.setItem_P(UIStrings::Shared::ZERO, 11);
+        hopMenu.appendItem_P(UIStrings::Program::HopSchedule::MIN_3SPACE, 11);
         if (retVal & 2048) {
-            hopMenu.appendItem_P(VALVE_ON, 11);
+            hopMenu.appendItem_P(UIStrings::Shared::VALVE_ON, 11);
         }
         else {
-            hopMenu.appendItem_P(VALVE_OFF, 11);
+            hopMenu.appendItem_P(UIStrings::Shared::VALVE_OFF, 11);
         }
-        hopMenu.setItem_P(EXIT, 12);
+        hopMenu.setItem_P(UIStrings::Generic::EXIT, 12);
         
         byte lastOption = scrollMenu("Boil Additions", &hopMenu);
         if (lastOption < 12) retVal = retVal ^ (1 << lastOption);
@@ -1410,8 +1412,8 @@ unsigned int editHopSchedule (unsigned int sched) {
 
 byte MLHeatSrcMenu(byte MLHeatSrc) {
     menu mlHeatMenu(3, 2);
-    mlHeatMenu.setItem_P(HLTDESC, VS_HLT);
-    mlHeatMenu.setItem_P(MASHDESC, VS_MASH);
+    mlHeatMenu.setItem_P(UIStrings::Shared::HLTDESC, VS_HLT);
+    mlHeatMenu.setItem_P(UIStrings::Shared::MASHDESC, VS_MASH);
     mlHeatMenu.setSelectedByValue(MLHeatSrc);
     byte lastOption = scrollMenu("Heat Strike In:", &mlHeatMenu);
     if (lastOption > 1) return MLHeatSrc;
@@ -1420,49 +1422,49 @@ byte MLHeatSrcMenu(byte MLHeatSrc) {
 
 void warnHLT(unsigned long spargeVol) {
     LCD.clear();
-    LCD.print_P(0, 0, HLT_CAP_WARN);
-    LCD.print_P(1, 0, SPARGE_VOL);
+    LCD.print_P(0, 0, UIStrings::Program::HLTWarning::HLT_CAP_WARN);
+    LCD.print_P(1, 0, UIStrings::Program::ProgramMenu::SPARGE_VOL);
     vftoa(spargeVol, buf, 1000, 1);
     truncFloat(buf, 5);
     LCD.print(1, 11, buf);
-    LCD.print_P(1, 16, VOLUNIT);
-    LCD.print_P(3, 4, GREATER_SYM);
-    LCD.print_P(3, 6, CONTINUE);
-    LCD.print_P(3, 15, LESS_SYM);
+    LCD.print_P(1, 16, UIStrings::Units::VOLUNIT);
+    LCD.print_P(3, 4, UIStrings::Generic::GREATER_SYM);
+    LCD.print_P(3, 6, UIStrings::Generic::CONTINUE);
+    LCD.print_P(3, 15, UIStrings::Generic::LESS_SYM);
     while (!Encoder.ok()) brewCore();
 }
 
 
 void warnMash(unsigned long mashVol, unsigned long grainVol) {
     LCD.clear();
-    LCD.print_P(0, 0, MASH_CAP_WARN);
-    LCD.print_P(1, 0, STRIKE_VOL);
+    LCD.print_P(0, 0, UIStrings::Program::MashWarning::MASH_CAP_WARN);
+    LCD.print_P(1, 0, UIStrings::Program::ProgramMenu::STRIKE_VOL);
     vftoa(mashVol, buf, 1000, 1);
     truncFloat(buf, 5);
     LCD.print(1, 11, buf);
-    LCD.print_P(1, 16, VOLUNIT);
-    LCD.print_P(2, 0, GRAIN_VOL);
+    LCD.print_P(1, 16, UIStrings::Units::VOLUNIT);
+    LCD.print_P(2, 0, UIStrings::Program::ProgramMenu::GRAIN_VOL);
     vftoa(grainVol, buf, 1000, 1);
     truncFloat(buf, 5);
     LCD.print(2, 11, buf);
-    LCD.print_P(2, 16, VOLUNIT);
-    LCD.print_P(3, 4, GREATER_SYM);
-    LCD.print_P(3, 6, CONTINUE);
-    LCD.print_P(3, 15, LESS_SYM);
+    LCD.print_P(2, 16, UIStrings::Units::VOLUNIT);
+    LCD.print_P(3, 4, UIStrings::Generic::GREATER_SYM);
+    LCD.print_P(3, 6, UIStrings::Generic::CONTINUE);
+    LCD.print_P(3, 15, UIStrings::Generic::LESS_SYM);
     while (!Encoder.ok()) brewCore();
 }
 
 void warnBoil(unsigned long preboilVol) {
     LCD.clear();
-    LCD.print_P(0, 0, BOIL_CAP_WARN);
-    LCD.print_P(1, 0, PREBOIL_VOL);
+    LCD.print_P(0, 0, UIStrings::Program::BoilWarning::BOIL_CAP_WARN);
+    LCD.print_P(1, 0, UIStrings::Program::ProgramMenu::PREBOIL_VOL);
     vftoa(preboilVol, buf, 1000, 1);
     truncFloat(buf, 5);
     LCD.print(1, 12, buf);
-    LCD.print_P(1, 17, VOLUNIT);
-    LCD.print_P(3, 4, GREATER_SYM);
-    LCD.print_P(3, 6, CONTINUE);
-    LCD.print_P(3, 15, LESS_SYM);
+    LCD.print_P(1, 17, UIStrings::Units::VOLUNIT);
+    LCD.print_P(3, 4, UIStrings::Generic::GREATER_SYM);
+    LCD.print_P(3, 6, UIStrings::Generic::CONTINUE);
+    LCD.print_P(3, 15, UIStrings::Generic::LESS_SYM);
     while (!Encoder.ok()) brewCore();
 }
 
@@ -1489,7 +1491,7 @@ byte scrollMenu(const char* sTitle, menu *objMenu) {
             objMenu->setSelected(Encoder.getCount());
             if (objMenu->refreshDisp() || redraw) drawMenu(sTitle, objMenu);
             for (byte i = 0; i < 3; i++) LCD.print(i + 1, 0, " ");
-            LCD.print_P(objMenu->getCursor() + 1, 0, GREATER_SYM);
+            LCD.print_P(objMenu->getCursor() + 1, 0, UIStrings::Generic::GREATER_SYM);
         }
         redraw = 0;
         //If Enter
@@ -1510,12 +1512,12 @@ void drawMenu(const char* sTitle, menu *objMenu) {
         objMenu->getVisibleRow(i, buf);
         LCD.print(i + 1, 1, buf);
     }
-    LCD.print_P(objMenu->getCursor() + 1, 0, GREATER_SYM);
+    LCD.print_P(objMenu->getCursor() + 1, 0, UIStrings::Generic::GREATER_SYM);
 }
 
 byte getChoice(menu *objMenu, byte iRow) {
-    LCD.print_P(iRow, 0, GREATER_SYM);
-    LCD.print_P(iRow, 19, LESS_SYM);
+    LCD.print_P(iRow, 0, UIStrings::Generic::GREATER_SYM);
+    LCD.print_P(iRow, 19, UIStrings::Generic::LESS_SYM);
     Encoder.setMin(0);
     Encoder.setMax(objMenu->getItemCount() - 1);
     Encoder.setCount(0);
@@ -1535,8 +1537,8 @@ byte getChoice(menu *objMenu, byte iRow) {
         
         //If Enter
         if (Encoder.ok()) {
-            LCD.print_P(iRow, 0, SPACE);
-            LCD.print_P(iRow, 19, SPACE);
+            LCD.print_P(iRow, 0, UIStrings::Generic::SPACE);
+            LCD.print_P(iRow, 19, UIStrings::Generic::SPACE);
             return Encoder.getCount();
         } else if (Encoder.cancel()) {
             return 255;
@@ -1547,23 +1549,23 @@ byte getChoice(menu *objMenu, byte iRow) {
 
 boolean confirmChoice(const char *choice, byte row) {
     menu choiceMenu(1, 2);
-    choiceMenu.setItem_P(CANCEL, 0);
+    choiceMenu.setItem_P(UIStrings::Generic::CANCEL, 0);
     choiceMenu.setItem_P(choice, 1);
     if(getChoice(&choiceMenu, row) == 1) return 1; else return 0;
 }
 
 boolean confirmAbort() {
     LCD.clear();
-    LCD.print_P(0, 0, ABORT_OP1);
-    LCD.print_P(1, 0, ABORT_OP2);
-    LCD.print_P(2, 0, ABORT_OP3);
-    return confirmChoice(RESET, 3);
+    LCD.print_P(0, 0, UIStrings::AbortDialog::ABORT_OP1);
+    LCD.print_P(1, 0, UIStrings::AbortDialog::ABORT_OP2);
+    LCD.print_P(2, 0, UIStrings::AbortDialog::ABORT_OP3);
+    return confirmChoice(UIStrings::AbortDialog::RESET, 3);
 }
 
 boolean confirmDel() {
     LCD.clear();
-    LCD.print_P(1, 0, DELETE_ITEM);
-    return confirmChoice(DELETE, 3);
+    LCD.print_P(1, 0, UIStrings::DeleteDialog::DELETE_ITEM);
+    return confirmChoice(UIStrings::Shared::DELETE, 3);
 }
 
 unsigned long getValue_P(const char *sTitle, unsigned long defValue, unsigned int divisor, unsigned long maxValue, const char *dispUnit) {
@@ -1598,7 +1600,7 @@ unsigned long getValue(char sTitle[], unsigned long defValue, unsigned int divis
     LCD.clear();
     LCD.print(0, 0, sTitle);
     LCD.print_P(1, valuePos + digits + 1, dispUnit);
-    LCD.print_P(3, 9, OK);
+    LCD.print_P(3, 9, UIStrings::Generic::OK);
     boolean redraw = 1;
     
     while(1) {
@@ -1618,11 +1620,11 @@ unsigned long getValue(char sTitle[], unsigned long defValue, unsigned int divis
                 cursorPos = encValue;
                 for (byte i = valuePos - 1; i < valuePos - 1 + digits - precision; i++) LCD.writeCustChar(2, i, 0);
                 if (precision) for (byte i = valuePos + digits - precision; i < valuePos + digits; i++) LCD.writeCustChar(2, i, 0);
-                LCD.print(3, 8, " ");
-                LCD.print(3, 11, " ");
+                LCD.print_P(3, 8, UIStrings::Generic::SPACE);
+                LCD.print_P(3, 11, UIStrings::Generic::SPACE);
                 if (cursorPos == digits) {
-                    LCD.print(3, 8, ">");
-                    LCD.print(3, 11, "<");
+                    LCD.print_P(3, 8, UIStrings::Generic::GREATER_SYM);
+                    LCD.print_P(3, 11, UIStrings::Generic::LESS_SYM);
                 } else {
                     if (cursorPos < digits - precision) LCD.writeCustChar(2, valuePos + cursorPos - 1, 1);
                     else LCD.writeCustChar(2, valuePos + cursorPos, 1);
@@ -1695,7 +1697,7 @@ unsigned long getHexValue(char sTitle[], unsigned long defValue) {
     byte valuePos = (20 - digits + 1) / 2;
     LCD.clear();
     LCD.print(0, 0, sTitle);
-    LCD.print_P(3, 9, OK);
+    LCD.print_P(3, 9, UIStrings::Generic::OK);
     boolean redraw = 1;
     
     unsigned long multiplier = ulpow(16, (digits - cursorPos - 1));
@@ -1723,8 +1725,8 @@ unsigned long getHexValue(char sTitle[], unsigned long defValue) {
                 LCD.print(3, 8, " ");
                 LCD.print(3, 11, " ");
                 if (cursorPos == digits) {
-                    LCD.print_P(3, 8, GREATER_SYM);
-                    LCD.print_P(3, 11, LESS_SYM);
+                    LCD.print_P(3, 8, UIStrings::Generic::GREATER_SYM);
+                    LCD.print_P(3, 11, UIStrings::Generic::LESS_SYM);
                 }
                 else {
                     if (cursorPos < digits) {
@@ -1801,7 +1803,7 @@ void printTimer(byte timer, byte iRow, byte iCol) {
         if (millis() - timerLastPrint >= 1000) {
             timerLastPrint = millis();
             LCD.rPad(iRow, iCol, "", 6, ' ');
-            LCD.print_P(iRow, iCol+2, TIMER_SEP);
+            LCD.print_P(iRow, iCol+2, UIStrings::Timer::TIMER_SEP);
             LCD.lPad(iRow, iCol, itoa(hours, buf, 10), 2, '0');
             LCD.lPad(iRow, iCol + 3, itoa(mins, buf, 10), 2, '0');
             LCD.lPad(iRow, iCol + 6, itoa(secs, buf, 10), 2, '0');
@@ -1823,7 +1825,7 @@ int getTimerValue(const char *sTitle, int defMins, byte maxHours) {
     LCD.print_P(0,0,sTitle);
     LCD.print(1, 7, "(hh:mm)");
     LCD.print(2, 10, ":");
-    LCD.print_P(3, 9, OK);
+    LCD.print_P(3, 9, UIStrings::Generic::OK);
     boolean redraw = 1;
     int encValue;
     
@@ -1839,22 +1841,22 @@ int getTimerValue(const char *sTitle, int defMins, byte maxHours) {
                 cursorPos = encValue;
                 switch (cursorPos) {
                     case 0: //hours
-                        LCD.print_P(2, 7, GREATER_SYM);
-                        LCD.print_P(2, 13, SPACE);
-                        LCD.print_P(3, 8, SPACE);
-                        LCD.print_P(3, 11, SPACE);
+                        LCD.print_P(2, 7, UIStrings::Generic::GREATER_SYM);
+                        LCD.print_P(2, 13, UIStrings::Generic::SPACE);
+                        LCD.print_P(3, 8, UIStrings::Generic::SPACE);
+                        LCD.print_P(3, 11, UIStrings::Generic::SPACE);
                         break;
                     case 1: //mins
-                        LCD.print_P(2, 7, SPACE);
-                        LCD.print_P(2, 13, LESS_SYM);
-                        LCD.print_P(3, 8, SPACE);
-                        LCD.print_P(3, 11, SPACE);
+                        LCD.print_P(2, 7, UIStrings::Generic::SPACE);
+                        LCD.print_P(2, 13, UIStrings::Generic::LESS_SYM);
+                        LCD.print_P(3, 8, UIStrings::Generic::SPACE);
+                        LCD.print_P(3, 11, UIStrings::Generic::SPACE);
                         break;
                     case 2: //OK
-                        LCD.print_P(2, 7, SPACE);
-                        LCD.print_P(2, 13, SPACE);
-                        LCD.print_P(3, 8, GREATER_SYM);
-                        LCD.print_P(3, 11, LESS_SYM);
+                        LCD.print_P(2, 7, UIStrings::Generic::SPACE);
+                        LCD.print_P(2, 13, UIStrings::Generic::SPACE);
+                        LCD.print_P(3, 8, UIStrings::Generic::GREATER_SYM);
+                        LCD.print_P(3, 11, UIStrings::Generic::LESS_SYM);
                         break;
                 }
             }
@@ -1912,7 +1914,7 @@ void getString(const char *sTitle, char defValue[], byte chars) {
     
     LCD.clear();
     LCD.print_P(0,0,sTitle);
-    LCD.print_P(3, 9, OK);
+    LCD.print_P(3, 9, UIStrings::Generic::OK);
     boolean redraw = 1;
     while(1) {
         int encValue;
@@ -1992,28 +1994,28 @@ byte enc2ASCII(byte charin) {
 #ifndef UI_NO_SETUP
 void menuSetup() {
     menu setupMenu(3, 10);
-    setupMenu.setItem_P(TEMP_SENSORS, 0);
-    setupMenu.setItem_P(OUTPUTS, 1);
-    setupMenu.setItem_P(VOLS_CAPS, 2);
+    setupMenu.setItem_P(UIStrings::SystemSetup::TEMP_SENSORS, 0);
+    setupMenu.setItem_P(UIStrings::SystemSetup::OUTPUTS, 1);
+    setupMenu.setItem_P(UIStrings::SystemSetup::VOLS_CAPS, 2);
 #ifdef PVOUT
-    setupMenu.setItem_P(VALVE_PROFILES, 3);
+    setupMenu.setItem_P(UIStrings::SystemSetup::VALVE_PROFILES, 3);
 #ifdef PVOUT_TYPE_MODBUS
-    setupMenu.setItem_P(RS485_OUTPUTS, 4);
+    setupMenu.setItem_P(UIStrings::SystemSetup::RS485_OUTPUTS, 4); 
 #endif
 #endif
-    setupMenu.setItem_P(INIT_EEPROM, 5);
+    setupMenu.setItem_P(UIStrings::EEPROMInit::INIT_EEPROM, 5);
 #ifdef UI_DISPLAY_SETUP
-    setupMenu.setItem_P(DISPLAY_S, 6);
+    setupMenu.setItem_P(UIStrings::SystemSetup::DISPLAY_S, 6);
 #endif
 #ifdef RGBIO8_ENABLE
 #ifdef RGBIO8_SETUP
-    setupMenu.setItem_P(RGB_SETUP, 7);
+    setupMenu.setItem_P(UIStrings::SystemSetup::RGB_SETUP, 7);
 #endif
 #endif
 #ifdef DIGITAL_INPUTS
-    setupMenu.setItem_P(TRIGGERS, 8);
+    setupMenu.setItem_P(UIStrings::SystemSetup::TRIGGERS, 8);
 #endif
-    setupMenu.setItem_P(EXIT, 255);
+    setupMenu.setItem_P(UIStrings::Generic::EXIT, 255);
     
     while(1) {
         byte lastOption = scrollMenu("System Setup", &setupMenu);
@@ -2028,8 +2030,8 @@ void menuSetup() {
 #endif
         else if (lastOption == 5) {
             LCD.clear();
-            LCD.print_P(0, 0, RESET_CONFIG);
-            if (confirmChoice(INIT_EEPROM, 3)) UIinitEEPROM();
+            LCD.print_P(0, 0, UIStrings::SystemSetup::InitEEPROM::RESET_CONFIG);
+            if (confirmChoice(UIStrings::EEPROMInit::INIT_EEPROM, 3)) UIinitEEPROM();
         }
 #ifdef UI_DISPLAY_SETUP
         else if (lastOption == 6) adjustLCD();
@@ -2056,18 +2058,16 @@ void cfgRgb() {
     boolean identifyOn = false;
     
     menu m(3, 5);
-    RGBIO8 rgb;
-    rgb.begin(0, targetAddr);
     
     while (1) {
-        m.setItem_P(TARGET_ADDR, 0);
+        m.setItem_P(UIStrings::SystemSetup::RGBIO::TARGET_ADDR, 0);
         sprintf(buf, "0x%02x", targetAddr);
         m.appendItem(buf, 0);
-        m.setItem_P(SET_ADDR, 1);
-        m.setItem_P(IDENTIFY, 2);
+        m.setItem_P(UIStrings::SystemSetup::RGBIO::SET_ADDR, 1);
+        m.setItem_P(UIStrings::SystemSetup::RGBIO::IDENTIFY, 2);
         m.appendItem((char*) (identifyOn ? "On" : "Off"), 2);
-        m.setItem_P(RESTART, 3);
-        m.setItem_P(EXIT, 255);
+        m.setItem_P(UIStrings::SystemSetup::RGBIO::RESTART, 3);
+        m.setItem_P(UIStrings::Generic::EXIT, 255);
         byte lastOption = scrollMenu("RGB Setup", &m);
         if (lastOption == 0) {
             targetAddr = (byte) getHexValue("Target Address", targetAddr);
@@ -2103,17 +2103,17 @@ void cfgRgb() {
 
 void assignSensor() {
     menu tsMenu(1, 9);
-    tsMenu.setItem_P(HLTDESC, TS_HLT);
-    tsMenu.setItem_P(MASHDESC, TS_MASH);
-    tsMenu.setItem_P(BREW_KETTLE, TS_KETTLE);
-    tsMenu.setItem_P(WATER_IN, TS_H2OIN);
-    tsMenu.setItem_P(WATER_OUT, TS_H2OOUT);
-    tsMenu.setItem_P(BEER_OUT, TS_BEEROUT);
-    tsMenu.setItem_P(AUX1, TS_AUX1);
-    tsMenu.setItem_P(AUX2, TS_AUX2);
-    tsMenu.setItem_P(AUX3, TS_AUX3);
+    tsMenu.setItem_P(UIStrings::Shared::HLTDESC, TS_HLT);
+    tsMenu.setItem_P(UIStrings::Shared::MASHDESC, TS_MASH);
+    tsMenu.setItem_P(UIStrings::SystemSetup::TempSensorAssign::BREW_KETTLE, TS_KETTLE);
+    tsMenu.setItem_P(UIStrings::SystemSetup::TempSensorAssign::WATER_IN, TS_H2OIN);
+    tsMenu.setItem_P(UIStrings::SystemSetup::TempSensorAssign::WATER_OUT, TS_H2OOUT);
+    tsMenu.setItem_P(UIStrings::SystemSetup::TempSensorAssign::BEER_OUT, TS_BEEROUT);
+    tsMenu.setItem_P(UIStrings::SystemSetup::TempSensorAssign::AUX1, TS_AUX1);
+    tsMenu.setItem_P(UIStrings::SystemSetup::TempSensorAssign::AUX2, TS_AUX2);
+    tsMenu.setItem_P(UIStrings::SystemSetup::TempSensorAssign::AUX3, TS_AUX3);
 #ifdef RIMS_TEMP_SENSOR
-    tsMenu.setItem_P(RIMS_SENSOR, RIMS_TEMP_SENSOR);
+    tsMenu.setItem_P(UIStrings::SystemSetup::TempSensorAssign::RIMS_SENSOR, RIMS_TEMP_SENSOR);
 #endif
     
     Encoder.setMin(0);
@@ -2134,7 +2134,7 @@ void assignSensor() {
             tsMenu.setSelected(encValue);
             //The user has navigated toward a new temperature probe screen.
             LCD.clear();
-            LCD.print_P(0, 0, ASSIGN_SENSOR);
+            LCD.print_P(0, 0, UIStrings::SystemSetup::TempSensorAssign::ASSIGN_SENSOR);
             LCD.center(1, 0, tsMenu.getSelectedRow(buf), 20);
             for (byte i=0; i<8; i++) LCD.lPad(2,i*2+2,itoa(tSensor[tsMenu.getValue()][i], buf, 16), 2, '0');
         }
@@ -2145,18 +2145,18 @@ void assignSensor() {
             encValue = Encoder.getCount();
             //Pop-Up Menu
             menu tsOpMenu(3, 4);
-            tsOpMenu.setItem_P(SCAN_BUS, 0);
-            tsOpMenu.setItem_P(DELETE_ADDRESS, 1);
-            tsOpMenu.setItem_P(CANCEL, 2);
-            tsOpMenu.setItem_P(EXIT, 255);
+            tsOpMenu.setItem_P(UIStrings::SystemSetup::TempSensorAssign::SCAN_BUS, 0);
+            tsOpMenu.setItem_P(UIStrings::SystemSetup::TempSensorAssign::DELETE_ADDRESS, 1);
+            tsOpMenu.setItem_P(UIStrings::Generic::CANCEL, 2);
+            tsOpMenu.setItem_P(UIStrings::Generic::EXIT, 255);
             byte selected = scrollMenu(tsMenu.getSelectedRow(buf), &tsOpMenu);
             if (selected == 0) {
                 LCD.clear();
                 LCD.center(0, 0, tsMenu.getSelectedRow(buf), 20);
-                LCD.print_P(1,0,DISCONNECT_WARN1);
-                LCD.print_P(2,2,DISCONNECT_WARN2);
+                LCD.print_P(1,0,UIStrings::SystemSetup::TempSensorAssign::DISCONNECT_WARN1);
+                LCD.print_P(2,2,UIStrings::SystemSetup::TempSensorAssign::DISCONNECT_WARN2);
                 {
-                    if (confirmChoice(CONTINUE, 3)) {
+                    if (confirmChoice(UIStrings::Generic::CONTINUE, 3)) {
                         byte addr[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                         getDSAddr(addr);
                         setTSAddr(encValue, addr);
@@ -2178,9 +2178,9 @@ void assignSensor() {
 }
 
 void displayAssignSensorTemp(int sensor) {
-    LCD.print_P(3, 10, TUNIT);
+    LCD.print_P(3, 10, UIStrings::Units::TUNIT);
     if (temp[sensor] == BAD_TEMP) {
-        LCD.print_P(3, 7, ASSIGN_BAD_TEMP);
+        LCD.print_P(3, 7, UIStrings::SystemSetup::TempSensorAssign::ASSIGN_BAD_TEMP);
     } else {
         LCD.lPad(3, 7, itoa(temp[sensor] / 100, buf, 10), 3, ' ');
     }
@@ -2205,88 +2205,88 @@ void cfgOutputs() {
         //High-nibble = vessel: VS_HLT-VS_STEAM/VS_PUMP
         //Low-nibble = menu item: OPT_XXXXXXXX (see #defines above)
         
-        outputMenu.setItem_P(HLT_MODE, VS_HLT<<4 | OPT_MODE);
+        outputMenu.setItem_P(UIStrings::SystemSetup::OutputConfig::HLT_MODE, VS_HLT<<4 | OPT_MODE);
         if (PIDEnabled[VS_HLT]) {
-            outputMenu.appendItem_P(PID_MODE, VS_HLT<<4 | OPT_MODE);
+            outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::PID_MODE, VS_HLT<<4 | OPT_MODE);
         }
         else {
-            outputMenu.appendItem_P(ON_OFF_MODE, VS_HLT<<4 | OPT_MODE);
+            outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::ON_OFF_MODE, VS_HLT<<4 | OPT_MODE);
         }
-        outputMenu.setItem_P((char*)pgm_read_word(&(TITLE_VS[VS_HLT])), VS_HLT<<4 | OPT_CYCLE);
-        outputMenu.appendItem_P(PIDCYCLE, VS_HLT<<4 | OPT_CYCLE);
-        outputMenu.setItem_P((char*)pgm_read_word(&(TITLE_VS[VS_HLT])), VS_HLT<<4 | OPT_GAIN);
-        outputMenu.appendItem_P(PIDGAIN, VS_HLT<<4 | OPT_GAIN);
-        outputMenu.setItem_P((char*)pgm_read_word(&(TITLE_VS[VS_HLT])), VS_HLT<<4 | OPT_HYSTERESIS);
-        outputMenu.appendItem_P(HYSTERESIS, VS_HLT<<4 | OPT_HYSTERESIS);
+        outputMenu.setItem_P(UIStrings::Vessel::TITLE_VS_HLT, VS_HLT<<4 | OPT_CYCLE);
+        outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::PIDCYCLE, VS_HLT<<4 | OPT_CYCLE);
+        outputMenu.setItem_P(UIStrings::Vessel::TITLE_VS_HLT, VS_HLT<<4 | OPT_GAIN);
+        outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::PIDGAIN, VS_HLT<<4 | OPT_GAIN);
+        outputMenu.setItem_P(UIStrings::Vessel::TITLE_VS_HLT, VS_HLT<<4 | OPT_HYSTERESIS);
+        outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::HYSTERESIS, VS_HLT<<4 | OPT_HYSTERESIS);
         
-        outputMenu.setItem_P(MASH_MODE, VS_MASH<<4 | OPT_MODE);
+        outputMenu.setItem_P(UIStrings::SystemSetup::OutputConfig::MASH_MODE, VS_MASH<<4 | OPT_MODE);
         if (PIDEnabled[VS_MASH]) {
-            outputMenu.appendItem_P(PID_MODE, VS_MASH<<4 | OPT_MODE);
+            outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::PID_MODE, VS_MASH<<4 | OPT_MODE);
         }
         else {
-            outputMenu.appendItem_P(ON_OFF_MODE, VS_MASH<<4 | OPT_MODE);
+            outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::ON_OFF_MODE, VS_MASH<<4 | OPT_MODE);
         }
-        outputMenu.setItem_P((char*)pgm_read_word(&(TITLE_VS[VS_MASH])), VS_MASH<<4 | OPT_CYCLE);
-        outputMenu.appendItem_P(PIDCYCLE, VS_MASH<<4 | OPT_CYCLE);
-        outputMenu.setItem_P((char*)pgm_read_word(&(TITLE_VS[VS_MASH])), VS_MASH<<4 | OPT_GAIN);
-        outputMenu.appendItem_P(PIDGAIN, VS_MASH<<4 | OPT_GAIN);
-        outputMenu.setItem_P((char*)pgm_read_word(&(TITLE_VS[VS_MASH])), VS_MASH<<4 | OPT_HYSTERESIS);
-        outputMenu.appendItem_P(HYSTERESIS, VS_MASH<<4 | OPT_HYSTERESIS);
+        outputMenu.setItem_P(UIStrings::Vessel::TITLE_VS_MASH, VS_MASH<<4 | OPT_CYCLE);
+        outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::PIDCYCLE, VS_MASH<<4 | OPT_CYCLE);
+        outputMenu.setItem_P(UIStrings::Vessel::TITLE_VS_MASH, VS_MASH<<4 | OPT_GAIN);
+        outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::PIDGAIN, VS_MASH<<4 | OPT_GAIN);
+        outputMenu.setItem_P(UIStrings::Vessel::TITLE_VS_MASH, VS_MASH<<4 | OPT_HYSTERESIS);
+        outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::HYSTERESIS, VS_MASH<<4 | OPT_HYSTERESIS);
         
-        outputMenu.setItem_P(KETTLE_MODE, VS_KETTLE<<4 | OPT_MODE);
+        outputMenu.setItem_P(UIStrings::SystemSetup::OutputConfig::KETTLE_MODE, VS_KETTLE<<4 | OPT_MODE);
         if (PIDEnabled[VS_KETTLE]) {
-            outputMenu.appendItem_P(PID_MODE, VS_KETTLE<<4 | OPT_MODE);
+            outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::PID_MODE, VS_KETTLE<<4 | OPT_MODE);
         }
         else {
-            outputMenu.appendItem_P(ON_OFF_MODE, VS_KETTLE<<4 | OPT_MODE);
+            outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::ON_OFF_MODE, VS_KETTLE<<4 | OPT_MODE);
         }
-        outputMenu.setItem_P((char*)pgm_read_word(&(TITLE_VS[VS_KETTLE])), VS_KETTLE<<4 | OPT_CYCLE);
-        outputMenu.appendItem_P(PIDCYCLE, VS_KETTLE<<4 | OPT_CYCLE);
-        outputMenu.setItem_P((char*)pgm_read_word(&(TITLE_VS[VS_KETTLE])), VS_KETTLE<<4 | OPT_GAIN);
-        outputMenu.appendItem_P(PIDGAIN, VS_KETTLE<<4 | OPT_GAIN);
-        outputMenu.setItem_P((char*)pgm_read_word(&(TITLE_VS[VS_KETTLE])), VS_KETTLE<<4 | OPT_HYSTERESIS);
-        outputMenu.appendItem_P(HYSTERESIS, VS_KETTLE<<4 | OPT_HYSTERESIS);
+        outputMenu.setItem_P(UIStrings::Vessel::TITLE_VS_KETTLE, VS_KETTLE<<4 | OPT_CYCLE);
+        outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::PIDCYCLE, VS_KETTLE<<4 | OPT_CYCLE);
+        outputMenu.setItem_P(UIStrings::Vessel::TITLE_VS_KETTLE, VS_KETTLE<<4 | OPT_GAIN);
+        outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::PIDGAIN, VS_KETTLE<<4 | OPT_GAIN);
+        outputMenu.setItem_P(UIStrings::Vessel::TITLE_VS_KETTLE, VS_KETTLE<<4 | OPT_HYSTERESIS);
+        outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::HYSTERESIS, VS_KETTLE<<4 | OPT_HYSTERESIS);
         
-        outputMenu.setItem_P(BOIL_TEMP, OPT_BOILTEMP);
-        outputMenu.appendItem_P(COLON_SPACE, OPT_BOILTEMP);
+        outputMenu.setItem_P(UIStrings::BoilMenu::BOIL_TEMP, OPT_BOILTEMP);
+        outputMenu.appendItem_P(UIStrings::Generic::COLON_SPACE, OPT_BOILTEMP);
         vftoa(getBoilTemp(), buf, SETPOINT_DIV, 1);
         truncFloat(buf, 5);
         outputMenu.appendItem(buf, OPT_BOILTEMP);
-        outputMenu.appendItem_P(TUNIT, OPT_BOILTEMP);
+        outputMenu.appendItem_P(UIStrings::Units::TUNIT, OPT_BOILTEMP);
         
-        outputMenu.setItem_P(BOIL_POWER, OPT_BOILPWR);
-        outputMenu.appendItem_P(COLON_SPACE, OPT_BOILPWR);
+        outputMenu.setItem_P(UIStrings::BoilMenu::BOIL_POWER, OPT_BOILPWR);
+        outputMenu.appendItem_P(UIStrings::Generic::COLON_SPACE, OPT_BOILPWR);
         outputMenu.appendItem(itoa(boilPwr, buf, 10), OPT_BOILPWR);
         outputMenu.appendItem("%", OPT_BOILPWR);
         
 #ifdef PID_FLOW_CONTROL
-        outputMenu.setItem_P(SPARGE_PUMP_MODE, VS_PUMP<<4 | OPT_MODE);
+        outputMenu.setItem_P(UIStrings::SystemSetup::OutputConfig::SPARGE_PUMP_MODE, VS_PUMP<<4 | OPT_MODE);
         if (PIDEnabled[VS_PUMP]) {
-            outputMenu.appendItem_P(PID_MODE, VS_PUMP<<4 | OPT_MODE);
+            outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::PID_MODE, VS_PUMP<<4 | OPT_MODE);
         }
         else {
-            outputMenu.appendItem_P(ON_OFF_MODE, VS_PUMP<<4 | OPT_MODE);
+            outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::ON_OFF_MODE, VS_PUMP<<4 | OPT_MODE);
         }
-        outputMenu.setItem_P((char*)pgm_read_word(&(TITLE_VS[VS_PUMP])), VS_PUMP<<4 | OPT_GAIN);
-        outputMenu.appendItem_P(PIDGAIN, VS_PUMP<<4 | OPT_GAIN);
-        outputMenu.setItem_P(PUMPFLOW, VS_PUMP<<4 | OPT_PRESS);
+        outputMenu.setItem_P(UIStrings::Vessel::TITLE_VS_PUMP, VS_PUMP<<4 | OPT_GAIN);
+        outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::PIDGAIN, VS_PUMP<<4 | OPT_GAIN);
+        outputMenu.setItem_P(UIStrings::SystemSetup::OutputConfig::PUMPFLOW, VS_PUMP<<4 | OPT_PRESS);
 #elif defined USESTEAM
-        outputMenu.setItem_P(STEAM_MODE, VS_STEAM<<4 | OPT_MODE);
+        outputMenu.setItem_P(UIStrings::SystemSetup::OutputConfig::STEAM_MODE, VS_STEAM<<4 | OPT_MODE);
         if (PIDEnabled[VS_STEAM]) {
-            outputMenu.appendItem_P(PID_MODE, VS_STEAM<<4 | OPT_MODE);
+            outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::PID_MODE, VS_STEAM<<4 | OPT_MODE);
         }
         else {
-            outputMenu.appendItem_P(ON_OFF_MODE, VS_STEAM<<4 | OPT_MODE);
-        }=
-        outputMenu.setItem_P((char*)pgm_read_word(&(TITLE_VS[VS_STEAM])), VS_STEAM<<4 | OPT_CYCLE);
-        outputMenu.appendItem_P(PIDCYCLE, VS_STEAM<<4 | OPT_CYCLE);
-        outputMenu.setItem_P((char*)pgm_read_word(&(TITLE_VS[VS_STEAM])), VS_STEAM<<4 | OPT_GAIN);
-        outputMenu.appendItem_P(PIDGAIN, VS_STEAM<<4 | OPT_GAIN);
-        outputMenu.setItem_P(STEAMPRESS, VS_STEAM<<4 | OPT_PRESS);
-        outputMenu.setItem_P(STEAMSENSOR, VS_STEAM<<4 | OPT_SENSOR);
-        outputMenu.setItem_P(STEAMZERO, VS_STEAM<<4 | OPT_ZERO);
+            outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::ON_OFF_MODE, VS_STEAM<<4 | OPT_MODE);
+        }
+        outputMenu.setItem_P(UIStrings::Vessel::TITLE_VS_STEAM, VS_STEAM<<4 | OPT_CYCLE);
+        outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::PIDCYCLE, VS_STEAM<<4 | OPT_CYCLE);
+        outputMenu.setItem_P(UIStrings::Vessel::TITLE_VS_STEAM, VS_STEAM<<4 | OPT_GAIN);
+        outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::PIDGAIN, VS_STEAM<<4 | OPT_GAIN);
+        outputMenu.setItem_P(UIStrings::SystemSetup::OutputConfig::STEAMPRESS, VS_STEAM<<4 | OPT_PRESS);
+        outputMenu.setItem_P(UIStrings::SystemSetup::OutputConfig::STEAMSENSOR, VS_STEAM<<4 | OPT_SENSOR);
+        outputMenu.setItem_P(UIStrings::SystemSetup::OutputConfig::STEAMZERO, VS_STEAM<<4 | OPT_ZERO);
 #endif
-        outputMenu.setItem_P(EXIT, 255);
+        outputMenu.setItem_P(UIStrings::Generic::EXIT, 255);
         
         byte lastOption = scrollMenu("Output Settings", &outputMenu);
         byte vessel = lastOption>>4;
@@ -2298,43 +2298,43 @@ void cfgOutputs() {
 #else
                 if (vessel >= VS_HLT && vessel <= VS_KETTLE)
 #endif
-                    strcpy_P(title, (char*)pgm_read_word(&(TITLE_VS[vessel])));
+                    strcpy_P(title, (char*)pgm_read_word(&(UIStrings::SystemSetup::TITLE_VS[vessel])));
         
         if ((lastOption & B00001111) == OPT_MODE) {
             if (PIDEnabled[vessel]) setPIDEnabled(vessel, 0);
             else setPIDEnabled(vessel, 1);
         } else if ((lastOption & B00001111) == OPT_CYCLE) {
-            strcat_P(title, PIDCYCLE);
-            setPIDCycle(vessel, getValue(title, PIDCycle[vessel], 10, 255, SEC));
+            strcat_P(title, UIStrings::SystemSetup::OutputConfig::PIDCYCLE);
+            setPIDCycle(vessel, getValue(title, PIDCycle[vessel], 10, 255, UIStrings::Shared::SEC));
             pid[vessel].SetOutputLimits(0, PIDCycle[vessel] * pidLimits[vessel]);
             
         } else if ((lastOption & B00001111) == OPT_GAIN) {
-            strcat_P(title, PIDGAIN);
+            strcat_P(title, UIStrings::SystemSetup::OutputConfig::PIDGAIN);
             setPIDGain(title, vessel);
         } else if ((lastOption & B00001111) == OPT_HYSTERESIS) {
-            strcat_P(title, HYSTERESIS);
-            setHysteresis(vessel, getValue(title, hysteresis[vessel], 10, 255, TUNIT));
+            strcat_P(title, UIStrings::SystemSetup::OutputConfig::HYSTERESIS);
+            setHysteresis(vessel, getValue(title, hysteresis[vessel], 10, 255, UIStrings::Units::TUNIT));
 #if defined USESTEAM || defined PID_FLOW_CONTROL
         } else if ((lastOption & B00001111) == OPT_PRESS) {
 #ifdef PID_FLOW_CONTROL
-            setSteamTgt(getValue_P(PUMPFLOW, getSteamTgt(), 1, 255, PUNIT));
+            setSteamTgt(getValue_P(UIStrings::SystemSetup::OutputConfig::PUMPFLOW, getSteamTgt(), 1, 255, UIStrings::Units::PUNIT));
 #else
-            setSteamTgt(getValue_P(STEAMPRESS, getSteamTgt(), 1, 255, PUNIT));
+            setSteamTgt(getValue_P(UIStrings::SystemSetup::OutputConfig::STEAMPRESS, getSteamTgt(), 1, 255, UIStrings::Units::PUNIT));
 #endif
 #endif
 #ifdef USESTEAM
         } else if ((lastOption & B00001111) == OPT_SENSOR) {
-            setSteamPSens(getValue_P(STEAMSENSOR, steamPSens, 10, 9999, PRES_UNIT));
+            setSteamPSens(getValue_P(UIStrings::SystemSetup::OutputConfig::STEAMSENSOR, steamPSens, 10, 9999, UIStrings::SystemSetup::OutputConfig::PRES_UNIT));
         } else if ((lastOption & B00001111) == OPT_ZERO) {
             LCD.clear();
-            LCD.print_P(0, 0, STEAMZERO);
-            LCD.print_P(1,2, CALIB_ZERO);
-            if (confirmChoice(CONTINUE, 3)) setSteamZero(analogRead(STEAMPRESS_APIN));
+            LCD.print_P(0, 0, UIStrings::SystemSetup::OutputConfig::STEAMZERO);
+            LCD.print_P(1,2, UIStrings::SystemSetup::OutputConfig::CALIB_ZERO);
+            if (confirmChoice(UIStrings::Generic::CONTINUE, 3)) setSteamZero(analogRead(STEAMPRESS_APIN));
 #endif
         } else if ((lastOption & B00001111) == OPT_BOILTEMP) {
-            setBoilTemp(getValue_P(BOIL_TEMP, getBoilTemp(), SETPOINT_DIV, 255, TUNIT));
+            setBoilTemp(getValue_P(UIStrings::BoilMenu::BOIL_TEMP, getBoilTemp(), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
         } else if ((lastOption & B00001111) == OPT_BOILPWR) {
-            setBoilPwr(getValue_P(BOIL_POWER, boilPwr, 1, min(PIDLIMIT_KETTLE, 100), PERC_SYM));
+            setBoilPwr(getValue_P(UIStrings::BoilMenu::BOIL_POWER, boilPwr, 1, min(PIDLIMIT_KETTLE, 100), UIStrings::Generic::PERC_SYM));
         } else return;
         brewCore();
     }
@@ -2352,8 +2352,8 @@ void setPIDGain(char sTitle[], byte vessel) {
     
     LCD.clear();
     LCD.print(0,0,sTitle);
-    LCD.print_P(1, 0, PID_SEP);
-    LCD.print_P(3, 8, OK);
+    LCD.print_P(1, 0, UIStrings::SystemSetup::PIDConfig::PID_SEP);
+    LCD.print_P(3, 8, UIStrings::Generic::OK);
     boolean redraw = 1;
     while(1) {
         int encValue;
@@ -2370,29 +2370,29 @@ void setPIDGain(char sTitle[], byte vessel) {
             } else {
                 cursorPos = encValue;
                 if (cursorPos == 0) {
-                    LCD.print_P(1, 2, GREATER_SYM);
-                    LCD.print_P(1, 9, SPACE);
-                    LCD.print_P(1, 16, SPACE);
-                    LCD.print_P(3, 7, SPACE);
-                    LCD.print_P(3, 10, SPACE);
+                    LCD.print_P(1, 2, UIStrings::Generic::GREATER_SYM);
+                    LCD.print_P(1, 9, UIStrings::Generic::SPACE);
+                    LCD.print_P(1, 16, UIStrings::Generic::SPACE);
+                    LCD.print_P(3, 7, UIStrings::Generic::SPACE);
+                    LCD.print_P(3, 10, UIStrings::Generic::SPACE);
                 } else if (cursorPos == 1) {
-                    LCD.print_P(1, 2, SPACE);
-                    LCD.print_P(1, 9, GREATER_SYM);
-                    LCD.print_P(1, 16, SPACE);
-                    LCD.print_P(3, 7, SPACE);
-                    LCD.print_P(3, 10, SPACE);
+                    LCD.print_P(1, 2, UIStrings::Generic::SPACE);
+                    LCD.print_P(1, 9, UIStrings::Generic::GREATER_SYM);
+                    LCD.print_P(1, 16, UIStrings::Generic::SPACE);
+                    LCD.print_P(3, 7, UIStrings::Generic::SPACE);
+                    LCD.print_P(3, 10, UIStrings::Generic::SPACE);
                 } else if (cursorPos == 2) {
-                    LCD.print_P(1, 2, SPACE);
-                    LCD.print_P(1, 9, SPACE);
-                    LCD.print_P(1, 16, GREATER_SYM);
-                    LCD.print_P(3, 7, SPACE);
-                    LCD.print_P(3, 10, SPACE);
+                    LCD.print_P(1, 2, UIStrings::Generic::SPACE);
+                    LCD.print_P(1, 9, UIStrings::Generic::SPACE);
+                    LCD.print_P(1, 16, UIStrings::Generic::GREATER_SYM);
+                    LCD.print_P(3, 7, UIStrings::Generic::SPACE);
+                    LCD.print_P(3, 10, UIStrings::Generic::SPACE);
                 } else if (cursorPos == 3) {
-                    LCD.print_P(1, 2, SPACE);
-                    LCD.print_P(1, 9, SPACE);
-                    LCD.print_P(1, 16, SPACE);
-                    LCD.print_P(3, 7, GREATER_SYM);
-                    LCD.print_P(3, 10, LESS_SYM);
+                    LCD.print_P(1, 2, UIStrings::Generic::SPACE);
+                    LCD.print_P(1, 9, UIStrings::Generic::SPACE);
+                    LCD.print_P(1, 16, UIStrings::Generic::SPACE);
+                    LCD.print_P(3, 7, UIStrings::Generic::GREATER_SYM);
+                    LCD.print_P(3, 10, UIStrings::Generic::LESS_SYM);
                 }
             }
             LCD.lPad(1, 3, itoa(retP, buf, 10), 3, ' ');
@@ -2438,17 +2438,17 @@ void cfgVolumes() {
     //Low-nibble = menu item: OPT_XXXXXXXX (see #defines above)
     menu volMenu(3, 11);
     for (byte vessel = VS_HLT; vessel <= VS_KETTLE; vessel++) {
-        volMenu.setItem_P((char*)pgm_read_word(&(TITLE_VS[vessel])), vessel<<4 | OPT_CAPACITY);
-        volMenu.appendItem_P(CAPACITY, vessel<<4 | OPT_CAPACITY);
+        volMenu.setItem_P((char*)pgm_read_word(&(UIStrings::SystemSetup::TITLE_VS[vessel])), vessel<<4 | OPT_CAPACITY);
+        volMenu.appendItem_P(UIStrings::SystemSetup::VolumeConfig::CAPACITY, vessel<<4 | OPT_CAPACITY);
         
-        volMenu.setItem_P((char*)pgm_read_word(&(TITLE_VS[vessel])), vessel<<4 | OPT_DEADSPACE);
-        volMenu.appendItem_P(DEADSPACE, vessel<<4 | OPT_DEADSPACE);
+        volMenu.setItem_P((char*)pgm_read_word(&(UIStrings::SystemSetup::TITLE_VS[vessel])), vessel<<4 | OPT_DEADSPACE);
+        volMenu.appendItem_P(UIStrings::SystemSetup::VolumeConfig::DEADSPACE, vessel<<4 | OPT_DEADSPACE);
         
-        volMenu.setItem_P((char*)pgm_read_word(&(TITLE_VS[vessel])), vessel<<4 | OPT_CALIBRATION);
-        volMenu.appendItem_P(CALIBRATION, vessel<<4 | OPT_CALIBRATION);
+        volMenu.setItem_P((char*)pgm_read_word(&(UIStrings::SystemSetup::TITLE_VS[vessel])), vessel<<4 | OPT_CALIBRATION);
+        volMenu.appendItem_P(UIStrings::SystemSetup::VolumeConfig::CALIBRATION, vessel<<4 | OPT_CALIBRATION);
     }
-    volMenu.setItem_P(EVAP_RATE, OPT_EVAP);
-    volMenu.setItem_P(EXIT, 255);
+    volMenu.setItem_P(UIStrings::SystemSetup::VolumeConfig::EVAP_RATE, OPT_EVAP);
+    volMenu.setItem_P(UIStrings::Generic::EXIT, 255);
     
     while(1) {
         byte lastOption = scrollMenu("Volume/Capacity", &volMenu);
@@ -2462,24 +2462,24 @@ void cfgVolumes() {
 #else
                 if (vessel >= VS_HLT && vessel <= VS_KETTLE)
 #endif
-                    strcpy_P(title, (char*)pgm_read_word(&(TITLE_VS[vessel])));
+                    strcpy_P(title, (char*)pgm_read_word(&(UIStrings::SystemSetup::TITLE_VS[vessel])));
         
         if ((lastOption & B00001111) == OPT_CAPACITY) {
-            strcat_P(title, CAPACITY);
-            setCapacity(vessel, getValue(title, getCapacity(vessel), 1000, 9999999, VOLUNIT));
+            strcat_P(title, UIStrings::SystemSetup::VolumeConfig::CAPACITY);
+            setCapacity(vessel, getValue(title, getCapacity(vessel), 1000, 9999999, UIStrings::Units::VOLUNIT));
         }
         else if ((lastOption & B00001111) == OPT_DEADSPACE) {
-            strcat_P(title, DEADSPACE);
-            setVolLoss(vessel, getValue(title, getVolLoss(vessel), 1000, 65535, VOLUNIT));
+            strcat_P(title, UIStrings::SystemSetup::VolumeConfig::DEADSPACE);
+            setVolLoss(vessel, getValue(title, getVolLoss(vessel), 1000, 65535, UIStrings::Units::VOLUNIT));
         }
         else if ((lastOption & B00001111) == OPT_CALIBRATION) {
-            strcat_P(title, CALIBRATION);
+            strcat_P(title, UIStrings::SystemSetup::VolumeConfig::CALIBRATION);
             volCalibMenu(title, vessel);
         }
 #ifdef BOIL_OFF_GALLONS
-        else if ((lastOption & B00001111) == OPT_EVAP) setEvapRate(getValue_P(EVAP_RATE, getEvapRate(), 1, 255, EVAP_RATE_UNIT));
+        else if ((lastOption & B00001111) == OPT_EVAP) setEvapRate(getValue_P(UIStrings::SystemSetup::VolumeConfig::EVAP_RATE, getEvapRate(), 1, 255, UIStrings::SystemSetup::VolumeConfig::EVAP_RATE_UNIT));
 #else
-        else if ((lastOption & B00001111) == OPT_EVAP) setEvapRate(getValue_P(EVAP_RATE, getEvapRate(), 1, 100, EVAP_RATE_UNIT));
+        else if ((lastOption & B00001111) == OPT_EVAP) setEvapRate(getValue_P(UIStrings::SystemSetup::VolumeConfig::EVAP_RATE, getEvapRate(), 1, 100, UIStrings::SystemSetup::VolumeConfig::EVAP_RATE_UNIT));
 #endif
         else return;
     }
@@ -2493,14 +2493,14 @@ void volCalibMenu(char sTitle[], byte vessel) {
                 vftoa(calibVols[vessel][i], buf, 1000, 1);
                 truncFloat(buf, 6);
                 calibMenu.setItem(buf, i);
-                calibMenu.appendItem_P(SPACE, i);
-                calibMenu.appendItem_P(VOLUNIT, i);
-                calibMenu.appendItem_P(OPEN_PAREN, i);
+                calibMenu.appendItem_P(UIStrings::Generic::SPACE, i);
+                calibMenu.appendItem_P(UIStrings::Units::VOLUNIT, i);
+                calibMenu.appendItem_P(UIStrings::SystemSetup::VolumeCalibration::OPEN_PAREN, i);
                 calibMenu.appendItem(itoa(calibVals[vessel][i], buf, 10), i);
-                calibMenu.appendItem_P(CLOSE_PAREN, i);
-            } else calibMenu.setItem_P(OPEN, i);
+                calibMenu.appendItem_P(UIStrings::SystemSetup::VolumeCalibration::CLOSE_PAREN, i);
+            } else calibMenu.setItem_P(UIStrings::SystemSetup::VolumeCalibration::OPEN, i);
         }
-        calibMenu.setItem_P(EXIT, 255);
+        calibMenu.setItem_P(UIStrings::Generic::EXIT, 255);
         byte lastOption = scrollMenu(sTitle, &calibMenu);
         if (lastOption > 9) return;
         else {
@@ -2513,7 +2513,7 @@ void volCalibMenu(char sTitle[], byte vessel) {
                 logVolCalib("Value before dialog:", analogRead(vSensor[vessel]));
 #endif
                 
-                setVolCalib(vessel, lastOption, 0, getValue_P(CURR_VOL, 0, 1000, 9999999, VOLUNIT)); //Set temporary the value to zero. It will be updated in the next step.
+                setVolCalib(vessel, lastOption, 0, getValue_P(UIStrings::SystemSetup::VolumeCalibration::CURR_VOL, 0, 1000, 9999999, UIStrings::Units::VOLUNIT)); //Set temporary the value to zero. It will be updated in the next step.
                 volCalibEntryMenu(vessel, lastOption);
                 
 #ifdef DEBUG_VOLCALIB
@@ -2534,21 +2534,21 @@ void volCalibEntryMenu(byte vessel, byte entry) {
     while(1) {
         vftoa(calibVols[vessel][entry], buf, 1000, 1);
         truncFloat(buf, 6);
-        strcpy_P(sTitle, CALIBRATE);
-        strcat_P(sTitle, SPACE);
+        strcpy_P(sTitle, UIStrings::SystemSetup::VolumeCalibration::CALIBRATE);
+        strcat_P(sTitle, UIStrings::Generic::SPACE);
         strcat(sTitle, buf);
-        strcat_P(sTitle, SPACE);
-        strcat_P(sTitle, VOLUNIT);
+        strcat_P(sTitle, UIStrings::Generic::SPACE);
+        strcat_P(sTitle, UIStrings::Units::VOLUNIT);
         
         unsigned int newSensorValue = GetCalibrationValue(vessel);
         
-        calibMenu.setItem_P(UPDATE, 0);
+        calibMenu.setItem_P(UIStrings::SystemSetup::VolumeCalibration::UPDATE, 0);
         calibMenu.appendItem(itoa(calibVals[vessel][entry], buf, 10), 0); //Show the currently saved value which can be zero.
-        calibMenu.appendItem_P(TO, 0);
+        calibMenu.appendItem_P(UIStrings::SystemSetup::VolumeCalibration::TO, 0);
         calibMenu.appendItem(itoa(newSensorValue, buf, 10), 0); //Show the value to be saved. So users know what to expect.
-        calibMenu.setItem_P(MANUAL_ENTRY, 1);
-        calibMenu.setItem_P(DELETE, 2);
-        calibMenu.setItem_P(EXIT, 255);
+        calibMenu.setItem_P(UIStrings::SystemSetup::VolumeCalibration::MANUAL_ENTRY, 1);
+        calibMenu.setItem_P(UIStrings::Shared::DELETE, 2);
+        calibMenu.setItem_P(UIStrings::Generic::EXIT, 255);
         
         byte lastOption = scrollMenu(sTitle, &calibMenu);
         
@@ -2557,7 +2557,7 @@ void volCalibEntryMenu(byte vessel, byte entry) {
             setVolCalib(vessel, entry, newSensorValue, calibVols[vessel][entry]);
             return;
         } else if (lastOption == 1) {
-            newSensorValue = (unsigned int) getValue_P(MANUAL_VOL_ENTRY, calibVals[vessel][entry], 1, 1023, EMPTY);
+            newSensorValue = (unsigned int) getValue_P(UIStrings::SystemSetup::VolumeCalibration::MANUAL_VOL_ENTRY, calibVals[vessel][entry], 1, 1023, UIStrings::Generic::EMPTY);
             setVolCalib(vessel, entry, newSensorValue, calibVols[vessel][entry]);
             return;
         } else if (lastOption == 2) {
@@ -2595,8 +2595,10 @@ void cfgValves() {
         VLV_USER3
     };
     menu vlvMenu(3, 21);
-    for (byte profile = 0; profile < NUM_VLVCFGS; profile++) vlvMenu.setItem_P((char*)pgm_read_word(&(TITLE_VLV[dispOrder[profile]])), dispOrder[profile]);
-    vlvMenu.setItem_P(EXIT, 255);
+    for (byte profile = 0; profile < NUM_VLVCFGS; profile++) {
+        vlvMenu.setItem_P((char*)pgm_read_word(&(TITLE_VLV[dispOrder[profile]])), dispOrder[profile]);
+    }
+    vlvMenu.setItem_P(UIStrings::Generic::EXIT, 255);
     while (1) {
         byte profile = scrollMenu("Valve Configuration", &vlvMenu);
         if (profile >= NUM_VLVCFGS) return;
@@ -2625,8 +2627,8 @@ unsigned long cfgValveProfile (char sTitle[], unsigned long defValue) {
     
     LCD.clear();
     LCD.print(0,0,sTitle);
-    LCD.print_P(3, 3, TEST);
-    LCD.print_P(3, 13, SAVE);
+    LCD.print_P(3, 3, UIStrings::SystemSetup::ValveProfileConfig::TEST);
+    LCD.print_P(3, 13, UIStrings::SystemSetup::ValveProfileConfig::SAVE);
     
     boolean redraw = 1;
     while(1) {
@@ -2638,8 +2640,20 @@ unsigned long cfgValveProfile (char sTitle[], unsigned long defValue) {
         else encValue = Encoder.change();
         if (encValue >= 0) {
             if (encValue < firstBit || encValue > firstBit + 17) {
-                if (encValue < firstBit) firstBit = encValue; else if (encValue < encMax - 1) firstBit = encValue - 17;
-                for (byte i = firstBit; i < min(encMax - 1, firstBit + 18); i++) if (retValue & ((unsigned long)1<<i)) LCD.print_P(1, i - firstBit + 1, ONE); else LCD.print_P(1, i - firstBit + 1, ZERO);
+                if (encValue < firstBit) {
+                    firstBit = encValue;
+                }
+                else if (encValue < encMax - 1) {
+                    firstBit = encValue - 17;
+                }
+                for (byte i = firstBit; i < min(encMax - 1, firstBit + 18); i++) {
+                    if (retValue & ((unsigned long)1<<i)) {
+                        LCD.print_P(1, i - firstBit + 1, UIStrings::SystemSetup::ValveProfileConfig::ONE);
+                    }
+                    else {
+                        LCD.print_P(1, i - firstBit + 1, UIStrings::Shared::ZERO);
+                    }
+                }
             }
             
             for (byte i = firstBit; i < min(encMax - 1, firstBit + 18); i++) {
@@ -2648,24 +2662,24 @@ unsigned long cfgValveProfile (char sTitle[], unsigned long defValue) {
                 LCD.print(2, i - firstBit + 1, buf);
             }
             
-            if (firstBit > 0) LCD.print_P(2, 0, LESS_SYM); else LCD.print_P(2, 0, SPACE);
-            if (firstBit + 18 < encMax - 1) LCD.print_P(2, 19, GREATER_SYM); else LCD.print_P(2, 19, SPACE);
+            if (firstBit > 0) LCD.print_P(2, 0, UIStrings::Generic::LESS_SYM); else LCD.print_P(2, 0, UIStrings::Generic::SPACE);
+            if (firstBit + 18 < encMax - 1) LCD.print_P(2, 19, UIStrings::Generic::GREATER_SYM); else LCD.print_P(2, 19, UIStrings::Generic::SPACE);
             if (encValue == encMax - 1) {
-                LCD.print_P(3, 2, GREATER_SYM);
-                LCD.print_P(3, 7, LESS_SYM);
-                LCD.print_P(3, 12, SPACE);
-                LCD.print_P(3, 17, SPACE);
+                LCD.print_P(3, 2, UIStrings::Generic::GREATER_SYM);
+                LCD.print_P(3, 7, UIStrings::Generic::LESS_SYM);
+                LCD.print_P(3, 12, UIStrings::Generic::SPACE);
+                LCD.print_P(3, 17, UIStrings::Generic::SPACE);
             } else if (encValue == encMax) {
-                LCD.print_P(3, 2, SPACE);
-                LCD.print_P(3, 7, SPACE);
-                LCD.print_P(3, 12, GREATER_SYM);
-                LCD.print_P(3, 17, LESS_SYM);
+                LCD.print_P(3, 2, UIStrings::Generic::SPACE);
+                LCD.print_P(3, 7, UIStrings::Generic::SPACE);
+                LCD.print_P(3, 12, UIStrings::Generic::GREATER_SYM);
+                LCD.print_P(3, 17, UIStrings::Generic::LESS_SYM);
             } else {
-                LCD.print_P(3, 2, SPACE);
-                LCD.print_P(3, 7, SPACE);
-                LCD.print_P(3, 12, SPACE);
-                LCD.print_P(3, 17, SPACE);
-                LCD.print_P(2, encValue - firstBit + 1, CARROT);
+                LCD.print_P(3, 2, UIStrings::Generic::SPACE);
+                LCD.print_P(3, 7, UIStrings::Generic::SPACE);
+                LCD.print_P(3, 12, UIStrings::Generic::SPACE);
+                LCD.print_P(3, 17, UIStrings::Generic::SPACE);
+                LCD.print_P(2, encValue - firstBit + 1, UIStrings::SystemSetup::ValveProfileConfig::CARROT);
             }
         }
         
@@ -2675,8 +2689,8 @@ unsigned long cfgValveProfile (char sTitle[], unsigned long defValue) {
             else if (encValue == encMax - 1) {
                 //Test Profile
                 setValves(retValue);
-                LCD.print_P(3, 2, OPEN_SQR);
-                LCD.print_P(3, 7, CLOSE_SQR);
+                LCD.print_P(3, 2, UIStrings::SystemSetup::ValveProfileConfig::OPEN_SQR);
+                LCD.print_P(3, 7, UIStrings::SystemSetup::ValveProfileConfig::CLOSE_SQR);
                 LCD.update();
                 while (!Encoder.ok()) {
 #ifdef HEARTBEAT
@@ -2690,10 +2704,10 @@ unsigned long cfgValveProfile (char sTitle[], unsigned long defValue) {
                 retValue = retValue ^ ((unsigned long)1<<encValue);
                 for (byte i = firstBit; i < min(encMax - 1, firstBit + 18); i++) {
                     if (retValue & ((unsigned long)1<<i)){
-                        LCD.print_P(1, i - firstBit + 1, ONE);
+                        LCD.print_P(1, i - firstBit + 1, UIStrings::SystemSetup::ValveProfileConfig::ONE);
                     }
                     else {
-                        LCD.print_P(1, i - firstBit + 1, ZERO);
+                        LCD.print_P(1, i - firstBit + 1, UIStrings::Shared::ZERO);
                     }
                 }
             }
@@ -2711,23 +2725,23 @@ void cfgMODBUSOutputs() {
     while(1) {
         menu boardMenu(3, PVOUT_MODBUS_MAXBOARDS + 1);
         for (byte i = 0; i < PVOUT_MODBUS_MAXBOARDS; i++) {
-            boardMenu.setItem_P(BOARD, i);
+            boardMenu.setItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::BOARD, i);
             boardMenu.appendItem(itoa(i, buf, 10), i);
             if (!ValvesMB[i])
-                boardMenu.appendItem_P(DISABLED, i);
+                boardMenu.appendItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::DISABLED, i);
             else {
                 byte result = ValvesMB[i]->detect();
                 if (result == ku8MBSuccess) 
-                    boardMenu.appendItem_P(CONNECTED, i);
+                    boardMenu.appendItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::CONNECTED, i);
                 else if (result == ku8MBResponseTimedOut)
-                    boardMenu.appendItem_P(TIMEOUT, i);
+                    boardMenu.appendItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::TIMEOUT, i);
                 else {
-                    boardMenu.appendItem_P(ERROR, i);
+                    boardMenu.appendItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::ERROR, i);
                     boardMenu.appendItem(itoa(result, buf, 16), i);
                 }
             }
         }
-        boardMenu.setItem_P(EXIT, 255);
+        boardMenu.setItem_P(UIStrings::Generic::EXIT, 255);
         
         byte lastOption = scrollMenu("RS485 Outputs", &boardMenu);
         if (lastOption < PVOUT_MODBUS_MAXBOARDS) cfgMODBUSOutputBoard(lastOption);
@@ -2738,45 +2752,45 @@ void cfgMODBUSOutputs() {
 void cfgMODBUSOutputBoard(byte board) {
     while(1) {
         menu boardMenu(3, 8);
-        boardMenu.setItem_P(ADDRESS, 0);
+        boardMenu.setItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::ADDRESS, 0);
         byte addr = getVlvModbusAddr(board);
         if (addr != PVOUT_MODBUS_ADDRNONE)
             boardMenu.appendItem(itoa(addr, buf, 10), 0);
         else
-            boardMenu.appendItem_P(NA, 0);
+            boardMenu.appendItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::NA, 0);
         
-        boardMenu.setItem_P(REGISTER, 1);
+        boardMenu.setItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::REGISTER, 1);
         boardMenu.appendItem(itoa(getVlvModbusReg(board), buf, 10), 1);
-        boardMenu.setItem_P(COUNT, 2);
+        boardMenu.setItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::COUNT, 2);
         boardMenu.appendItem(itoa(getVlvModbusCoilCount(board), buf, 10), 2);
-        boardMenu.setItem_P(OFFSET, 3);
+        boardMenu.setItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::OFFSET, 3);
         boardMenu.appendItem(itoa(getVlvModbusOffset(board), buf, 10), 3);
         
         if (addr == PVOUT_MODBUS_ADDRNONE)
-            boardMenu.setItem_P(AUTO_ASSIGN, 4);
+            boardMenu.setItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::AUTO_ASSIGN, 4);
         
         if (ValvesMB[board]) {
-            boardMenu.setItem_P(ID_MODE, 5);
-            boardMenu.appendItem_P((ValvesMB[board]->getIDMode()) ? ON : OFF, 5);
+            boardMenu.setItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::ID_MODE, 5);
+            boardMenu.appendItem_P((ValvesMB[board]->getIDMode()) ? UIStrings::Generic::ON : UIStrings::Generic::OFF, 5);
         }
         
         if (addr != PVOUT_MODBUS_ADDRNONE)      
-            boardMenu.setItem_P(DELETE, 6);
+            boardMenu.setItem_P(UIStrings::Shared::DELETE, 6);
         
-        boardMenu.setItem_P(EXIT, 255);
+        boardMenu.setItem_P(UIStrings::Generic::EXIT, 255);
         
         char title[] = "RS485 Output Board  ";
         title[19] = '0' + board;
         byte lastOption = scrollMenu(title, &boardMenu);
         if (lastOption == 0) {
             byte addr = getVlvModbusAddr(board);
-            setVlvModbusAddr(board, getValue_P(RELAY_ADDRESS, addr == PVOUT_MODBUS_ADDRNONE ? PVOUT_MODBUS_BASEADDR + board : addr, 1, 255, EMPTY));
+            setVlvModbusAddr(board, getValue_P(UIStrings::SystemSetup::MODBUSOutputConfig::RELAY_ADDRESS, addr == PVOUT_MODBUS_ADDRNONE ? PVOUT_MODBUS_BASEADDR + board : addr, 1, 255, UIStrings::Generic::EMPTY));
         } else if (lastOption == 1)
-            setVlvModbusReg(board, getValue_P(COIL_REGISTER, getVlvModbusReg(board), 1, 65536, EMPTY));
+            setVlvModbusReg(board, getValue_P(UIStrings::SystemSetup::MODBUSOutputConfig::COIL_REGISTER, getVlvModbusReg(board), 1, 65536, UIStrings::Generic::EMPTY));
         else if (lastOption == 2)
-            setVlvModbusCoilCount(board, getValue_P(COIL_COUNT, getVlvModbusCoilCount(board), 1, 32, EMPTY));
+            setVlvModbusCoilCount(board, getValue_P(UIStrings::SystemSetup::MODBUSOutputConfig::COIL_COUNT, getVlvModbusCoilCount(board), 1, 32, UIStrings::Generic::EMPTY));
         else if (lastOption == 3)
-            setVlvModbusOffset(board, getValue_P(OUTPUT_OFFSET, getVlvModbusOffset(board), 1, 31, EMPTY));
+            setVlvModbusOffset(board, getValue_P(UIStrings::SystemSetup::MODBUSOutputConfig::OUTPUT_OFFSET, getVlvModbusOffset(board), 1, 31, UIStrings::Generic::EMPTY));
         else if (lastOption == 4)
             cfgMODBUSOutputAssign(board);
         else if (lastOption == 5)
@@ -2797,26 +2811,26 @@ void cfgMODBUSOutputAssign(byte board) {
     byte result = 1;
     while ((result = tempMB.detect())) {
         LCD.clear();
-        LCD.print_P(0, 0, CLICK_RESET);
-        LCD.print_P(1, 0, OUTPUT_BOARD);
-        LCD.print_P(2, 0, CLICK_TO_ACTIVATE);
+        LCD.print_P(0, 0, UIStrings::SystemSetup::MODBUSOutputConfig::CLICK_RESET);
+        LCD.print_P(1, 0, UIStrings::SystemSetup::MODBUSOutputConfig::OUTPUT_BOARD);
+        LCD.print_P(2, 0, UIStrings::SystemSetup::MODBUSOutputConfig::CLICK_TO_ACTIVATE);
         menu choiceMenu(1, 2);
         if (result == ku8MBResponseTimedOut) {
-            choiceMenu.setItem_P(ASSIGN_TIMEOUT, 0);
+            choiceMenu.setItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::ASSIGN_TIMEOUT, 0);
         } else {
-            choiceMenu.setItem_P(ASSIGN_ERROR, 0);
+            choiceMenu.setItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::ASSIGN_ERROR, 0);
             choiceMenu.appendItem(itoa(result, buf, 16), 0);
         }
-        choiceMenu.appendItem_P(ASSIGN_RETRY, 0);
-        choiceMenu.setItem_P(ABORT, 1);
+        choiceMenu.appendItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::ASSIGN_RETRY, 0);
+        choiceMenu.setItem_P(UIStrings::Generic::ABORT, 1);
         if(getChoice(&choiceMenu, 3))
             return;      
     }
-    byte newAddr = getValue_P(NEW_ADDRESS, PVOUT_MODBUS_BASEADDR + board, 1, 254, EMPTY);
+    byte newAddr = getValue_P(UIStrings::SystemSetup::MODBUSOutputConfig::NEW_ADDRESS, PVOUT_MODBUS_BASEADDR + board, 1, 254, UIStrings::Generic::EMPTY);
     if (tempMB.setAddr(newAddr)) {
         LCD.clear();
-        LCD.print_P(1, 1, UPDATE_FAIL);
-        LCD.print_P(2, 4, UPDATE_FAIL_CONTINUE);
+        LCD.print_P(1, 1, UIStrings::SystemSetup::MODBUSOutputConfig::UPDATE_FAIL);
+        LCD.print_P(2, 4, UIStrings::SystemSetup::MODBUSOutputConfig::UPDATE_FAIL_CONTINUE);
         while (!Encoder.ok()) brewCore();
     } else {
         setVlvModbusAddr(board, newAddr);
@@ -2834,11 +2848,11 @@ void adjustLCD() {
     Encoder.setMax(3);
     
     LCD.clear();
-    LCD.print_P(0,0, ADJUST_LCD);
-    LCD.print_P(1, 1, BRIGHTNESS);
-    LCD.print_P(2, 3, CONTRAST);
-    LCD.print_P(3, 1, CANCEL);
-    LCD.print_P(3, 15, SAVE);
+    LCD.print_P(0,0, UIStrings::SystemSetup::LCDConfig::ADJUST_LCD);
+    LCD.print_P(1, 1, UIStrings::SystemSetup::LCDConfig::BRIGHTNESS);
+    LCD.print_P(2, 3, UIStrings::SystemSetup::LCDConfig::CONTRAST);
+    LCD.print_P(3, 1, UIStrings::Generic::CANCEL);
+    LCD.print_P(3, 15, UIStrings::SystemSetup::ValveProfileConfig::SAVE);
     byte bright = LCD.getBright();
     byte contrast = LCD.getContrast();
     byte origBright = bright;
@@ -2862,26 +2876,26 @@ void adjustLCD() {
                 }
             } else {
                 cursorPos = encValue;
-                LCD.print_P(1, 12, SPACE);
-                LCD.print_P(1, 16, SPACE);
-                LCD.print_P(2, 12, SPACE);
-                LCD.print_P(2, 16, SPACE);
-                LCD.print_P(3, 0, SPACE);
-                LCD.print_P(3, 7, SPACE);
-                LCD.print_P(3, 14, SPACE);
-                LCD.print_P(3, 19, SPACE);
+                LCD.print_P(1, 12, UIStrings::Generic::SPACE);
+                LCD.print_P(1, 16, UIStrings::Generic::SPACE);
+                LCD.print_P(2, 12, UIStrings::Generic::SPACE);
+                LCD.print_P(2, 16, UIStrings::Generic::SPACE);
+                LCD.print_P(3, 0, UIStrings::Generic::SPACE);
+                LCD.print_P(3, 7, UIStrings::Generic::SPACE);
+                LCD.print_P(3, 14, UIStrings::Generic::SPACE);
+                LCD.print_P(3, 19, UIStrings::Generic::SPACE);
                 if (cursorPos == 0) {
-                    LCD.print_P(1, 12, GREATER_SYM);
-                    LCD.print_P(1, 16, LESS_SYM);
+                    LCD.print_P(1, 12, UIStrings::Generic::GREATER_SYM);
+                    LCD.print_P(1, 16, UIStrings::Generic::LESS_SYM);
                 } else if (cursorPos == 1) {
-                    LCD.print_P(2, 12, GREATER_SYM);
-                    LCD.print_P(2, 16, LESS_SYM);
+                    LCD.print_P(2, 12, UIStrings::Generic::GREATER_SYM);
+                    LCD.print_P(2, 16, UIStrings::Generic::LESS_SYM);
                 } else if (cursorPos == 2) {
-                    LCD.print_P(3, 0, GREATER_SYM);
-                    LCD.print_P(3, 7, LESS_SYM);
+                    LCD.print_P(3, 0, UIStrings::Generic::GREATER_SYM);
+                    LCD.print_P(3, 7, UIStrings::Generic::LESS_SYM);
                 } else if (cursorPos == 3) {
-                    LCD.print_P(3, 14, GREATER_SYM);
-                    LCD.print_P(3, 19, LESS_SYM);
+                    LCD.print_P(3, 14, UIStrings::Generic::GREATER_SYM);
+                    LCD.print_P(3, 19, UIStrings::Generic::LESS_SYM);
                 }
             }
             LCD.lPad(1, 13, itoa(bright, buf, 10), 3, ' ');
@@ -2919,19 +2933,19 @@ void cfgTriggers() {
     menu triggerMenu(3, 6);
     
     while(1) {
-        triggerMenu.setItem_P(ESTOP, 0);
-        triggerMenu.setItem_P(SPARGE_MAX, 1);
-        triggerMenu.setItem_P(HLT_MIN, 2);
-        triggerMenu.setItem_P(MASH_MIN, 3);
-        triggerMenu.setItem_P(KETTLE_MIN, 4);
-        triggerMenu.setItem_P(EXIT, 255);
+        triggerMenu.setItem_P(UIStrings::SystemSetup::TriggersConfig::ESTOP, 0);
+        triggerMenu.setItem_P(UIStrings::SystemSetup::TriggersConfig::SPARGE_MAX, 1);
+        triggerMenu.setItem_P(UIStrings::SystemSetup::TriggersConfig::HLT_MIN, 2);
+        triggerMenu.setItem_P(UIStrings::SystemSetup::TriggersConfig::MASH_MIN, 3);
+        triggerMenu.setItem_P(UIStrings::SystemSetup::TriggersConfig::KETTLE_MIN, 4);
+        triggerMenu.setItem_P(UIStrings::Generic::EXIT, 255);
         for (byte i = 0; i < 5; i++) {
             if (getTriggerPin(i)) triggerMenu.appendItem(itoa(getTriggerPin(i), buf, 10), i);
-            else triggerMenu.appendItem_P(NONE, i);
+            else triggerMenu.appendItem_P(UIStrings::SystemSetup::TriggersConfig::NONE, i);
         }
         
         byte lastOption = scrollMenu("Trigger Assignment", &triggerMenu);
-        if (lastOption < 5) setTriggerPin(lastOption, getValue_P(INPUT_PIN_NONE, getTriggerPin(lastOption), 1, DIGIN_COUNT, EMPTY));
+        if (lastOption < 5) setTriggerPin(lastOption, getValue_P(UIStrings::SystemSetup::TriggersConfig::INPUT_PIN_NONE, getTriggerPin(lastOption), 1, DIGIN_COUNT, UIStrings::Generic::EMPTY));
         else return;
     }
 }

@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <menu.h>
+#include "Config.h"
 
 void uiInit();
 void unlockUI();
@@ -25,7 +26,12 @@ void adjustLCD();
 void cfgValves();
 void cfgVolumes();
 void cfgOutputs();
-void cfgOutputs();
+#ifdef PVOUT_TYPE_MODBUS
+void cfgMODBUSOutputs();
+#endif
+#if defined RGBIO8_ENABLE && defined RGBIO8_ENABLE
+void cfgRgb();
+#endif
 
 void menuSetup();
 
