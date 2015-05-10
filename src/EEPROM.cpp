@@ -601,35 +601,35 @@ unsigned long getProgGrain(byte preset) { return EEPROMreadLong(PROGRAM_START_AD
 //Modbus Relay Boards (2065-2074) ATMEGA1284P Only + Reserved: 2075-2084 
 //**********************************************************************************
 byte getVlvModbusAddr(byte board) {
-  return EEPROM.read(board * 5);
+  return EEPROM.read(2065 + board * 5);
 }
 
 unsigned int getVlvModbusReg(byte board) {
-  return EEPROMreadInt(board * 5 + 1);
+  return EEPROMreadInt(2065 + board * 5 + 1);
 }
 
 byte getVlvModbusCoilCount(byte board) {
-  return EEPROM.read(board * 5 + 3);
+  return EEPROM.read(2065 + board * 5 + 3);
 }
 
 byte getVlvModbusOffset(byte board) {
-  return EEPROM.read(board * 5 + 4);
+  return EEPROM.read(2065 + board * 5 + 4);
 }
 
 void setVlvModbusAddr(byte board, byte addr) {
-  EEPROM.write(board * 5, addr);
+  EEPROM.write(2065 + board * 5, addr);
 }
 
 void setVlvModbusReg(byte board, unsigned int reg) {
-  EEPROMwriteInt(board * 5 + 1, reg);
+  EEPROMwriteInt(2065 + board * 5 + 1, reg);
 }
 
 void setVlvModbusCoilCount(byte board, byte count) {
-  EEPROM.write(board * 5 + 3, count);
+  EEPROM.write(2065 + board * 5 + 3, count);
 }
 
 void setVlvModbusOffset(byte board, byte offset) {
-  EEPROM.write(board * 5 + 4, offset);
+  EEPROM.write(2065 + board * 5 + 4, offset);
 }
 
 void setVlvModbusDefaults(byte board) {
@@ -677,6 +677,11 @@ boolean checkConfig() {
       for (byte i = 0; i < PVOUT_MODBUS_MAXBOARDS; i++)
         setVlvModbusDefaults(i);
       EEPROM.write(2047, 3);
+    case 3:
+      for (uint8_t i = 0; i < PVOUT_MODBUS_MAXBOARDS; i++) {
+          setVlvModbusDefaults(i);
+      }
+      EEPROM.write(2057, 4);
   }
   return 0;
 }
