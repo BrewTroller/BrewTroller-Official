@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <menu.h>
+#include "Config.h"
 
 void uiInit();
 void unlockUI();
@@ -25,7 +26,12 @@ void adjustLCD();
 void cfgValves();
 void cfgVolumes();
 void cfgOutputs();
-void cfgOutputs();
+#ifdef PVOUT_TYPE_MODBUS
+void cfgMODBUSOutputs();
+#endif
+#if defined RGBIO8_ENABLE && defined RGBIO8_ENABLE
+void cfgRgb();
+#endif
 
 void menuSetup();
 
@@ -63,6 +69,15 @@ unsigned long getValue_P(const char *sTitle, unsigned long defValue, unsigned in
 unsigned long getValue(char sTitle[], unsigned long defValue, unsigned int divisor, unsigned long maxValue, const char *dispUnit);
 unsigned long ulpow(unsigned long base, unsigned long exponent);
 unsigned long getHexValue(char sTitle[], unsigned long defValue);
+
+/**
+ * Concatenate two strings from flash, placing result in RAM
+ *
+ * WARNING: It is not typically more SPACE efficient to concatenate two separate flash strings
+ *          than using one static concatenated string. This should only be used to simiplify code
+ *          and enhace readability
+ */
+char* concatPSTRS(char* dst, const char* one, const char* two);
 
 void UIinitEEPROM();
 

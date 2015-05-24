@@ -591,7 +591,7 @@ void BTnic::execCmd(void) {
     case CMD_GET_VER:  //G
       logFieldCmd(CMD_GET_VER, NO_CMDINDEX);
       logField_P(BTVER);
-      logFieldI(BUILD);
+      logFieldI(BUILDNUM);
       logFieldI(BTNIC);
       logFieldI(COMSCHEMA);
       #ifdef USEMETRIC

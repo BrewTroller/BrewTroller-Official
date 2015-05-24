@@ -32,6 +32,8 @@ set(SOURCE_FILES
         UI.cpp
         UI.h
         UI_LCD.h
+        UIStrings.h
+        UIStrings.cpp
         Util.cpp
         Util.h
         Volume.cpp

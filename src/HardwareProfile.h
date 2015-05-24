@@ -75,4 +75,8 @@ Documentation, Forums and more information available at http://www.brewtroller.c
     #endif
 #endif
 
+#if defined PVOUT_TYPE_GPIO || defined PVOUT_TYPE_MUX
+#define PVOUT
+#endif
+
 #endif
