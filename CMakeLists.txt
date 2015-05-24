@@ -5,11 +5,6 @@
 
 cmake_minimum_required(VERSION 2.8)
 
-# Toolchain file needs to be included before anything else on some systems
-include(avr_toolchain.cmake)
-
-project(BrewTroller)
-
 # Configurable BrewTroller options
 set(board  "OT_DX1_HERMS" CACHE STRING "BrewTroller Hardware Board Target, available options:
            BT_10_21               --> 1.0 - 2.1
@@ -40,6 +35,12 @@ set(AVR_MCU atmega1284p CACHE STRING "Hardware targets, available options:
           atmega1284p
           atmega644p")
 set(MCU_SPEED "16000000UL")
+
+# Toolchain file needs to be included before any compiler flags on some systems
+include(avr_toolchain.cmake)
+
+# Older versions of CMake (< 3) require the toolchain file to be included before the project definition
+project(BrewTroller)
 
 # Set Compiler flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mcall-prologues -fno-inline-small-functions -fno-split-wide-types -fshort-enums -Wall -funsigned-char -funsigned-bitfields -ffunction-sections -fdata-sections -Os")
