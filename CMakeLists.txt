@@ -5,6 +5,9 @@
 
 cmake_minimum_required(VERSION 2.8)
 
+# Toolchain file needs to be included before anything else on some systems
+include(avr_toolchain.cmake)
+
 project(BrewTroller)
 
 # Configurable BrewTroller options
@@ -43,8 +46,6 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mcall-prologues -fno-inline-small-functions
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcall-prologues -fno-inline-small-functions -fno-split-wide-types -fshort-enums -Wall -Wno-switch -Wno-return-type -Wno-maybe-uninitialized -Wno-sequence-point -funsigned-char -funsigned-bitfields -ffunction-sections -fdata-sections -std=c++11 -fno-exceptions -Os")
 
 add_definitions("-DF_CPU=${MCU_SPEED}")
-
-include(avr_toolchain.cmake)
 
 include_directories(lib/arduino
                     lib/arduino/avr-libc
