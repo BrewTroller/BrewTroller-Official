@@ -1,0 +1,25 @@
+[
+	{
+		"type": "radio",
+		"id": "board",
+		"title": "Board Type",
+		"description": "Select the physical BrewTroller board type you have",
+		"options": [
+			{"optName":"BT_3X", "name": "3.X"},
+			{"optName":"BT_4P", "name": "4.X Pro"},
+			{"optName":"OT_BX1_HERMSI2CLCD", "name": "BX1 HERMS"},
+			{"optName":"OT_BX1_RIMSDFI2CLCD", "name": "BX1 RIMS"},
+			{"optName":"OT_BX1_SINGLEVESSEL", "name": "BX1 Single Vessel"},
+			{"optName":"OT_BX1_STEAMPWMI2CLCD", "name": "BX1 Steam"},
+			{"optName":"OT_DX1_HERMS", "name": "DX1 HERMS"},
+			{"optName":"OT_DX1_RIMSDF", "name": "DX1 RIMS"},
+			{"optName":"OT_DX1_SINGLEVESSEL", "name": "DX1 Single Vessel"},
+			{"optName":"OT_DX1_STEAMPWM", "name": "DX1 Steam"},
+			{"optName":"OT_EX1_HERMS", "name": "EX1 HERMS"},
+			{"optName":"OT_EX1_RIMSDF", "name": "EX1 RIMS"},
+			{"optName":"OT_EX1_SINGLEVESSEL", "name": "EX1 Single Vessel"},
+			{"optName":"OT_EX1_STEAMPWM", "name": "EX1 Steam"}
+		],
+		"default": "DX1 HERMS"
+	}
+]
