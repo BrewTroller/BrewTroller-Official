@@ -31,5 +31,16 @@
 			{"name": "Use Metric Units", "optName":"USEMETRIC", "on": false}
 		]
 
+	},
+	{
+		"type": "switch",
+		"id": "VESSEL_CONFIG",
+		"title": "Vessel Configuration",
+		"description": "Configure Vessel Use and Type Options for your Brewery",
+		"options": [
+			{"name": "Use HLT as Kettle", "optName": "HLT_AS_KETTLE", "on": false},
+			{"name": "Use Kettle as Mash", "optName": "KETTLE_AS_MASH", "on": false},
+			{"name": "Single Vessel Mode", "optName": "SINGLE_VESSEL_SUPPORT", "on": false}
+		]
 	}
 ]

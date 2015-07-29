@@ -76,13 +76,13 @@
 
 // HLT_AS_KETTLE: This option remaps the Kettle temp sensor, volume sensor and heat
 // output to the HLT's devices to  allow the HLT to be reused as a kettle.
-//#define HLT_AS_KETTLE
+#cmakedefine HLT_AS_KETTLE
 
 // KETTLE_AS_MASH: This option remaps the Mash temp sensor, volume sensor and heat
 // output to the Kettle's devices to allow the Kettle to also serve as Mash Tun.
 // Use with HERMS HWProfile for BX1/DX1/EX1 which defines only HLT and Kettle Heat
 // Outputs leaving an additional output to use for pumps/valves.
-//#define KETTLE_AS_MASH
+#cmakedefine KETTLE_AS_MASH
 
 // MASH_PREHEAT_SENSOR: This option allows for an alternate temperature sensor to
 // control the mash heat output during the Preheat step. This is used to control the
@@ -103,7 +103,7 @@
 
 //SINGLE_VESSEL_SUPPORT: This is a crude hack that uses the HLT sensor and output
 //for the HLT, Mash and Kettle functions.
-//#define SINGLE_VESSEL_SUPPORT
+#cmakedefine SINGLE_VESSEL_SUPPORT
 //**********************************************************************************
 
 //**********************************************************************************

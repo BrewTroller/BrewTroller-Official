@@ -41,7 +41,9 @@ set(SOURCE_FILES
 #    *The Config header should get refactored to remove its dependancy on the Enum header*
 set(ENUM_HEADER "${CMAKE_CURRENT_LIST_DIR}/Enum.h")
 
+####################
 # User selectable compile time options
+####################
 set(board  "OT_DX1_HERMS" CACHE STRING "BrewTroller Hardware Board Target, available options:
 BT_10_21               --> 1.0 - 2.1
 BT_22_24               --> 2.2 - 2.4
@@ -65,7 +67,17 @@ OT_EX1_STEAMPWM        --> EX1 Steam or PWM Pump") # Default to DX1 Herms build
 add_definitions("-D${board}")
 message(STATUS "Building BrewTroller for   " ${board})
 
-option(USE_METRIC "Use Metric Units" OFF)
+#####
+# Basic Options
+#####
+option(USEMETRIC "Use Metric Units" OFF)
+
+#####
+# Vessel Options
+#####
+option(HLT_AS_KETTLE "Use HLT Vessel as Kettle Vessel" OFF)
+option(KETTLE_AS_MASH "Use Kettle Vessel as Mash Vessel" OFF)
+option(SINGLE_VESSEL_SUPPORT "Enable Single Vessel System Configuration" OFF)
 
 # Generate Configuration header
 configure_file(Config.in.h "${PROJECT_BINARY_DIR}/Config.h")
