@@ -65,6 +65,8 @@ OT_EX1_STEAMPWM        --> EX1 Steam or PWM Pump") # Default to DX1 Herms build
 add_definitions("-D${board}")
 message(STATUS "Building BrewTroller for   " ${board})
 
+option(USE_METRIC "Use Metric Units" OFF)
+
 # Generate Configuration header
 configure_file(Config.in.h "${PROJECT_BINARY_DIR}/Config.h")
 include_directories(${PROJECT_BINARY_DIR})

@@ -1,4 +1,4 @@
-[
+ [
 	{
 		"type": "radio",
 		"id": "board",
@@ -21,5 +21,15 @@
 			{"optName":"OT_EX1_STEAMPWM", "name": "EX1 Steam"}
 		],
 		"default": "DX1 HERMS"
+	},
+	{
+		"type": "switch",
+		"id": "BASIC_CONFIG",
+		"title": "Basic Configuration",
+		"description": "Basic BrewTroller Configuration Options.",
+		"options": [
+			{"name": "Use Metric Units", "optName":"USEMETRIC", "on": false}
+		]
+
 	}
 ]
