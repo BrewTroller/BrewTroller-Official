@@ -12,7 +12,6 @@ set(SOURCE_FILES
         Com_RGBIO8.cpp
         Com_RGBIO8.h
         Com_S0ASC.cpp
-        Config.h
         EEPROM.cpp
         EEPROM.h
         Enum.h
@@ -38,6 +37,10 @@ set(SOURCE_FILES
         Util.h
         Volume.cpp
         Volume.h)
+# Workaround to enable generated Config header to include Enum header
+#    *The Config header should get refactored to remove its dependancy on the Enum header*
+set(ENUM_HEADER "${CMAKE_CURRENT_LIST_DIR}/Enum.h")
+
 # User selectable compile time options
 set(board  "OT_DX1_HERMS" CACHE STRING "BrewTroller Hardware Board Target, available options:
 BT_10_21               --> 1.0 - 2.1
@@ -61,6 +64,11 @@ OT_EX1_SINGLEVESSEL    --> EX1 Single Vessel
 OT_EX1_STEAMPWM        --> EX1 Steam or PWM Pump") # Default to DX1 Herms build
 add_definitions("-D${board}")
 message(STATUS "Building BrewTroller for   " ${board})
+
+# Generate Configuration header
+configure_file(Config.in.h "${PROJECT_BINARY_DIR}/Config.h")
+include_directories(${PROJECT_BINARY_DIR})
+
 
 add_avr_executable(BrewTroller-${board} ${SOURCE_FILES})
 
