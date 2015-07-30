@@ -30,7 +30,6 @@
 		"options": [
 			{"name": "Use Metric Units", "optName":"USEMETRIC", "on": false}
 		]
-
 	},
 	{
 		"type": "switch",
@@ -41,6 +40,15 @@
 			{"name": "Use HLT as Kettle", "optName": "HLT_AS_KETTLE", "on": false},
 			{"name": "Use Kettle as Mash", "optName": "KETTLE_AS_MASH", "on": false},
 			{"name": "Single Vessel Mode", "optName": "SINGLE_VESSEL_SUPPORT", "on": false}
+		]
+	},
+	{
+		"type": "switch",
+		"id": "VOLUME_SENSORS",
+		"title": "Volume Sensing",
+		"description": "Disabling volume sensors changes the system display screens; Instead of displaying current volume levels target volumes for the step are shown",
+		"options": [
+			{"name": "Disable Volume Sensors", "optName":"VOLUME_MANUAL", "on": false}
 		]
 	}
 ]

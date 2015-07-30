@@ -79,6 +79,11 @@ option(HLT_AS_KETTLE "Use HLT Vessel as Kettle Vessel" OFF)
 option(KETTLE_AS_MASH "Use Kettle Vessel as Mash Vessel" OFF)
 option(SINGLE_VESSEL_SUPPORT "Enable Single Vessel System Configuration" OFF)
 
+#####
+# Volume Options
+#####
+option(VOLUME_MANUAL "Disable Volume Sensors" OFF)
+
 # Generate Configuration header
 configure_file(Config.in.h "${PROJECT_BINARY_DIR}/Config.h")
 include_directories(${PROJECT_BINARY_DIR})
