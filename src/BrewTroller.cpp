@@ -68,8 +68,6 @@ Compiled on Arduino-0022 (http://arduino.cc/en/Main/Software)
 #include "BrewTroller.h"
 
 const void(* softReset) (void) = 0;
-const char BT[] PROGMEM = "BrewTroller";
-const char BTVER[] PROGMEM = "2.7";
 
 //**********************************************************************************
 // Compile Time Logic

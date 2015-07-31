@@ -41,6 +41,11 @@ set(SOURCE_FILES
 #    *The Config header should get refactored to remove its dependancy on the Enum header*
 set(ENUM_HEADER "${CMAKE_CURRENT_LIST_DIR}/Enum.h")
 
+execute_process(COMMAND git describe --tags --abbrev=0
+                OUTPUT_VARIABLE VER_STR
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+message(STATUS "Building BrewTroller version: " ${VER_STR})
+
 ####################
 # User selectable compile time options
 ####################

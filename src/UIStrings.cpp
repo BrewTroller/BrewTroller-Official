@@ -29,6 +29,9 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 namespace UIStrings {
     
     namespace Generic {
+        const char BT[] PROGMEM = "BrewTroller";
+        const char BTVER[] PROGMEM = VER_STR;
+        
         //Generic Menu strings
         const char OK[] PROGMEM = "Ok";
         const char CANCEL[] PROGMEM = "Cancel";
@@ -79,7 +82,6 @@ namespace UIStrings {
     
     //Home screen strings
     namespace HomeScreen {
-        const char BUILD[] PROGMEM = "Build";
         const char BT_URL[] PROGMEM = "www.brewtroller.com";
     }
     

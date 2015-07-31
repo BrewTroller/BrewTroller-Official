@@ -33,6 +33,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 #include "StepLogic.h"
 #include "Temp.h"
 #include "Timer.h"
+#include "UIStrings.h"
 
 /********************************************************************************************************************
  * BTnic Class
@@ -590,7 +591,7 @@ void BTnic::execCmd(void) {
       
     case CMD_GET_VER:  //G
       logFieldCmd(CMD_GET_VER, NO_CMDINDEX);
-      logField_P(BTVER);
+      logField_P(UIStrings::Generic::BTVER);
       logFieldI(BUILDNUM);
       logFieldI(BTNIC);
       logFieldI(COMSCHEMA);
