@@ -242,7 +242,7 @@ namespace UIStrings {
             const char HEAT_STRIKE_IN[] PROGMEM = "Heat Strike In:";
             const char MASH[] PROGMEM = "MASH";
             const char UNKWN[] PROGMEM = "UNKWN";
-            const char PROG_CALCS[] = "Program Calcs";
+            const char PROG_CALCS[] PROGMEM = "Program Calcs";
             const char BATCH_VOLUME[] PROGMEM = "Batch Volume";
             const char GRAIN_WEIGHT[] PROGMEM = "Grain Weight";
 #ifdef USE_METRIC
