@@ -281,15 +281,13 @@ void screenInit() {
         LCD.setCustChar_P(2, BMP2);
         LCD.setCustChar_P(3, BMP3);
         LCD.setCustChar_P(4, BMP4);
-        LCD.writeCustChar(0, 0, 0);
-        LCD.writeCustChar(0, 1, 1);
-        LCD.writeCustChar(0, 2, 2);
-        LCD.writeCustChar(1, 1, 3);
-        LCD.writeCustChar(1, 2, 4);
-        LCD.print_P(1, 4, BT);
-        LCD.print_P(1, 16, BTVER);
-        LCD.print_P(2, 4, UIStrings::HomeScreen:: BUILD);
-        LCD.lPad(2, 10, itoa(BUILDNUM, buf, 10), 4, '0');
+        LCD.writeCustChar(0, 2, 0);
+        LCD.writeCustChar(0, 3, 1);
+        LCD.writeCustChar(0, 4, 2);
+        LCD.writeCustChar(1, 3, 3);
+        LCD.writeCustChar(1, 4, 4);
+        LCD.print_P(1, 6, UIStrings::Generic::BT);
+        LCD.print_P(2, 6, UIStrings::Generic::BTVER);
         LCD.print_P(3, 0, UIStrings::HomeScreen::BT_URL);
 #endif
         

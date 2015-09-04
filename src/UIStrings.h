@@ -39,6 +39,8 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 namespace UIStrings {
     
     namespace Generic {
+        extern const char BT[];
+        extern const char BTVER[];
         //Generic Menu strings
         extern const char OK[];
         extern const char CANCEL[];
@@ -89,7 +91,6 @@ namespace UIStrings {
     
     //Home screen strings
     namespace HomeScreen {
-        extern const char BUILD[];
         extern const char BT_URL[];
     }
     
