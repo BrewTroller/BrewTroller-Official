@@ -50,5 +50,14 @@
 		"options": [
 			{"name": "Disable Volume Sensors", "optName":"VOLUME_MANUAL", "on": false}
 		]
+	},
+	{
+		"type": "switch",
+		"id": "SKIP_TO_BOIL",
+		"title": "Skip To Boil",
+		"description": "When enabled, all program steps preceeding boil are skipped. Useful for controlling boil stage only.",
+		"options": [
+			{"name": "Boil Only", "optName":"AUTO_SKIP_TO_BOIL", "on": false}
+		]
 	}
 ]

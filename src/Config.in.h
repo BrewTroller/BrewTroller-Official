@@ -434,6 +434,11 @@ static const uint8_t TS = 1;
 // valve config that will reroute wort back to the kettle there is a great risk of
 // losing wort or causing personal injury when this profile is enabled
 //#define AUTO_BOIL_RECIRC 20
+
+// AUTO_SKIP_TO_BOIL: Automatically skips all program steps preceeding the Boil step.
+// This is useful for someone who wishes to only automate or control their boil.
+#cmakedefine AUTO_SKIP_TO_BOIL
+
 //**********************************************************************************
 
 //**********************************************************************************

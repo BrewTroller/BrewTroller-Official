@@ -42,6 +42,7 @@ void continueClick();
 void stepAdvanceFailDialog();
 void editProgramMenu();
 void startProgramMenu();
+void programStartFailedDialog();
 void editProgram(byte pgm);
 void showProgCalcs(byte pgm);
 void editMashSchedule(byte pgm);
