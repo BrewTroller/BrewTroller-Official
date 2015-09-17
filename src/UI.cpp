@@ -743,7 +743,11 @@ void screenEnter() {
                     if (lastOption == 1) editProgramMenu();
                     else if (lastOption == 2) {
                         startProgramMenu();
+                        #ifdef AUTO_SKIP_TO_BOIL
+                        if (activeScreen == SCREEN_BOIL) {
+                        #else
                         if (activeScreen == SCREEN_FILL) {
+                        #endif
                             doInit = 1;
                             break;
                         }
@@ -1162,7 +1166,11 @@ void startProgramMenu() {
             if (lastOption == 0) editProgram(profile);
             else if (lastOption == 1) setGrainTemp(getValue_P(UIStrings::Program::ProgramMenu::GRAIN_TEMP, getGrainTemp(), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
             else if (lastOption == 2 || lastOption == 3) {
+                #ifdef AUTO_SKIP_TO_BOIL
+                if (zoneIsActive(ZONE_BOIL)) {
+                #else
                 if (zoneIsActive(ZONE_MASH)) {
+                #endif
                     LCD.clear();
                     LCD.print_P(0, 0, UIStrings::Program::ProgramMenu::START_ERR1);
                     LCD.print_P(1, 0, UIStrings::Program::ProgramMenu::START_ERR2);
@@ -1176,22 +1184,36 @@ void startProgramMenu() {
                         //Delay Start
                         setDelayMins(getTimerValue(UIStrings::Program::ProgramMenu::DELAY_START, getDelayMins(), 23));
                     }
+                    #ifdef AUTO_SKIP_TO_BOIL
+                    if (!programThreadInit(profile, BREWSTEP_BOIL)) {
+                        programStartFailedDialog();
+                    } else {
+                        setActive(SCREEN_BOIL);
+                        //screenInit called on next uiCore() loop call
+                        break;
+                    }
+                    #else
                     if (!programThreadInit(profile)) {
-                        LCD.clear();
-                        LCD.print_P(1, 0, UIStrings::Program::ProgramMenu::START_FAILED);
-                        LCD.print_P(3, 4, UIStrings::Generic::GREATER_SYM);
-                        LCD.print_P(3, 6, UIStrings::Generic::CONTINUE);
-                        LCD.print_P(3, 15, UIStrings::Generic::LESS_SYM);
-                        while (!Encoder.ok()) brewCore();
+                        programStartFailedDialog();
                     } else {
                         setActive(SCREEN_FILL);
                         //screenInit called on next uiCore() call
                         break;
                     }
+                    #endif
                 }
             } else break;
         }
     }
+}
+
+void programStartFailedDialog() {
+    LCD.clear();
+    LCD.print_P(1, 0, UIStrings::Program::ProgramMenu::START_FAILED);
+    LCD.print_P(3, 4, UIStrings::Generic::GREATER_SYM);
+    LCD.print_P(3, 6, UIStrings::Generic::CONTINUE);
+    LCD.print_P(3, 15, UIStrings::Generic::LESS_SYM);
+    while (!Encoder.ok()) brewCore();
 }
 
 void editProgram(byte pgm) {

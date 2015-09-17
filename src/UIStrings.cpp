@@ -226,7 +226,11 @@ namespace UIStrings {
             const char DELAY_START[] PROGMEM = "Delay Start";
             const char START_FAILED[] PROGMEM = "Program start failed";
             const char START_ERR1[] PROGMEM = "Cannot start program";
+            #ifdef AUTO_SKIP_TO_BOIL
+            const char START_ERR2[] PROGMEM = "while boil zone is";
+            #else
             const char START_ERR2[] PROGMEM = "while mash zone is";
+            #endif
             const char START_ERR3[] PROGMEM = "active.";
             const char BATCH_VOL[] PROGMEM = "Batch Vol:";
             const char GRAIN_WT[] PROGMEM = "Grain Wt:";

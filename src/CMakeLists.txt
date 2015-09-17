@@ -93,7 +93,15 @@ option(VOLUME_MANUAL "Disable Volume Sensors" OFF)
 configure_file(Config.in.h "${PROJECT_BINARY_DIR}/Config.h")
 include_directories(${PROJECT_BINARY_DIR})
 
+#####
+# Step Options
+#####
+option(AUTO_SKIP_TO_BOIL "Automatically jump programs to Boil Step" OFF)
 
+
+###################
+# Build Setup
+###################
 add_avr_executable(BrewTroller-${board} ${SOURCE_FILES})
 
 # Link libraries
