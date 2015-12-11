@@ -352,7 +352,7 @@ void screenInit() {
 #else
         // This is the standard screen
         LCD.print_P(0, 11, UIStrings::Vessel::TITLE_VS_HLT);
-        LCD.print_P(0, 16, UIStrings::Vessel::TITLE_VS_HLT);
+        LCD.print_P(0, 16, UIStrings::Vessel::TITLE_VS_MASH);
         LCD.print_P(1, 1, UIStrings::Generic::TARGET);
         LCD.print_P(2, 1, UIStrings::Generic::ACTUAL);
         
