@@ -43,6 +43,9 @@
 #cmakedefine USEMETRIC
 //**********************************************************************************
 
+//Customize the startup screen with your brewery name. Maximum of 14 characters per line.
+#define CUSTOM_NAME_1 "Your Brewery"
+#define CUSTOM_NAME_2 "Name Here"
 
 //**********************************************************************************
 // Brewing Calculation Factors

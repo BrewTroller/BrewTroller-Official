@@ -271,9 +271,13 @@ void screenInit() {
         LCD.writeCustChar(2, 0, 4);
         LCD.writeCustChar(2, 1, 5);
         LCD.writeCustChar(2, 2, 6);
-        LCD.print_P(3, 0, BT);
-        LCD.print_P(3, 12, BTVER);
-        LCD.lPad(3, 16, itoa(BUILDNUM, buf, 10), 4, '0');
+	#ifdef CUSTOM_NAME_1
+		LCD.print_P(3, 0, PSTR(CUSTOM_NAME_1));
+	#else
+		LCD.print_P(3, 0, BT);
+	#endif
+	LCD.print_P(3, 12, BTVER);
+	LCD.lPad(3, 16, itoa(BUILDNUM, buf, 10), 4, '0');
 #endif
 #ifdef LOGO_BREWTROLLER
         LCD.setCustChar_P(0, BMP0);
@@ -286,10 +290,16 @@ void screenInit() {
         LCD.writeCustChar(0, 4, 2);
         LCD.writeCustChar(1, 3, 3);
         LCD.writeCustChar(1, 4, 4);
-        LCD.print_P(1, 6, UIStrings::Generic::BT);
-        LCD.print_P(2, 6, UIStrings::Generic::BTVER);
-        LCD.print_P(3, 0, UIStrings::HomeScreen::BT_URL);
-#endif
+ 	#ifdef CUSTOM_NAME_1
+		LCD.print_P(1, 6, PSTR(CUSTOM_NAME_1));
+		LCD.print_P(2, 6, PSTR(CUSTOM_NAME_2));
+		LCD.print_P(3, 0, UIStrings::Generic::BTVER);
+	#else
+ 		LCD.print_P(1, 6, UIStrings::Generic::BT);
+ 		LCD.print_P(2, 6, UIStrings::Generic::BTVER);
+ 		LCD.print_P(3, 0, UIStrings::HomeScreen::BT_URL);
+	#endif
+ #endif
         
     }
     else if (activeScreen == SCREEN_FILL) {
