@@ -35,6 +35,8 @@ set(SOURCE_FILES
         UIStrings.cpp
         Util.cpp
         Util.h
+		Vessel.h
+		Vessel.cpp
         Volume.cpp
         Volume.h)
 # Workaround to enable generated Config header to include Enum header

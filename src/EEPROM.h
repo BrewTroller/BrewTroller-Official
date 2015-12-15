@@ -27,7 +27,7 @@ void setTSAddr(byte sensor, byte addr[8]);
 //PID Enabled (72); Bit 1 = HLT, Bit 2 = Mash, Bit 3 = Kettle, Bit 4 = Steam
 //**********************************************************************************
 void setPIDEnabled(byte vessel, boolean setting);
-
+bool getPIDEnabled(byte vessel);
 
 //**********************************************************************************
 //PIDp HLT (73), Mash (78), Kettle (83), Steam (88)
@@ -51,11 +51,13 @@ byte getPIDd(byte vessel);
 //PIDCycle HLT (76), Mash (81), Kettle (86), Steam (91)
 //**********************************************************************************
 void setPIDCycle(byte vessel, byte value);
+byte getPIDCycle(byte vessel);
 
 //**********************************************************************************
 //Hysteresis HLT (77), Mash (82), Kettle (87), Steam (92)
 //**********************************************************************************
 void setHysteresis(byte vessel, byte value);
+byte getHysteresis(byte vessel);
 
 //**********************************************************************************
 //Capacity HLT (93-96), Mash (97-100), Kettle (101-104)

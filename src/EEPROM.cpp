@@ -207,6 +207,10 @@ void setPIDEnabled(byte vessel, boolean setting) {
   EEPROM.write(72, options);
 }
 
+bool getPIDEnabled(byte vessel) {
+	byte options = EEPROM.read(72);
+	return bitRead(options, vessel);
+}
 
 //**********************************************************************************
 //PIDp HLT (73), Mash (78), Kettle (83), Steam (88)
@@ -242,6 +246,11 @@ void setPIDCycle(byte vessel, byte value) {
   PIDCycle[vessel] = value;
   EEPROM.write(76 + vessel * 5, value);
 }
+byte getPIDCycle(byte vessel)
+{
+	byte options = EEPROM.read(76 + vessel * 5);
+	return bitRead(options, vessel);
+}
 
 //**********************************************************************************
 //Hysteresis HLT (77), Mash (82), Kettle (87), Steam (92)
@@ -249,6 +258,12 @@ void setPIDCycle(byte vessel, byte value) {
 void setHysteresis(byte vessel, byte value) {
   hysteresis[vessel] = value;
   EEPROM.write(77 + vessel * 5, value);
+}
+
+byte getHysteresis(byte vessel)
+{
+	byte options = EEPROM.read(77 + vessel*5);
+	return bitRead(options, vessel);
 }
 
 //**********************************************************************************
