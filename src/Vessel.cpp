@@ -30,9 +30,16 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 */
 
 #include "Vessel.h"
-#include "EEPROM.h"
+#include "EEPROM.h"	
 #include "Temp.h"
-#include "HWProfile.h"
+#include "HardwareProfile.h"
+#include "Volume.h"
+#include "Outputs.h" //Needed only for minTriggerPin
+
+extern unsigned int cycleStart[4];
+extern bool estop;
+extern int temp[9];
+
 
 // set what the PID cycle time should be based on how fast the temp sensors will respond
 #if TS_ONEWIRE_RES == 12
@@ -48,7 +55,7 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 #ERROR
 #endif
 //Note that the includeAux numbers should be addresses e.g. TS_AUX1, not just a number (that's why they're bytes instead of booleans).
-	Vessel::Vessel(byte initEepromIndex, byte[] initIncludeAux, byte FFBias, float initMinVolume = 0, byte initMaxPower = 100)
+	Vessel::Vessel(byte initEepromIndex, byte initIncludeAux[], byte FFBias, float initMinVolume = 0, byte initMinTriggerPin = 0, byte initMaxPower = 100)
 	{
 
 		for (int i = 0; i < 10; i++)
@@ -57,6 +64,7 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 		eepromIndex = initEepromIndex;
 		minVolume = initMinVolume;
 		maxPower = initMaxPower;
+		minTriggerPin = initMinTriggerPin;
 		includeAux[0] = initIncludeAux[0];
 		includeAux[1] = initIncludeAux[1];
 		includeAux[2] = initIncludeAux[2];
@@ -71,11 +79,11 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 		//Temperature Sensors: HLT (0-7), MASH (8-15), KETTLE (16-23), H2OIN (24-31), H2OOUT (32-39),
 		//          BEEROUT (40-47), AUX1 (48-55), AUX2 (56-63), AUX3 (64-71)
 		//**********************************************************************************
-		EEPROMreadBytes(8 * eepromIndex, &sensorAddress, 8);
+		EEPROMreadBytes(8 * eepromIndex, sensorAddress, 8);
 		if (FFBias)
 		{
 			feedforward = FFBias;
-			EEPROMreadBytes(8 * eepromIndex, &feedforwardAddress, 8);
+			EEPROMreadBytes(8 * eepromIndex, feedforwardAddress, 8);
 		}
 
 		usePID = getPIDEnabled(eepromIndex);
@@ -90,12 +98,12 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 
 			//Feedforward version included but commented out for later reference
 			if (feedforward)
-				pid = PID(&temperature, &PIDoutput, &setpoint, &feedforwardTemperature, PID_P, PID_I, PID_D);
+				pid = new PID(&temperature, &PIDoutput, &setpoint, &feedforwardTemperature, PID_P, PID_I, PID_D);
 			else
-				pid = PID(&temperature, &PIDoutput, &setpoint, PID_P, PID_I, PID_D);
+				pid = new PID(&temperature, &PIDoutput, &setpoint, PID_P, PID_I, PID_D);
 
 			pid.SetInputLimits(0, 25500);
-			pid.SetOutputLimits(0, PIDeycle * maxPower);
+			pid.SetOutputLimits(0, PIDcycle * maxPower);
 			pid.SetMode(PID::AUTO_MODE);
 			pid.SetSampleTime(PID_CYCLE_TIME);
 		}
@@ -103,7 +111,7 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 		capacity = getCapacity(eepromIndex);
 		deadspace = getVolLoss(eepromIndex);
 
-		//Load volume calibration settings
+		//Load volume calibration ettings
 		//**********************************************************************************
 		//calibVols HLT (119-158), Mash (159-198), Kettle (199-238)
 		//calibVals HLT (239-258), Mash (259-278), Kettle (279-298)
@@ -131,10 +139,12 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 
 	}
 
+	Vessel::~Vessel() { if (pid) free(pid );}
+	
 	//Temperature control functions
 	void Vessel::setSetpoint(byte newSetPoint)
 	{
-		setPoint = newSetPoint;
+		setpoint = newSetPoint;
 	}
 
 	byte Vessel::getSetpoint()
@@ -142,7 +152,7 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 		return setpoint;
 	}
 
-	byte Vessel::getTemperature()
+	float Vessel::getTemperature()
 	{
 		return temperature;
 	}
@@ -186,8 +196,8 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 
 
 
-		if (estop || getVolume() < minVolume || temperature = BAD_TEMP  ||
-			(vesselMinTrigger(vessel[VS]) != NULL && !vesselMinTrigger(vessel[VS])->get()))
+		if (estop || getVolume() < minVolume || temperature == BAD_TEMP  ||
+			(minTriggerPin && !vesselMinTrigger(minTriggerPin)->get()))
 			//The latter condition checks for the digital trigger input for low volume 
 		{
 			//Turn output off due to error condition
@@ -204,7 +214,7 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 
 			//cycleStart is the millisecond value when the current PID cycle started.
 			//We compare the 
-			if (pid.output >= timestamp - cycleStart[eepromIndex] && timestamp != cycleStart[eepromIndex])
+			if (PIDoutput >= timestamp - cycleStart[eepromIndex] && timestamp != cycleStart[eepromIndex])
 			{
 				heatPin.set(HIGH);
 				return true;
@@ -222,6 +232,7 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 				//Turn output on
 				heatPin.set(HIGH);
 				return true;
+			}
 			else if (getTemperature() > getSetpoint()+hysteresis)
 			{
 				//Turn output off
@@ -230,9 +241,9 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 			}
 		}
 	}
-}
+	
 
-	void Vessel::updateVolumeCalibration(byte index, float vol, byte pressure)
+	void Vessel::updateVolumeCalibration(byte index, unsigned long vol, int pressure)
 	{
 		volumeCalibrationVolume[index] = vol;
 		volumeCalibrationPressure[index] = pressure;
@@ -258,7 +269,6 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 		volumeReadings[oldestVolumeReading] = reading;
 		oldestVolumeReading = (oldestVolumeReading + 1) % 10; //This could be made faster by switching to a power of 2 and using a bitmask
 	}
-};
-#endif
+
 
 
