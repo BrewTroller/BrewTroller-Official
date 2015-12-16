@@ -15,7 +15,7 @@ NOTE: Some functionality supported in BT2.6 is not yet supported in this version
  - Maximum temperature cutoff and alarm
 */
 
-#include "Config.in.h"
+#include "Config.h"
 
 class Vessel
 {

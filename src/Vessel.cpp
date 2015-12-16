@@ -175,7 +175,10 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 				temperature /= usesAuxInputs;
 		}
 		if (feedforward)
+		{
 			feedforwardTemperature = 100.0 * read_temp(feedforwardAddress);
+			if (feedforwardTemperature == BAD_TEMP)
+				feedforwardTemperature = temperature; //If we got a bad read on the feedforward, but have a good read on the mash itself, we can just use the mash temp as the feedforward to let us keep mashing
 	}
 
 	//Turn output on or off based on temperature, returning whether the output is on
@@ -186,7 +189,7 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 
 
 
-		if (estop || getVolume() < minVolume || temperature = BAD_TEMP  ||
+		if (estop || getVolume() < minVolume || temperature = BAD_TEMP  || 
 			(vesselMinTrigger(vessel[VS]) != NULL && !vesselMinTrigger(vessel[VS])->get()))
 			//The latter condition checks for the digital trigger input for low volume 
 		{
