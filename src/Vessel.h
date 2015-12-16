@@ -36,8 +36,10 @@ private:
 	float deadspace; //Dead space
 	byte minTriggerPin; //Pin that triggers a low volume condition
 	
+
 	//Temperature
 	//Note that we use doubles here for type compatibility with the PID library. On most Arduino systems, double and float use the same precision (and on the systems where they don't there is plenty of memory).
+
 	pin heatPin;
 	double setpoint; //The setpoint for this vessel
 	bool usePID; //TRUE = use PID mode, FALSE = on/off mode
@@ -58,8 +60,10 @@ private:
 	//Working statuses
 	float volumeReadings[10]; //To-do: allow user to customize number of volume readings to use in sample
 	byte oldestVolumeReading; //Array index of the oldest volume reading, which will get overwritten by the next one
-	double temperature;
-	double feedforwtardTemperature;
+
+	float temperature;
+	float feedforwardTemperature;
+
 	double PIDoutput; //The current output level of the PID
 
 	//Cached values for performance
