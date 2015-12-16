@@ -19,7 +19,7 @@ NOTE: Some functionality supported in BT2.6 is not yet supported in this version
 #include <pin.h>
 #include <PID_Beta6.h>
 
-class Vesseld
+class Vessel
 {
 private:
 	//Config
@@ -34,7 +34,7 @@ private:
 	float deadspace; //Dead space
 	byte minTriggerPin; //Pin that triggers a low volume condition
 	
-	//Temperature
+	//Temoperature
 	pin heatPin;
 	byte setpoint; //The setpoint for this vessel
 	bool usePID; //TRUE = use PID mode, FALSE = on/off mode
@@ -56,7 +56,7 @@ private:
 	float volumeReadings[10]; //To-do: allow user to customize number of volume readings to use in sample
 	byte oldestVolumeReading; //Array index of the oldest volume reading, which will get overwritten by the next one
 	float temperature;
-	float feedforwtardTemperature;
+	float feedforwardTemperature;
 	double PIDoutput; //The current output level of the PID
 
 	//Cached values for performance
