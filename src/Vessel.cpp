@@ -29,6 +29,8 @@ and should not be subclassed, for performance reasons and because it's important
 with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle) so that we can easily support different vessel configurations.
 */
 
+#include <EEPROM.h>
+
 #include "Vessel.h"
 #include "EEPROM.h"	
 #include "Temp.h"
@@ -102,10 +104,10 @@ extern int temp[9];
 			else
 				pid = new PID(&temperature, &PIDoutput, &setpoint, PID_P, PID_I, PID_D);
 
-			pid.SetInputLimits(0, 25500);
-			pid.SetOutputLimits(0, PIDcycle * maxPower);
-			pid.SetMode(PID::AUTO_MODE);
-			pid.SetSampleTime(PID_CYCLE_TIME);
+			pid->SetInputLimits(0, 25500);
+			pid->SetOutputLimits(0, PIDcycle * maxPower);
+			pid->SetMode(PID::AUTO_MODE);
+			pid->SetSampleTime(PID_CYCLE_TIME);
 		}
 		hysteresis = getHysteresis(eepromIndex); 
 		capacity = getCapacity(eepromIndex);
@@ -127,14 +129,18 @@ extern int temp[9];
 			volumePinID = HLTVOL_APIN;
 			heatPin.setup(HLTHEAT_PIN, OUTPUT);
 			break;
+#ifdef MLTVOL_APIN
 		case 1:
 			volumePinID = MLTVOL_APIN;
 			heatPin.setup(MLTHEAT_PIN, OUTPUT);
 			break;
+#endif
+#ifdef KETTLEVOL_APIN
 		case 2:
 			volumePinID = KETTLEVOL_APIN;
 			heatPin.setup(KETTLEVOL_PIN, OUTPUT);
 			break;
+#endif
 		}
 
 	}
@@ -211,7 +217,7 @@ extern int temp[9];
 		if (usePID)
 		{
 			//Note that this uses pointers to 
-			pid.Compute();
+			pid->Compute();
 			//only 1 call to millis needed here, and if we get hit with an interrupt we still want to calculate based on the first read value of it
 			unsigned long timestamp = millis();
 
