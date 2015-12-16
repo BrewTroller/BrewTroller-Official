@@ -17,7 +17,11 @@ NOTE: Some functionality supported in BT2.6 is not yet supported in this version
 
 #include "Config.h"
 
-class Vessel
+#include <pin.h>
+#include <PID_Beta6.h>
+
+
+class Vesseld
 {
 private:
 	//Config
@@ -29,13 +33,14 @@ private:
 	byte maxPower; //Maximum power at which to run the associated element
 	byte volumePinID; //The pin supplying volume readings for this vessel
 	float capacity; //Maximum volume
-	float deadSpace; //Dead space
-
+	float deadspace; //Dead space
+	byte minTriggerPin; //Pin that triggers a low volume condition
+	
 	//Temperature
 	pin heatPin;
 	byte setpoint; //The setpoint for this vessel
 	bool usePID; //TRUE = use PID mode, FALSE = on/off mode
-	PID pid; //PID object for use with PID
+	PID* pid = NULL; //PID object for use with PID
 	byte feedforward = 0; //The ID of the feedforward sensor. Valid values are 1-3, corresponding to AUX1-3. Anything outside that range will be ignored
 
 	float PIDcycle;
@@ -44,7 +49,7 @@ private:
 
 	//Volume
 	//Using int and ulong here to stay consistent with existing code. These could probably be converted to byte and float.
-	int[10] volumeCalibrationPressure; //The pressures used for calibration
+	int volumeCalibrationPressure[10]; //The pressures used for calibration
 	unsigned long volumeCalibrationVolume[10]; //The volumes used for calibration
 
 	//Valves require broader state awareness (e.g. MLT valve config might be different for mash vs. sparge) and are handled outside this class.
@@ -53,8 +58,8 @@ private:
 	float volumeReadings[10]; //To-do: allow user to customize number of volume readings to use in sample
 	byte oldestVolumeReading; //Array index of the oldest volume reading, which will get overwritten by the next one
 	float temperature;
-	float feedforwardTemperature;
-	byte PIDoutput; //The current output level of the PID
+	float feedforwtardTemperature;
+	double PIDoutput; //The current output level of the PID
 
 	//Cached values for performance
 	float volume;
@@ -64,22 +69,20 @@ private:
 
 public:
 	//No default constructor because we need to know which eeprom index to use
-	Vessel(byte initEepromIndex, float initMinVolume = 0, bool[] initIncludeAux);
-	~Vessel() {};
+	Vessel(byte initEepromIndex, byte initIncludeAux[], byte FFBias, float initMinVolume, byte initMinTriggerPin, byte initMaxPower);
+	~Vessel() ;
 
 	//Temperature control functions
-	void setSetpoint(byte newSetPoint);
+	void setSetpoint(byte );
 	byte getSetpoint();
 	float getTemperature();
-	void setMaxPower(byte newMaxPower);
+	void setMaxPower(byte );
 
 	bool updateOutput(); //Turn output on or off based on temperature, returning whether the output is on
 
-	void updateVolumeCalibration(byte index, float vol, byte pressure);
+	void updateVolumeCalibration(byte , unsigned long , int );
 
 	float getVolume(); //Return the volume, as calculated based on this 
 	void takeVolumeReading(); //Take a sample of the volume
 };
 #endif
-
-
