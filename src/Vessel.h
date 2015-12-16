@@ -61,8 +61,8 @@ private:
 	float volumeReadings[10]; //To-do: allow user to customize number of volume readings to use in sample
 	byte oldestVolumeReading; //Array index of the oldest volume reading, which will get overwritten by the next one
 
-	float temperature;
-	float feedforwardTemperature;
+	double temperature;
+	double feedforwardTemperature;
 
 	double PIDoutput; //The current output level of the PID
 
@@ -78,8 +78,8 @@ public:
 	~Vessel() ;
 
 	//Temperature control functions
-	void setSetpoint(byte );
-	byte getSetpoint();
+	void setSetpoint(double );
+	double getSetpoint();
 	double getTemperature();
 	void setMaxPower(byte );
 

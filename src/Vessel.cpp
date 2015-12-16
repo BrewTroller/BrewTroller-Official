@@ -29,7 +29,7 @@ and should not be subclassed, for performance reasons and because it's important
 with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle) so that we can easily support different vessel configurations.
 */
 
-#include <EEPROM.h>
+#include <avr/eeprom.h>
 
 #include "Vessel.h"
 #include "EEPROM.h"	
@@ -70,7 +70,6 @@ extern int temp[9];
 		includeAux[0] = initIncludeAux[0];
 		includeAux[1] = initIncludeAux[1];
 		includeAux[2] = initIncludeAux[2];
-		includeAux[3] = initIncludeAux[3];
 
 		usesAuxInputs = includeAux[0] + includeAux[1] + includeAux[2];
 
@@ -107,6 +106,7 @@ extern int temp[9];
 			pid->SetInputLimits(0, 25500);
 			pid->SetOutputLimits(0, PIDcycle * maxPower);
 			pid->SetMode(PID::AUTO_MODE);
+		
 			pid->SetSampleTime(PID_CYCLE_TIME);
 		}
 		hysteresis = getHysteresis(eepromIndex); 
@@ -138,7 +138,7 @@ extern int temp[9];
 #ifdef KETTLEVOL_APIN
 		case 2:
 			volumePinID = KETTLEVOL_APIN;
-			heatPin.setup(KETTLEVOL_PIN, OUTPUT);
+			heatPin.setup(KETTLEHEAT_PIN, OUTPUT);
 			break;
 #endif
 		}
@@ -148,17 +148,17 @@ extern int temp[9];
 	Vessel::~Vessel() { if (pid) free(pid );}
 	
 	//Temperature control functions
-	void Vessel::setSetpoint(byte newSetPoint)
+	void Vessel::setSetpoint(double newSetPoint)
 	{
 		setpoint = newSetPoint;
 	}
 
-	byte Vessel::getSetpoint()
+	double Vessel::getSetpoint()
 	{
 		return setpoint;
 	}
 
-	float Vessel::getTemperature()
+	double Vessel::getTemperature()
 	{
 		return temperature;
 	}
@@ -195,6 +195,8 @@ extern int temp[9];
 			feedforwardTemperature = 100.0 * read_temp(feedforwardAddress);
 			if (feedforwardTemperature == BAD_TEMP)
 				feedforwardTemperature = temperature; //If we got a bad read on the feedforward, but have a good read on the mash itself, we can just use the mash temp as the feedforward to let us keep mashing
+	
+		}
 	}
 
 	//Turn output on or off based on temperature, returning whether the output is on
