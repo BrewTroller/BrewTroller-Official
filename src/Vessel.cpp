@@ -145,7 +145,7 @@ extern int temp[9];
 
 	}
 
-	Vessel::~Vessel() { if (pid) free(pid );}
+	Vessel::~Vessel() { if (pid) delete pid;}
 	
 	//Temperature control functions
 	void Vessel::setSetpoint(double newSetPoint)
