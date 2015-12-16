@@ -16,6 +16,7 @@ NOTE: Some functionality supported in BT2.6 is not yet supported in this version
 */
 
 #include "Config.h"
+
 #include <pin.h>
 #include <PID_Beta6.h>
 
@@ -34,9 +35,12 @@ private:
 	float deadspace; //Dead space
 	byte minTriggerPin; //Pin that triggers a low volume condition
 	
-	//Temoperature
+
+	//Temperature
+	//Note that we use doubles here for type compatibility with the PID library. On most Arduino systems, double and float use the same precision (and on the systems where they don't there is plenty of memory).
+
 	pin heatPin;
-	byte setpoint; //The setpoint for this vessel
+	double setpoint; //The setpoint for this vessel
 	bool usePID; //TRUE = use PID mode, FALSE = on/off mode
 	PID* pid = NULL; //PID object for use with PID
 	byte feedforward = 0; //The ID of the feedforward sensor. Valid values are 1-3, corresponding to AUX1-3. Anything outside that range will be ignored
@@ -47,7 +51,7 @@ private:
 
 	//Volume
 	//Using int and ulong here to stay consistent with existing code. These could probably be converted to byte and float.
-	int volumeCalibrationPressure[10]; //The pressures used for calibration
+	unsigned int volumeCalibrationPressure[10]; //The pressures used for calibration
 	unsigned long volumeCalibrationVolume[10]; //The volumes used for calibration
 
 	//Valves require broader state awareness (e.g. MLT valve config might be different for mash vs. sparge) and are handled outside this class.
@@ -55,8 +59,10 @@ private:
 	//Working statuses
 	float volumeReadings[10]; //To-do: allow user to customize number of volume readings to use in sample
 	byte oldestVolumeReading; //Array index of the oldest volume reading, which will get overwritten by the next one
+
 	float temperature;
 	float feedforwardTemperature;
+
 	double PIDoutput; //The current output level of the PID
 
 	//Cached values for performance
@@ -73,7 +79,7 @@ public:
 	//Temperature control functions
 	void setSetpoint(byte );
 	byte getSetpoint();
-	float getTemperature();
+	double getTemperature();
 	void setMaxPower(byte );
 
 	bool updateOutput(); //Turn output on or off based on temperature, returning whether the output is on
