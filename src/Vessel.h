@@ -21,7 +21,7 @@ NOTE: Some functionality supported in BT2.6 is not yet supported in this version
 #include <PID_Beta6.h>
 
 
-class Vesseld
+class Vessel
 {
 private:
 	//Config
