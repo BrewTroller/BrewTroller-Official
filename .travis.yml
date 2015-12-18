@@ -1,0 +1,24 @@
+sudo: false
+
+compiler:
+    - gcc
+
+git:
+    submodules: false
+
+addons:
+    apt:
+        packages:
+            - cmake
+
+before_install:
+    - git submodule update --init --recursive
+
+before_script:
+    - mkdir -p tests/build
+    - cd tests/build
+
+script:
+    - cmake ../
+    - make
+    - ./brewtrollerTests

@@ -13,3 +13,4 @@
 
 #build directory
 build/*
+tests/build

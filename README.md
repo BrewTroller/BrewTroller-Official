@@ -1,4 +1,5 @@
 BrewTroller
+[![Build Status](https://travis-ci.org/BrewTroller/BrewTroller-Official.svg)](https://travis-ci.org/BrewTroller/BrewTroller-Official)
 =====
 
 This is the new home of BrewTroller! (Originally forked from the now defunct OSCSYS). For help with BrewTroller hardware, firmware or anything else BrewTroller related, visit our forums at
@@ -83,3 +84,16 @@ $ avrdude -p m1284p -c arduino -b 57600 -P [your brewtroller serial port] -U fla
 
 You must substitute [you brewtroller serial port] for the serial port your board is connected to. This will vary by OS, windows users will have form `COMxx`,
 Mac users will have the form `/dev/tty.usbserial-xxxxxxx` and linux users will have the form `/dev/ttyUSBxx`.
+
+Testing
+-----
+The new BrewTroller repository is getting some much needed unit tests added! To run them, you will need the same build system requirements as for the main firmware, with added reqirement of a native compiler for your build machine. For a Mac this means having Xcode and the command line tools installed, for ubuntu this generally means having the `build-essential` package installed.
+
+To build the new test suite, from the the tests subdirectory, run the following commands
+```bash
+$ mkdir build
+$ cd build
+$ cmake ../
+$ make
+$ ./brewtrollerTests
+```
