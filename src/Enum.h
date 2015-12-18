@@ -13,12 +13,17 @@
 #define TS_AUX3 8
 #define NUM_TS 9
 #define BAD_TEMP -32768
+constexpr uint8_t TS_ADDR_BYTES = 8;
 
 #define VS_HLT 0
 #define VS_MASH 1
 #define VS_KETTLE 2
 #define VS_STEAM 3
 #define VS_PUMP 3
+constexpr uint8_t VS_COUNT = 4;
+
+//Volume Calibrations
+constexpr uint8_t VOL_CALIB_COUNT = 10;
 
 //Auto-Valve Modes
 #define AV_FILL 0
@@ -92,6 +97,7 @@ enum StepSignal {
 
 #define RECIPE_MAX 20
 #define RECIPE_NONE 255
+constexpr uint8_t PROG_NAME_LEN = 20;
 
 enum MashStepIndex {
   MASHSTEP_DOUGHIN,
