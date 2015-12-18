@@ -1,7 +1,7 @@
 sudo: false
 
 compiler:
-    - gcc
+    - clang
 
 git:
     submodules: false
