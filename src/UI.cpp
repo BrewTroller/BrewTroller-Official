@@ -2508,7 +2508,7 @@ void cfgVolumes() {
 void volCalibMenu(char sTitle[], byte vessel) {
     menu calibMenu(3, 11);
     while(1) {
-        for(byte i = 0; i < 10; i++) {
+        for(byte i = 0; i < VOL_CALIB_COUNT; i++) {
             if (calibVals[vessel][i] > 0) {
                 vftoa(calibVols[vessel][i], buf, 1000, 1);
                 truncFloat(buf, 6);
