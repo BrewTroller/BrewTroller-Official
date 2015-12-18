@@ -1,0 +1,173 @@
+/*
+ Copyright (C) 2015 Eric Yanush
+ 
+ This file is part of BrewTroller.
+ 
+ BrewTroller is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ BrewTroller is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with BrewTroller.  If not, see <http://www.gnu.org/licenses/>.
+ 
+ Documentation, Forums and more information available at http://www.brewtroller.com
+*/
+
+#ifndef EEPROM_hpp
+#define EEPROM_hpp
+
+#include <stdint.h>
+#include "Enum.h"
+#include "Types.hpp"
+
+typedef uint8_t TempSensorAddress[TS_ADDR_BYTES];
+
+struct output_config {
+    uint8_t PGain;
+    uint8_t IGain;
+    uint8_t DGain;
+    
+    uint8_t cycleTime;
+    uint8_t hysteresis;
+};
+
+typedef uint32_t VolumeCalibs[VOL_CALIB_COUNT];
+typedef uint16_t VolCalibData[VOL_CALIB_COUNT];
+
+struct program_config {
+    char name[PROG_NAME_LEN];
+    
+    //Padding inserted for backwards compatability
+    //TODO: Remove all padding
+    char pad;
+    
+    uint8_t spargeTemp;
+    
+    uint16_t boilMins;
+    
+    uint16_t mashRatio;
+    
+    uint8_t mashStepTemp[MASHSTEP_COUNT];
+    
+    uint8_t mashStepLength[MASHSTEP_COUNT];
+    
+    uint32_t batchVolume;
+    
+    uint8_t mashLiquorHeatSource;
+    
+    uint8_t hltTemperature;
+    
+    uint8_t pitchTemperature;
+    
+    uint16_t boilAdditionAlarms;
+    
+    uint32_t grainWeight;
+    
+    char pad1[9];
+} __attribute__((packed));
+
+struct modbusboard_cfg {
+    uint8_t address;
+    uint16_t reg;
+    uint8_t coilCount;
+    uint8_t offset;
+} __attribute__((packed));
+
+struct config_t {
+    TempSensorAddress tempSensorAddresses[NUM_TS];
+    
+    uint8_t pidEnabledFlags;
+    output_config pidConfigs[VS_COUNT];
+    
+    uint32_t hltCapacity;
+    uint32_t mltCapacity;
+    uint32_t kettleCapacity;
+    
+    uint16_t hltVolLoss;
+    uint16_t mltVolLoss;
+    uint16_t kettleVolLoss;
+    
+    uint8_t boilTemp;
+    uint8_t boilPower;
+    
+    uint8_t evapRate;
+    
+    uint16_t steamZero;
+    uint8_t steamTarget;
+    uint16_t steamPSense;
+    
+    VolumeCalibs hltCalibVols;
+    VolumeCalibs mltCalibVols;
+    VolumeCalibs kettleCalibVols;
+    
+    VolCalibData hltCalibDat;
+    VolCalibData mltCalibDat;
+    VolCalibData kettleCalibDat;
+    
+    uint8_t hltSetPoint;
+    uint8_t mltSetPoint;
+    uint8_t kettleSetPoint;
+    
+    uint16_t mashTimer;
+    uint16_t boilTimer;
+    uint8_t timerStatus;
+    
+    uint16_t boilAdditionsTrigger;
+    
+    //Padding inserted for backwards compatibility
+    //TODO: Remove All Padding and reorganize EEPROM Fields
+    uint8_t pad1[4];
+    
+    ProgramThread pgmThreads[PROGRAMTHREAD_MAX];
+    
+    //Padding inserted for backwards compatibility
+    //TODO: Remove all padding
+    uint8_t pad2[81];
+    
+    uint16_t delayMins;
+    
+    uint8_t grainTemp;
+    
+    uint32_t valveProfileCfg[NUM_VLVCFGS];
+    
+    //Padding inserted for backwards compatibility
+    //TODO: Remove all padding
+    uint8_t pad3[305];
+    
+    program_config programs[RECIPE_MAX];
+    
+    //Padding inserted for backwards compatibility
+    //TODO: Remove all padding
+    uint8_t pad4[60];
+    
+    uint8_t btFingerprint;
+    
+    uint8_t eepromSchemaVersion;
+    
+    uint16_t lcdBrightContrast;
+    
+    uint8_t triggerPins[5];
+    
+    //Padding inserted for backwards compatibility
+    //TODO: Remove all padding
+    uint8_t pad5[10];
+    
+    modbusboard_cfg modbusBrdConf[2];
+    
+} __attribute__((packed));
+
+class ConfigManager {
+    
+    config_t config;
+    
+public:
+    
+};
+
+#endif /* EEPROM_hpp */
