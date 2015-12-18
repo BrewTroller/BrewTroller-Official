@@ -50,11 +50,6 @@ const extern void(* softReset) (void);
   #endif
 #endif
 
-struct ProgramThread {
-    byte activeStep;
-    byte recipe;
-};
-
 //**********************************************************************************
 // Globals
 //**********************************************************************************
