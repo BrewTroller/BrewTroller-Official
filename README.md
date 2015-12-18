@@ -1,4 +1,5 @@
-BrewTroller
+# BrewTroller
+
 [![Build Status](https://travis-ci.org/BrewTroller/BrewTroller-Official.svg)](https://travis-ci.org/BrewTroller/BrewTroller-Official)
 =====
 

@@ -9,9 +9,6 @@ add_subdirectory(googletest)
 set(BT_TEST_SRCS src/main.cpp
 				 src/EEPROMTests.cpp)
 
-#Set the language standard
-set(CMAKE_CXX_FLAGS "-std=c++14")
-
 #Include the BrewTroller headers
 include_directories(../src)
 
@@ -21,3 +18,6 @@ include_directories(googletest/googletest/include
 
 add_executable(${TEST_TARGET} ${BT_TEST_SRCS})
 target_link_libraries(${TEST_TARGET} gmock gtest)
+
+#Set the language standard
+set_property(TARGET ${TEST_TARGET} PROPERTY CXX_STANDARD 11)
