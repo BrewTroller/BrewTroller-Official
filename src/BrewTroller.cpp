@@ -61,7 +61,7 @@ Compiled on Arduino-0022 (http://arduino.cc/en/Main/Software)
 #include "StepLogic.h"
 #include "Outputs.h"
 #include "Events.h"
-#include "EEPROM.h"
+#include "EEPROM.hpp"
 #include "Temp.h"
 #include "BrewCore.h"
 #include "Com.h"
@@ -196,6 +196,7 @@ PVOutMODBUS *ValvesMB[PVOUT_MODBUS_MAXBOARDS];
 char buf[20];
 
 //Output Globals
+//TODO: Why is setpoint of type double? it's stored in eeprom as uint8_t
 double PIDInput[4], PIDOutput[4], setpoint[4];
 #ifdef PID_FEED_FORWARD
 double FFBias;
@@ -349,12 +350,13 @@ void setup() {
 
     tempInit();
 
-    //Check for cfgVersion variable and update EEPROM if necessary (EEPROM.pde)
-    checkConfig();
+    //Initialize the eeprom configuration manager
+    ConfigManager::init(&eepromConfig);
 
 
     //Load global variable values stored in EEPROM (EEPROM.pde)
-    loadSetup();
+    //TODO: Remove all global variables, so loading their values will be un-necessary.
+    ConfigManager::loadConfig();
 
 #ifdef DIGITAL_INPUTS
     //Digital Input Interrupt Setup

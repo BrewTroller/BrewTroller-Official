@@ -84,3 +84,119 @@ TEST(ConfigStruct, TestLayout) {
     ASSERT_EQ(2050, offsetof(config_t, triggerPins));
     ASSERT_EQ(2065, offsetof(config_t, modbusBrdConf));
 }
+
+TEST(ConfigManager, TestConfigValidation) {
+    config_t conf;
+    ConfigManager::init(&conf);
+    
+    //Fingerprint and schema match, should be true
+    conf.btFingerprint = EEPROM_FINGERPRINT;
+    conf.eepromSchemaVersion = EEPROM_SCHEMA_VER;
+    ASSERT_TRUE(ConfigManager::configIsValid());
+    
+    //Fingerprint matches, schema doesn't, should be false
+    conf.eepromSchemaVersion = EEPROM_SCHEMA_VER + 1;
+    ASSERT_FALSE(ConfigManager::configIsValid());
+    
+    //fingerprint doesn't match, schema does, should be false
+    conf.eepromSchemaVersion = EEPROM_SCHEMA_VER;
+    conf.btFingerprint = EEPROM_FINGERPRINT + 1;
+    ASSERT_FALSE(ConfigManager::configIsValid());
+
+    //Fingerprint and schema both don't match, should be false
+    conf.eepromSchemaVersion = EEPROM_SCHEMA_VER + 1;
+    ASSERT_FALSE(ConfigManager::configIsValid());
+}
+
+TEST(ConfigManager, TestGetBoilTemp) {
+    config_t conf;
+    ConfigManager::init(&conf);
+    
+    conf.boilTemp = 12;
+    ASSERT_EQ(12, ConfigManager::getBoilTemp());
+}
+
+TEST(ConfigManager, SetBoilTemp) {
+    config_t conf = {0};
+    config_t confUntouched = {0};
+    
+    ConfigManager::init(&conf);
+    
+    conf.boilTemp = 21;
+    ConfigManager::setBoilTemp(18);
+    ASSERT_EQ(18, conf.boilTemp);
+    
+    //Ensure nothing else was touched!
+    conf.boilTemp = confUntouched.boilTemp;
+    ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+}
+
+TEST(ConfigManager, TestSetVolumeCalibration) {
+    config_t conf = {0};
+    config_t confUntouched = {0};
+    
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = VS_HLT; i <= VS_KETTLE; i++) {
+        for (uint8_t j = 0; j < VOL_CALIB_COUNT; j++) {
+            ConfigManager::setVolumeCalib(i, j, 155, 88888888);
+            switch (i) {
+                case VS_HLT:
+                    ASSERT_EQ(88888888, conf.hltCalibVols[j]);
+                    ASSERT_EQ(155, conf.hltCalibDat[j]);
+                    conf.hltCalibDat[j] = 0;
+                    conf.hltCalibVols[j] = 0;
+                    break;
+                case VS_MASH:
+                    ASSERT_EQ(88888888, conf.mltCalibVols[j]);
+                    ASSERT_EQ(155, conf.mltCalibDat[j]);
+                    conf.mltCalibDat[j] = 0;
+                    conf.mltCalibVols[j] = 0;
+                    break;
+                case VS_KETTLE:
+                    ASSERT_EQ(88888888, conf.kettleCalibVols[j]);
+                    ASSERT_EQ(155, conf.kettleCalibDat[j]);
+                    conf.kettleCalibDat[j] = 0;
+                    conf.kettleCalibVols[j] = 0;
+                    break;
+            }
+            //Make sure nothing else was touched
+            ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+        }
+    }
+}
+
+TEST(ConfigManager, TestSetEvapRate) {
+    config_t conf = {0};
+    config_t confUntouched = {0};
+    
+    ConfigManager::init(&conf);
+    
+    ConfigManager::setEvapRate(52);
+    ASSERT_EQ(52, conf.evapRate);
+    
+    conf.evapRate = 0;
+    ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+}
+
+TEST(ConfigManager, TestGetEvapRate) {
+    config_t conf;
+    ConfigManager::init(&conf);
+    
+    conf.evapRate = 85;
+    ASSERT_EQ(85, ConfigManager::getEvapRate());
+}
+
+TEST(ConfigManager, TestSetPIDEnabled) {
+    config_t conf = {0};
+    config_t confUntouched = {0};
+    ConfigManager::init(&conf);
+    
+    for(uint8_t i = 0; i < VS_KETTLE; i++) {
+        ConfigManager::setPIDEnabled(i, true);
+        ASSERT_EQ(0x1 << i, conf.pidEnabledFlags);
+        ConfigManager::setPIDEnabled(i, false);
+        ASSERT_EQ(0, conf.pidEnabledFlags);
+        ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+    }
+}

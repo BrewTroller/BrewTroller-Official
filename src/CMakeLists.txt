@@ -13,7 +13,7 @@ set(SOURCE_FILES
         Com_RGBIO8.h
         Com_S0ASC.cpp
         EEPROM.cpp
-        EEPROM.h
+        EEPROM.hpp
         Enum.h
         Events.cpp
         Events.h

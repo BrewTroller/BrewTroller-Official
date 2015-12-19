@@ -29,7 +29,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 #ifdef BTNIC_PROTOCOL
 
 #include "Outputs.h"
-#include "EEPROM.h"
+#include "EEPROM.hpp"
 #include "StepLogic.h"
 #include "Temp.h"
 #include "Timer.h"
@@ -389,10 +389,10 @@ void BTnic::execCmd(void) {
       break;
     
     case CMD_SET_BOIL:  //K
-      setBoilTemp(getCmdParamNum(1));
+      ConfigManager::setBoilTemp(getCmdParamNum(1));
     case CMD_GET_BOIL:  //A
       logFieldCmd(CMD_GET_BOIL, NO_CMDINDEX);
-      logFieldI(getBoilTemp());
+      logFieldI(ConfigManager::getBoilTemp());
       break;
 
 
@@ -400,7 +400,7 @@ void BTnic::execCmd(void) {
       {
         byte vessel = cmdIndex / 10;
         byte calIndex = cmdIndex - vessel * 10;
-        setVolCalib(vessel, calIndex, getCmdParamNum(2), getCmdParamNum(1));
+        ConfigManager::setVolumeCalib(vessel, calIndex, getCmdParamNum(2), getCmdParamNum(1));
       }
     case CMD_GET_CAL: //B
       {
@@ -414,15 +414,15 @@ void BTnic::execCmd(void) {
       
       
     case CMD_SET_EVAP:  //M
-      setEvapRate(min(getCmdParamNum(1), 100));
+      ConfigManager::setEvapRate(min(getCmdParamNum(1), 100));
     case CMD_GET_EVAP:  //C
       logFieldCmd(CMD_GET_EVAP, NO_CMDINDEX);
-      logFieldI(getEvapRate());
+      logFieldI(ConfigManager::getEvapRate());
       break;
       
       
     case CMD_SET_OSET:  //N
-      setPIDEnabled(cmdIndex, getCmdParamNum(1));
+      ConfigManager::setPIDEnabled(cmdIndex, getCmdParamNum(1));
       setPIDCycle(cmdIndex, getCmdParamNum(2));
       setPIDp(cmdIndex, getCmdParamNum(3));
       setPIDi(cmdIndex, getCmdParamNum(4));
