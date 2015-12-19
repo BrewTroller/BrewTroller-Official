@@ -140,15 +140,15 @@ void sendVsTemp(byte chan, byte sensor, byte vessel) {
   if (temp[sensor] == BAD_TEMP )
     sendStringBTPD(chan, "    ----");
   else
-    sendFloatsBTPD(chan, setpoint[vessel] / 100.0, temp[sensor] / 100.0);
+    sendFloatsBTPD(chan, vessels[vessel]->getSetpoint() , vessels[vessel]->getTemperature());
 }
 
 void sendVesselTemp(byte chan, Vessel* v)
 {
-	if (vessel->getTemperature() == BAD_TEMP)
+	if (v->getTemperature() == BAD_TEMP)
 		sendStringBTPD(chan, "    ----");
 	else
-		sendFloatsBTPD(chan, vessels[vessel]->getSetpoint(), vessel->getTemperature());
+		sendFloatsBTPD(chan, v->getSetpoint(), v->getTemperature());
 }
 
 void sendVsVol(byte chan, byte vessel) {

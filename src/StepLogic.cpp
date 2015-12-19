@@ -549,10 +549,10 @@ void brewStepMashHold(enum StepSignal signal, struct ProgramThread *thread) {
       //Set HLT to Sparge Temp
       setSetpoint(TS_HLT, getProgSparge(thread->recipe));
       //Cycle through steps and use last non-zero step for mash setpoint
-      if (!vessels[VS_MASH].getSetpoint()) {
+      if (!vessels[VS_MASH]->getSetpoint()) {
         byte i = MASHSTEP_MASHOUT;
-        while (vessels[VS_MASH].getSetpoint() == 0 && i >= MASHSTEP_DOUGHIN && i <= MASHSTEP_MASHOUT)
-			vessels[VS_MASH].setSetpoint(getProgMashTemp(thread->recipe, i--));
+        while (vessels[VS_MASH]->getSetpoint() == 0 && i >= MASHSTEP_DOUGHIN && i <= MASHSTEP_MASHOUT)
+			vessels[VS_MASH]->setSetpoint(getProgMashTemp(thread->recipe, i--));
       }
       #ifndef PID_FLOW_CONTROL
         setSetpoint(VS_STEAM, getSteamTgt());

@@ -86,9 +86,9 @@ option(HLT_AS_KETTLE "Use HLT Vessel as Kettle Vessel" OFF)
 option(KETTLE_AS_MASH "Use Kettle Vessel as Mash Vessel" OFF)
 option(SINGLE_VESSEL_SUPPORT "Enable Single Vessel System Configuration" OFF)
 
-option(MASH_AVG_AUX1 "Average Aux1 into Mash Temperature" OFF)
-option(MASH_AVG_AUX2 "Average Aux2 into Mash Temperature" OFF)
-option(MASH_AVG_AUX3 "Average Aux3 into Mash Temperature" OFF)
+option(MASH_AVG_AUX1 "Average Aux1 into Mash Temperature" false)
+option(MASH_AVG_AUX2 "Average Aux2 into Mash Temperature" false)
+option(MASH_AVG_AUX3 "Average Aux3 into Mash Temperature" false)
 
 option(FEEDFORWARD "Include a feedforward sensor in the mash PID algorithm" "None")
 

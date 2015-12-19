@@ -538,18 +538,18 @@ void screenRefresh() {
             LCD.lPad(1, i * 6 + 9, buf, 4, ' ');
             vftoa(vessels[i]->getTemperature(), buf, 100, 1);
             truncFloat(buf, 4);
-            if ((vessels[i]->getTemperature() == BAD_TEMP) {
+            if (vessels[i]->getTemperature() == BAD_TEMP) {
                 LCD.print_P(2, i * 6 + 9, UIStrings::Generic::TEMPBLANK);
             } else {
                 LCD.lPad(2, i * 6 + 9, buf, 4, ' ');
             }
             byte pct;
-            if ((vessels[i]->isPID()]) {
-                pct = (vessels[i]->getOutput() / (vessels[i]->getPIDCycle();
+            if (vessels[i]->isPID()) {
+                pct = vessels[i]->getOutput() / vessels[i]->getPIDCycle();
                 if (pct == 0) strcpy_P(buf, UIStrings::Generic::OFF);
                 else if (pct == 100) concatPSTRS(buf, UIStrings::Generic::SPACE, UIStrings::Generic::ON);
                 else { itoa(pct, buf, 10); strcat(buf, "%"); }
-            } else if ((vessels[i]->isOn()) {
+            } else if (vessels[i]->isOn()) {
                 concatPSTRS(buf, UIStrings::Generic::SPACE, UIStrings::Generic::ON);
                 pct = 100;
             } else {

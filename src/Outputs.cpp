@@ -298,7 +298,7 @@ void processHeatOutputs() {
       vessels[VS_MASH]->setSetpoint(getProgMashTemp(stepProgram[steptoset], steptoset - 5));
     }
   #endif
-  
+	unsigned int timestamp = millis();
   for (int vesselIndex = 0; vesselIndex < HEAT_OUTPUTS_COUNT; vesselIndex++) {
     #ifndef PWM_BY_TIMER
   
@@ -306,7 +306,7 @@ void processHeatOutputs() {
       
     #endif
     
-	  vessels[vesselIndex]->updateOutput());
+	  vessels[vesselIndex]->updateOutput();
 	#ifdef RGBIO8_ENABLE
     if (softSwitchHeat[vesselIndex] == SOFTSWITCH_AUTO) {
       // Auto

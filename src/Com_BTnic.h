@@ -785,7 +785,7 @@ void BTnic::execCmd(void) {
       break;
       
     case CMD_SET_TGTVOL:  //{
-      vessels[cmdIndex]->setTargetVolume(min(getCmdParamNum(1), vessels[cmdIndex]->getCapacity());
+      vessels[cmdIndex]->setTargetVolume(min(getCmdParamNum(1), vessels[cmdIndex]->getCapacity()));
     case CMD_GET_TGTVOL:  //|
       logFieldCmd(CMD_GET_TGTVOL, cmdIndex);
       logFieldI(vessels[cmdIndex]->getTargetVolume());
@@ -807,7 +807,7 @@ void BTnic::execCmd(void) {
     case CMD_GET_BOILCTL: //~
       logFieldCmd(CMD_GET_BOILCTL, NO_CMDINDEX);
       logFieldI(boilControlState);
-      logFieldI(vessels[VS_kettle]->getOutput());
+      logFieldI(vessels[VS_KETTLE]->getOutput());
       break;
       
     default: 
