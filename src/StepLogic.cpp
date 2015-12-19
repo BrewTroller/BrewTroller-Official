@@ -212,11 +212,11 @@ void programThreadResetAll() {
 void brewStepFill(enum StepSignal signal, struct ProgramThread *thread) {
   switch (signal) {
     case STEPSIGNAL_INIT:
-      vessels[VS_HLT].setTargetVolume(calcSpargeVol(thread->recipe));
-      vessels[VS_MASH].setTargetVolume(calcStrikeVol(thread->recipe);
+      vessels[VS_HLT]->setTargetVolume(calcSpargeVol(thread->recipe));
+      vessels[VS_MASH]->setTargetVolume(calcStrikeVol(thread->recipe));
       if (getProgMLHeatSrc(thread->recipe) == VS_HLT) {
-		  vessels[VS_HLT].setTargetVolume(min(vessels[VS_HLT].getVolume() + vessels[VS_MASH].getTargetVolume(), vessels[VS_HLT].getCapacity());
-		  vessels[VS_MASH].setTargetVolume(0);
+		  vessels[VS_HLT]->setTargetVolume(min(vessels[VS_HLT]->getVolume() + vessels[VS_MASH]->getTargetVolume(), vessels[VS_HLT]->getCapacity());
+		  vessels[VS_MASH]->setTargetVolume(0);
       }
       #ifdef AUTO_FILL_START
         autoValve[AV_FILL] = 1;
@@ -225,11 +225,11 @@ void brewStepFill(enum StepSignal signal, struct ProgramThread *thread) {
       break;
     case STEPSIGNAL_UPDATE:
       #ifdef AUTO_FILL_EXIT
-        if (vessels[VS_HLT].getVolume() >= vessels[VS_HLT].getTargetVolume() && vessels[VS_MASH].getVolume() >= vessels[VS_MASH].getTargetVolume())
+        if (vessels[VS_HLT]->getVolume() >= vessels[VS_HLT]->getTargetVolume() && vessels[VS_MASH]->getVolume() >= vessels[VS_MASH]->getTargetVolume())
           brewStepFill(STEPSIGNAL_ADVANCE, thread);
       #else
         #ifndef VOLUME_MANUAL
-		if (vessels[VS_HLT].getVolume() >= vessels[VS_HLT].getTargetVolume() && vessels[VS_MASH].getVolume() >= vessels[VS_MASH].getTargetVolume())
+		if (vessels[VS_HLT]->getVolume() >= vessels[VS_HLT]->getTargetVolume() && vessels[VS_MASH]->getVolume() >= vessels[VS_MASH]->getTargetVolume())
             bitClear(actProfiles, VLV_FILLHLT);
         #endif
       #endif
@@ -237,8 +237,8 @@ void brewStepFill(enum StepSignal signal, struct ProgramThread *thread) {
     case STEPSIGNAL_ABORT:
       programThreadSetStep(thread, BREWSTEP_NONE);
     case STEPSIGNAL_ADVANCE:
-		vessels[VS_HLT].setTargetVolume(0); 
-		vessels[VS_MASH].setTargetVolume(0);
+		vessels[VS_HLT]->setTargetVolume(0); 
+		vessels[VS_MASH]->setTargetVolume(0);
       autoValve[AV_FILL] = 0;
       bitClear(actProfiles, VLV_FILLHLT);
       bitClear(actProfiles, VLV_FILLMASH);

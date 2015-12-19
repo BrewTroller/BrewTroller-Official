@@ -34,7 +34,8 @@ private:
 	float capacity; //Maximum volume
 	float deadspace; //Dead space
 	byte minTriggerPin; //Pin that triggers a low volume condition
-
+	
+	SoftSwitch heatOverride = SOFTSWITCH_AUTO; // SOFTSWITCH_OFF, _ON, _AUTO 
 
 	//Temperature
 	//Note that we use doubles here for type compatibility with the PID library. On most Arduino systems, double and float use the same precision (and on the systems where they don't there is plenty of memory).
@@ -54,7 +55,7 @@ private:
 	unsigned int volumeCalibrationPressure[10]; //The pressures used for calibration
 	unsigned long volumeCalibrationVolume[10]; //The volumes used for calibration
 	float targetVolume = 0;
-	SoftSwitch heatOverride = SOFTSWITCH_AUTO; // SOFTSWITCH_OFF, _ON, _AUTO 
+	
 
 
 	//Valves require broader state awareness (e.g. MLT valve config might be different for mash vs. sparge) and are handled outside this class.
@@ -93,18 +94,18 @@ public:
 	};
 	inline float getPIDCycle() { return PIDcycle; }
 	void setPIDCycle(float);
-	inline float getHysterisis() { return hysteresis; }
-	void setHysterisis(float);
-	inline float getP() { if (PID) return PID.GetP_Param(); else return 3; } //3,4,1 are default values for PID control. Arguably we should return an error code and let the caller figure it out.
-	inline float getI() { if (PID) return PID.GetI_Param(); else return 4; }
-	inline float getD() { if (PID) return PID.GetD_Param(); else return 1; }
+	inline float getHysteresis() { return hysteresis; }
+	void setHysteresis(float);
+	inline float getP() { if (pid) return pid->GetP_Param(); else return 3; } //3,4,1 are default values for PID control. Arguably we should return an error code and let the caller figure it out.
+	inline float getI() { if (pid) return pid->GetI_Param(); else return 4; }
+	inline float getD() { if (pid) return pid->GetD_Param(); else return 1; }
 	void setTunings(double p, double i, double d); //Also writes tunings to eeprom
 	void setTSAddress(byte*); //Also writes to EEPROM
 
-	inline boolean isPID() { return usePID; }
+	inline bool isPID() { return usePID; }
 	void setPID(bool);
 
-	bool updateOutput(); //Turn output on or off based on temperature, returning whether the output is on
+	bool updateOutput(void); //Turn output on or off based on temperature, returning whether the output is on
 	void manualOutput(int); //Manual output control, sets the output to a fixed PID value
 
 	//Volume functions
@@ -112,18 +113,18 @@ public:
 
 	float getVolume(); //Return the volume, as calculated based on this 
 	void takeVolumeReading(); //Take a sample of the volume
-	inline void setTargetVolume(float target) { targetVolume = target; };
+	inline void setTargetVolume(float target) { targetVolume = target * 1000.0; };
 	inline float getTargetVolume() { return targetVolume / 1000.0; };
 	inline float getDeadspace() { return deadspace; }
-	void setDeadspace();
+	void setDeadspace(float);
 	
 	inline float getCapacity() { return capacity; }
 	void setCapacity(float capacity);
 
-	inline unsigned long getCalibrationVolume(byte index) { return volumeCalibrationVolume; }
-	inline unsigned int getCalibrationPressure(byte index) { return volumeCalibrationVolume; }
+	inline unsigned long getCalibrationVolume(byte index) { return volumeCalibrationVolume[index]; }
+	inline unsigned int getCalibrationPressure(byte index) { return volumeCalibrationVolume[index]; }
 	
-	boolean isOn(); //Returns whether the heating element is on at this very moment (cycles on and off with PID). Use getOutput() to see the exact level.
+	bool isOn(); //Returns whether the heating element is on at this very moment (cycles on and off with PID). Use getOutput() to see the exact level.
 	void setHeatOverride(byte); //Forces the element on or off, or sets it to auto. Used with RGBIO8 soft switches.
 	byte getHeatOverride(); 
 };

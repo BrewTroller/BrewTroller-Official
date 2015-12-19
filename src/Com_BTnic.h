@@ -422,17 +422,15 @@ void BTnic::execCmd(void) {
       
       
     case CMD_SET_OSET:  //N
-      setPIDEnabled(cmdIndex, getCmdParamNum(1));
-      setPIDCycle(cmdIndex, getCmdParamNum(2));
-      setPIDp(cmdIndex, getCmdParamNum(3));
-      setPIDi(cmdIndex, getCmdParamNum(4));
-      setPIDd(cmdIndex, getCmdParamNum(5));
-      if (cmdIndex == VS_STEAM) {
+      vessels[cmdIndex]->setPID(getCmdParamNum(1));
+	  vessels[cmdIndex]->setPIDCycle(getCmdParamNum(2));
+	  vessels[cmdIndex]->setTuning(getCmdParamNum(3), getCmdParamNum(4), getCmdParamNum(5));
+	     if (cmdIndex == VS_STEAM) {
         setSteamZero(getCmdParamNum(6));
         setSteamTgt(getCmdParamNum(7));
         setSteamPSens(getCmdParamNum(8));
       } 
-      else setHysteresis(cmdIndex, getCmdParamNum(6));
+      else vessels[cmdIndex]->setHysteresis(getCmdParamNum(6));
     case CMD_GET_OSET:  //D
       logFieldCmd(CMD_GET_OSET, cmdIndex);
       logFieldI(vessels[cmdIndex]->isPid());

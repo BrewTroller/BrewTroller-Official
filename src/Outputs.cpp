@@ -31,7 +31,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 #include "EEPROM.h"
 #include "Outputs.h"
 #include "Events.h"
-#include "Vessels.h"
+#include "Vessel.h"
 
 #ifdef PID_FLOW_CONTROL 
   #define LAST_HEAT_OUTPUT VS_PUMP // not this is mostly done for code readability as VS_PUMP = VS_STEAM
@@ -536,7 +536,7 @@ void processHeatOutputs() {
       
     #endif
     
-	  vessels[vesselIndex]->updateOutput(&(cycleStart[vesselIndex]));
+	  vessels[vesselIndex]->updateOutput());
 	#ifdef RGBIO8_ENABLE
     if (softSwitchHeat[vesselIndex] == SOFTSWITCH_AUTO) {
       // Auto

@@ -10,6 +10,7 @@
 #include "HardwareProfile.h"
 #include "PVOut.h"
 #include "UI_LCD.h"
+#include "Vessel.h"
 
 const extern void(* softReset) (void);
 
@@ -79,9 +80,6 @@ extern byte vSensor[3];
 extern byte tSensor[9][8];
 extern int temp[9];
 
-//Volume in (thousandths of gal/l)
-extern unsigned long tgtVol[3], volAvg[3], calibVols[3][10];
-extern unsigned int calibVals[3][10];
 #ifdef SPARGE_IN_PUMP_CONTROL
 extern unsigned long prevSpargeVol[2];
 #endif
@@ -134,26 +132,24 @@ extern PVOutMODBUS *ValvesMB[PVOUT_MODBUS_MAXBOARDS];
 extern char buf[20];
 
 //Output Globals
-extern double PIDInput[4], PIDOutput[4], setpoint[4];
-#ifdef PID_FEED_FORWARD
-extern double FFBias;
-#endif
-extern byte PIDCycle[4], hysteresis[4];
+extern Vessel* vessels[3];
+extern double PIDInput, PIDOutput, setpoint;
+extern byte PIDCycle, hysteresis;
 #ifdef PWM_BY_TIMER
 extern unsigned int cycleStart[4];
 #else
 extern unsigned long cycleStart[4];
 #endif
-extern boolean heatStatus[4], PIDEnabled[4];
+extern boolean heatStatus, PIDEnabled;
 extern unsigned int steamPSens, steamZero;
 
-extern byte pidLimits[4];
+extern byte pidLimits;
 
 //Steam Pressure in thousandths
 extern unsigned long steamPressure;
 extern byte boilPwr;
 
-extern PID pid[4];
+extern PID pid;
 #if defined PID_FLOW_CONTROL && defined PID_CONTROL_MANUAL
   extern unsigned long nextcompute;
   extern byte additioncount[2];

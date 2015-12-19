@@ -2233,7 +2233,7 @@ void cfgOutputs() {
         //Low-nibble = menu item: OPT_XXXXXXXX (see #defines above)
         
         outputMenu.setItem_P(UIStrings::SystemSetup::OutputConfig::HLT_MODE, VS_HLT<<4 | OPT_MODE);
-        if (vessels[VS_HLT)->isPID()) {
+        if (vessels[VS_HLT]->isPID()) {
             outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::PID_MODE, VS_HLT<<4 | OPT_MODE);
         }
         else {
@@ -2328,17 +2328,14 @@ void cfgOutputs() {
                     strcpy_P(title, (char*)pgm_read_word(&(UIStrings::SystemSetup::TITLE_VS[vessel])));
         
         if ((lastOption & B00001111) == OPT_MODE) {
-            if (vessels[vessel].isPID()]) setPIDEnabled(vessel, 0);
-            else setPIDEnabled(vessel, 1);
+            if (vessels[vessel]->isPID()]) vessels[vessel]->setPID(false);
+            else vessels[vessel]->setPID(true);
         } else if ((lastOption & B00001111) == OPT_CYCLE) {
             strcat_P(title, UIStrings::SystemSetup::OutputConfig::PIDCYCLE);
-            setPIDCycle(vessel, getValue(title, vessels[vessel]->getPIDCycle(), 10, 255, UIStrings::Shared::SEC));          
-        } else if ((lastOption & B00001111) == OPT_GAIN) {
-            strcat_P(title, UIStrings::SystemSetup::OutputConfig::PIDGAIN);
-            setPIDGain(title, vessel);
+			vessels[vessel]->setPIDCycle(getValue(title, vessels[vessel]->getPIDCycle(), 10, 255, UIStrings::Shared::SEC));
         } else if ((lastOption & B00001111) == OPT_HYSTERESIS) {
             strcat_P(title, UIStrings::SystemSetup::OutputConfig::HYSTERESIS);
-            setHysteresis(vessel, getValue(title, vessels[vessel]->getHysteresis(), 10, 255, UIStrings::Units::TUNIT));
+			vessels[vessel]->setHysteresis(getValue(title, vessels[vessel]->getHysteresis(), 10, 255, UIStrings::Units::TUNIT));
 #if defined USESTEAM || defined PID_FLOW_CONTROL
         } else if ((lastOption & B00001111) == OPT_PRESS) {
 #ifdef PID_FLOW_CONTROL

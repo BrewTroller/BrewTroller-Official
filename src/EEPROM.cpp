@@ -282,7 +282,7 @@ void setSetpoint(byte vessel, int value) {
     if (vessel == VS_STEAM) setpoint[vessel] = value;
     else setpoint[vessel] = value * SETPOINT_MULT;
   #else
-	vessels[i]->setSetpoint(value);
+	vessels[vessel]->setSetpoint(value);
   #endif
   
   eventHandler(EVENT_SETPOINT, vessel);
