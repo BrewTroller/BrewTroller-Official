@@ -48,7 +48,7 @@ private:
 
 	float PIDcycle;
 	float hysteresis;
-	byte includeAux[3]; //Whether to average AUX1-3; stores their indices
+	bool includeAux[3]; //Whether to average AUX1-3; stores their indices
 
 	//Volume
 	//Using int and ulong here to stay consistent with existing code. These could probably be converted to byte and float.
@@ -79,7 +79,7 @@ public:
 	//All set functions also write the value to EEPROM
 
 	//No default constructor because we need to know which eeprom index to use
-	Vessel(byte initEepromIndex, byte initIncludeAux[], byte FFBias, float initMinVolume, byte initMinTriggerPin, byte initMaxPower);
+	Vessel(byte initEepromIndex, bool initIncludeAux[], byte FFBias, float initMinVolume, byte initMinTriggerPin, byte initMaxPower);
 	~Vessel();
 
 	//Temperature control functions

@@ -107,9 +107,6 @@ void tempInit() {
       
       convStart = 0;
       
-      #if defined MASH_AVG
-        mashAvg();
-      #endif
     }
   }
 

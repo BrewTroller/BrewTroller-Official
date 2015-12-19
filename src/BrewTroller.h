@@ -204,5 +204,26 @@ extern unsigned int PIDOutputCountEquivalent[4][2] = {{0,0},{0,0},{0,0},{0,0}};
 #ERROR
 #endif
 
+constexpr bool MASH_AVG_AUX1 =
+#ifdef MASH_AVG_A1
+true;
+#else
+false;
+#endif
+
+constexpr bool MASH_AVG_AUX2 =
+#ifdef MASH_AVG_A2
+true;
+#else
+false;
+#endif
+
+constexpr bool MASH_AVG_AUX3 =
+#ifdef MASH_AVG_A3
+true;
+#else
+false;
+#endif
+
 
 #endif

@@ -41,7 +41,7 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 extern int temp[9];
 
 //Note that the includeAux numbers should be addresses e.g. TS_AUX1, not just a number (that's why they're bytes instead of booleans).
-	Vessel::Vessel(byte initEepromIndex, byte initIncludeAux[], byte FFBias, float initMinVolume = 0, byte initMinTriggerPin = 0, byte initMaxPower = 100)
+	Vessel::Vessel(byte initEepromIndex, bool initIncludeAux[], byte FFBias, float initMinVolume = 0, byte initMinTriggerPin = 0, byte initMaxPower = 100)
 	{
 
 		for (int i = 0; i < VOLUME_READ_COUNT; i++)
@@ -187,7 +187,7 @@ extern int temp[9];
 			{
 				if (includeAux[i])
 				{
-					tempTemp = temp[includeAux[i]] / 100.0;
+					tempTemp = temp[TS_AUX1+i] / 100.0;
 					if (temperature == BAD_TEMP) //Note that in the case where we have a bad read, and then get another bad value, this maintains temperature == BAD_TEMP without needing to special-case it
 						temperature = tempTemp;
 					else
@@ -375,7 +375,7 @@ extern int temp[9];
 	{
 		byte pidLimits[4] = { PIDLIMIT_HLT, PIDLIMIT_MASH, PIDLIMIT_KETTLE, PIDLIMIT_STEAM };
 		byte initIncludeAux[3] = { false, false, false };
-		byte mashIncludeAux[3] = { MASH_AVG_AUX1, MASH_AVG_AUX2, MASH_AVG_AUX3};
+		bool mashIncludeAux[3] = { MASH_AVG_AUX1, MASH_AVG_AUX2, MASH_AVG_AUX3 };
 		byte triggerPin;
 
 		for (byte i = 0; i < NUM_VESSELS; i++)

@@ -620,9 +620,9 @@ void initEEPROM() {
   for (byte vessel = VS_HLT; vessel <= VS_STEAM; vessel++) {
 	  if (vessel != VS_STEAM) {
 #ifdef USEMETRIC
-		  setHysteresis(vessel, 3);
+		  vessels[vessel]->setHysteresis(3);
 #else
-		  setHysteresis(vessel, 5);
+		  vessels[vessel]->setHysteresis(5);
 #endif
 		  vessels[vessel]->setTunings(3,4,2);
 		  vessels[vessel]->setPIDCycle(4);
@@ -630,7 +630,12 @@ void initEEPROM() {
 	  }
 	  else
 	  {
-		  pid.SetHysteresis(5);
+#ifdef USEMETRIC
+		  hysteresis = 3;
+#else
+		  hysteresis = 5;
+#endif
+		  
 		  pid.SetTunings(3, 4, 2);
 	  }
   }
