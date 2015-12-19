@@ -158,7 +158,7 @@ static const uint8_t TS = 1;
 // under TSensor and output (0-2) Array Element Constants
 // NOTE: not a good idea to use any sensor you average into the MASH sensor as your feed forward
 //
-#cmakedefine FEEDFORWARD
+#define FEEDFORWARD "${FEEDFORWARD}"
 
 
 //**********************************************************************************
@@ -270,9 +270,9 @@ static const uint8_t TS = 1;
 //**********************************************************************************
 // MASH_AVG_AUXx: Uncomment one or more of the following lines to include averaging
 // of AUX1, AUX2 and/or AUX3 temp sensors with mash temp sensor.
-#cmakedefine MASH_AVG_AUX1
-#cmakedefine MASH_AVG_AUX2
-#cmakedefine MASH_AVG_AUX3
+#define MASH_AVG_AUX1 "${MASH_AVG_AUX1}"
+#define MASH_AVG_AUX2 "${MASH_AVG_AUX2}"
+#define MASH_AVG_AUX3 "${MASH_AVG_AUX3}"
 
 //Enable Mash Avergaing Logic if any Mash_AVG_AUXx options were enabled
 #if defined MASH_AVG_AUX1 || defined MASH_AVG_AUX2 || defined MASH_AVG_AUX3

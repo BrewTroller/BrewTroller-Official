@@ -639,7 +639,7 @@ void screenRefresh() {
             if (pct == 0) strcpy_P(buf, UIStrings::Generic::OFF);
             else if (pct == 100) concatPSTRS(buf, UIStrings::Generic::SPACE, UIStrings::Generic::ON);
             else { itoa(pct, buf, 10); strcat(buf, "%"); }
-        } else if ((vessels[VS_KETTLE]->isOn()) {
+        } else if (vessels[VS_KETTLE]->isOn()) {
             concatPSTRS(buf, UIStrings::Generic::SPACE, UIStrings::Generic::ON);
         } else {
             strcpy_P(buf, UIStrings::Generic::OFF);
@@ -654,7 +654,7 @@ void screenRefresh() {
                 if (encValue >= 0) {
                     boilControlState = CONTROLSTATE_ON;
                     vessels[VS_KETTLE]->setSetpoint(encValue ? getBoilTemp() * SETPOINT_MULT : 0);
-					vessels[VS_KETTLE]->updateOutputs();
+					vessels[VS_KETTLE]->updateOutput();
                 }
             }
             if (boilControlState == CONTROLSTATE_AUTO) Encoder.setCount(vessels[VS_KETTLE]->getPercentOutput());
@@ -942,8 +942,8 @@ void screenEnter() {
                     if (lastOption == 0) { resetSpargeValves(); if(vessels[VS_HLT]->getTargetVolume()) autoValve[AV_SPARGEIN] = 1; }
                     else if (lastOption == 1) { resetSpargeValves(); if(vessels[VS_KETTLE]->getTargetVolume()) autoValve[AV_SPARGEOUT] = 1; }
                     else if (lastOption == 2) { resetSpargeValves(); if(vessels[VS_KETTLE]->getTargetVolume()) autoValve[AV_FLYSPARGE] = 1; }
-                    else if (lastOption == 3) vessels[VS_HLT]->getTargetVolume() = getValue_P(UIStrings::Shared::HLT_TARGET_VOL, vessels[VS_HLT]->getTargetVolume(), 1000, 9999999, UIStrings::Units::VOLUNIT);
-                    else if (lastOption == 4) vessels[VS_KETTLE]->getTargetVolume() = getValue_P(UIStrings::SpargeMenu::KETTLE_TARGET_VOL, vessels[VS_KETTLE]->getTargetVolume(), 1000, 9999999, UIStrings::Units::VOLUNIT);
+                    else if (lastOption == 3) vessels[VS_HLT]->setTargetVolume(getValue_P(UIStrings::Shared::HLT_TARGET_VOL, vessels[VS_HLT]->getTargetVolume(), 1000, 9999999, UIStrings::Units::VOLUNIT));
+                    else if (lastOption == 4) vessels[VS_KETTLE]->setTargetVolume(getValue_P(UIStrings::SpargeMenu::KETTLE_TARGET_VOL, vessels[VS_KETTLE]->getTargetVolume(), 1000, 9999999, UIStrings::Units::VOLUNIT));
                     else if (lastOption == 5) continueClick();
                     else if (lastOption == 6) {
                         if (confirmAbort()) {
@@ -2328,7 +2328,7 @@ void cfgOutputs() {
                     strcpy_P(title, (char*)pgm_read_word(&(UIStrings::SystemSetup::TITLE_VS[vessel])));
         
         if ((lastOption & B00001111) == OPT_MODE) {
-            if (vessels[vessel]->isPID()]) vessels[vessel]->setPID(false);
+            if (vessels[vessel]->isPID()) vessels[vessel]->setPID(false);
             else vessels[vessel]->setPID(true);
         } else if ((lastOption & B00001111) == OPT_CYCLE) {
             strcat_P(title, UIStrings::SystemSetup::OutputConfig::PIDCYCLE);
@@ -2363,9 +2363,9 @@ void cfgOutputs() {
 }
 
 void setPIDGain(char sTitle[], byte vessel) {
-    byte retP = vessels[vessel]->GetPIDp();
-    byte retI = vessels[vessel]->GetPIDi();
-    byte retD = vessels[vessel]->GetPIDd();
+    byte retP = vessels[vessel]->getP();
+    byte retI = vessels[vessel]->getI();
+    byte retD = vessels[vessel]->getD();
     byte cursorPos = 0; //0 = p, 1 = i, 2 = d, 3 = OK
     boolean cursorState = 0; //0 = Unselected, 1 = Selected
     Encoder.setMin(0);
@@ -2423,7 +2423,7 @@ void setPIDGain(char sTitle[], byte vessel) {
         }
         if (Encoder.ok()) {
             if (cursorPos == 3) {
-                vessels[vessel]->setPIDparams(retP, retI, retD);
+                vessels[vessel]->setTunings(retP, retI, retD);
 				
 #ifdef DEBUG_PID_GAIN
                 logDebugPIDGain(vessel);

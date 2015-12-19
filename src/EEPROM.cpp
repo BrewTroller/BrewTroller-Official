@@ -624,16 +624,14 @@ void initEEPROM() {
 #else
 		  setHysteresis(vessel, 5);
 #endif
-		  vessels[vessel]->setP(3);
-		  vessels[vessel]->setI(4),
-		vessels[vessel]->setP(2);
+		  vessels[vessel]->setTunings(3,4,2);
 		  vessels[vessel]->setPIDCycle(4);
 
 	  }
 	  else
 	  {
-		  pid.setHysteresis(5);
-		  pid.setTunings(3, 4, 2);
+		  pid.SetHysteresis(5);
+		  pid.SetTunings(3, 4, 2);
 	  }
   }
 
