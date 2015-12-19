@@ -200,3 +200,107 @@ TEST(ConfigManager, TestSetPIDEnabled) {
         ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
     }
 }
+
+TEST(ConfigManager, TestSetPIDCycle) {
+    config_t conf = {0};
+    config_t confUntouched = {0};
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < VS_COUNT; i++) {
+        ConfigManager::setPIDCycle(i, 111);
+        ASSERT_EQ(111, conf.pidConfigs[i].cycleTime);
+        conf.pidConfigs[i].cycleTime = 0;
+        ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+    }
+}
+
+TEST(ConfigManager, TestSetPIDPGain) {
+    config_t conf = {0};
+    config_t confUntouched = {0};
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < VS_COUNT; i++) {
+        ConfigManager::setPIDPGain(i, 123);
+        ASSERT_EQ(123, conf.pidConfigs[i].PGain);
+        conf.pidConfigs[i].PGain = 0;
+        ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+    }
+}
+
+TEST(ConfigManager, TestSetPIDIGain) {
+    config_t conf = {0};
+    config_t confUntouched = {0};
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < VS_COUNT; i++) {
+        ConfigManager::setPIDIGain(i, 234);
+        ASSERT_EQ(234, conf.pidConfigs[i].IGain);
+        conf.pidConfigs[i].IGain = 0;
+        ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+    }
+}
+
+TEST(ConfigManager, TestSetPIDDGain) {
+    config_t conf = {0};
+    config_t confUntouched = {0};
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < VS_COUNT; i++) {
+        ConfigManager::setPIDDGain(i, 189);
+        ASSERT_EQ(189, conf.pidConfigs[i].DGain);
+        conf.pidConfigs[i].DGain = 0;
+        ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+    }
+}
+
+TEST(ConfigManager, TestSetHysteresis) {
+    config_t conf = {0};
+    config_t confUntouched = {0};
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < VS_COUNT; i++) {
+        ConfigManager::setHysteresis(i, 101);
+        ASSERT_EQ(101, conf.pidConfigs[i].hysteresis);
+        conf.pidConfigs[i].hysteresis = 0;
+        ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+    }
+}
+
+TEST(ConfigManager, TestSetSteamTarget) {
+    config_t conf = {0};
+    config_t confUntouched = {0};
+    
+    ConfigManager::init(&conf);
+    
+    ConfigManager::setSteamTarget(14);
+    ASSERT_EQ(14, conf.steamTarget);
+    
+    conf.steamTarget = 0;
+    ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+}
+
+TEST(ConfigManager, TestSetSteamZero) {
+    config_t conf = {0};
+    config_t confUntouched = {0};
+    
+    ConfigManager::init(&conf);
+    
+    ConfigManager::setSteamZero(5123);
+    ASSERT_EQ(5123, conf.steamZero);
+    
+    conf.steamZero = 0;
+    ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+}
+
+TEST(ConfigManager, TestSetSteamPSense) {
+    config_t conf = {0};
+    config_t confUntouched = {0};
+    
+    ConfigManager::init(&conf);
+    
+    ConfigManager::setSteamPSense(7654);
+    ASSERT_EQ(7654, conf.steamPSense);
+    
+    conf.steamPSense = 0;
+    ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+}

@@ -76,6 +76,38 @@ void ConfigManager::setPIDEnabled(uint8_t vessel, bool enabled) {
     eeprom_update_byte(&configStore->pidEnabledFlags, currSetting);
 }
 
+void ConfigManager::setPIDCycle(uint8_t vessel, uint8_t newCycleVal) {
+    eeprom_update_byte(&configStore->pidConfigs[vessel].cycleTime, newCycleVal);
+}
+
+void ConfigManager::setPIDPGain(uint8_t vessel, uint8_t newPGain) {
+    eeprom_update_byte(&configStore->pidConfigs[vessel].PGain, newPGain);
+}
+
+void ConfigManager::setPIDIGain(uint8_t vessel, uint8_t newIGain) {
+    eeprom_update_byte(&configStore->pidConfigs[vessel].IGain, newIGain);
+}
+
+void ConfigManager::setPIDDGain(uint8_t vessel, uint8_t newDGain) {
+    eeprom_update_byte(&configStore->pidConfigs[vessel].DGain, newDGain);
+}
+
+void ConfigManager::setHysteresis(uint8_t vessel, uint8_t newHysteresis) {
+    eeprom_update_byte(&configStore->pidConfigs[vessel].hysteresis, newHysteresis);
+}
+
+void ConfigManager::setSteamTarget(uint8_t newTarget) {
+    eeprom_update_byte(&configStore->steamTarget, newTarget);
+}
+
+void ConfigManager::setSteamZero(uint16_t newZero) {
+    eeprom_update_block(&newZero, &configStore->steamZero, sizeof(config_t::steamZero));
+}
+
+void ConfigManager::setSteamPSense(uint16_t newPSense) {
+    eeprom_update_block(&newPSense, &configStore->steamPSense, sizeof(config_t::steamPSense));
+}
+
 void ConfigManager::loadConfig() {
     //Load the temperature sensor addresses
     extern uint8_t tSensor[8][9];

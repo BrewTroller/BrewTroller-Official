@@ -247,6 +247,76 @@ public:
      - precondition: init() has been called
      */
     static void setPIDEnabled(uint8_t vessel, bool enabled);
+    
+    /**
+     setPIDCycle: Updates the PID Cycle time value for the specified vessel
+     - parameter vessel: The vessel index to be updated; defined in Enum.h
+     - parameter newCycleVal: The value to update the cycle time with
+     - returns: void
+     - precondition: init() has been called
+     */
+    static void setPIDCycle(uint8_t vessel, uint8_t newCycleVal);
+    
+    /**
+     setPIDPGain: Updates the PID P Gain value for the specified vessel
+     - parameter vessel: The vessel index to be updated; defined in Enum.h
+     - parameter newPGain: The value to update the P Gain to
+     - returns: void
+     - precondition: init() has been called
+     */
+    static void setPIDPGain(uint8_t vessel, uint8_t newPGain);
+    
+    /**
+     setPIDIGain: Updates the PID I Gain value for the specified vessel
+     - parameter vessel: The vessel index to be updated; defined in Enum.h
+     - parameter newIGain: The value to update the I Gain to
+     - returns: void
+     - precondition: init() has been called
+     */
+    static void setPIDIGain(uint8_t vessel, uint8_t newIGain);
+    
+    /**
+     setPIDDGain: Updates the PID D Gain value for the specified vessel
+     - parameter vessel: The vessel index to be updated; defined in Enum.h
+     - parameter newPGain: The value to update the D Gain to
+     - returns: void
+     - precondition: init() has been called
+     */
+    static void setPIDDGain(uint8_t vessel, uint8_t newDGain);
+    
+    /**
+     setHysteresis: Updates the Hysteresis value for the specified vessel
+     - parameter vessel: The vessel index to be updated; defined in Enum.h
+     - parameter newHysteresis: The value to update the hysteresis to
+     - returns: void
+     - precondition: init() has been called
+     */
+    static void setHysteresis(uint8_t vessel, uint8_t newHysteresis);
+    
+    /**
+     setSteamTarget: Updates the Steam Target value
+     - parameter newTarget: The value to update the Steam Target
+     - returns: void
+     - precondition: init() has been called
+     */
+    static void setSteamTarget(uint8_t newTarget);
+    
+    /**
+     setSteamZero: Updates the Steam Zero value
+     - parameter newZero: The value to update the Steam Zero to
+     - returns: void
+     - precondition: init() has been called
+     */
+    static void setSteamZero(uint16_t newZero);
+    
+    /**
+     setSteamPSense: Updates the Steam PSense value
+     - parameter newPSense: The value to update the Steam Psense to
+     - returns: void
+     - precondition: init() has been called
+     */
+    static void setSteamPSense(uint16_t newPSense);
+    
 };
 
 static config_t eepromConfig EEMEM;

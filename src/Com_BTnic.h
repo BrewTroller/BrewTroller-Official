@@ -423,16 +423,16 @@ void BTnic::execCmd(void) {
       
     case CMD_SET_OSET:  //N
       ConfigManager::setPIDEnabled(cmdIndex, getCmdParamNum(1));
-      setPIDCycle(cmdIndex, getCmdParamNum(2));
-      setPIDp(cmdIndex, getCmdParamNum(3));
-      setPIDi(cmdIndex, getCmdParamNum(4));
-      setPIDd(cmdIndex, getCmdParamNum(5));
+      ConfigManager::setPIDCycle(cmdIndex, getCmdParamNum(2));
+      ConfigManager::setPIDPGain(cmdIndex, getCmdParamNum(3));
+      ConfigManager::setPIDIGain(cmdIndex, getCmdParamNum(4));
+      ConfigManager::setPIDDGain(cmdIndex, getCmdParamNum(5));
       if (cmdIndex == VS_STEAM) {
-        setSteamZero(getCmdParamNum(6));
-        setSteamTgt(getCmdParamNum(7));
-        setSteamPSens(getCmdParamNum(8));
+        ConfigManager::setSteamZero(getCmdParamNum(6));
+        ConfigManager::setSteamTarget(getCmdParamNum(7));
+        ConfigManager::setSteamPSense(getCmdParamNum(8));
       } 
-      else setHysteresis(cmdIndex, getCmdParamNum(6));
+      else ConfigManager::setHysteresis(cmdIndex, getCmdParamNum(6));
     case CMD_GET_OSET:  //D
       logFieldCmd(CMD_GET_OSET, cmdIndex);
       logFieldI(PIDEnabled[cmdIndex]);
