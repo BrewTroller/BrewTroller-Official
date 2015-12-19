@@ -160,36 +160,36 @@ void pidInit() {
   // this means that after it is multiplied by the PIDLIMIT it will be the proper value to give you the desired % output
   // it also makes the % calculations work properly in the log, UI, and other area's. 
   #ifdef PID_FLOW_CONTROL
-    PIDCycle[VS_PUMP] = 1; // for PID pump flow the STEAM heat output is set to a fixed 10hz signal with 100 step outputs. 
+    PIDCycle = 1; // for PID pump flow the STEAM heat output is set to a fixed 10hz signal with 100 step outputs. 
   #endif
   
   #ifdef PID_FLOW_CONTROL
     #ifdef USEMETRIC
-      pid[VS_PUMP].SetInputLimits(0, 255000); // equivalent of 25.5 LPM (255 * 100)
+      pid.SetInputLimits(0, 255000); // equivalent of 25.5 LPM (255 * 100)
     #else
-      pid[VS_PUMP].SetInputLimits(0, 6375); // equivalent of 6.375 GPM (255 * 25)
+      pid.SetInputLimits(0, 6375); // equivalent of 6.375 GPM (255 * 25)
     #endif
-    pid[VS_PUMP].SetOutputLimits(PID_FLOW_MIN, PIDCycle[VS_PUMP] * PIDLIMIT_STEAM);
-    pid[VS_PUMP].SetTunings(getPIDp(VS_PUMP), getPIDi(VS_PUMP), getPIDd(VS_PUMP));
+    pid.SetOutputLimits(PID_FLOW_MIN, PIDCycle * PIDLIMIT_STEAM);
+    pid.SetTunings(pid.GetP_Param(), pid.GetI_Param(), pid.GetD_Param());
     #ifdef PID_CONTROL_MANUAL
-      pid[VS_PUMP].SetMode(MANUAL);
+      pid.SetMode(MANUAL);
     #else
-      pid[VS_PUMP].SetMode(AUTO);
+      pid.SetMode(AUTO);
     #endif
-    pid[VS_PUMP].SetSampleTime(FLOWRATE_READ_INTERVAL);
+    pid.SetSampleTime(FLOWRATE_READ_INTERVAL);
     #ifdef PID_CONTROL_MANUAL
       nextcompute = millis() + FLOWRATE_READ_INTERVAL;
     #endif
   #else
     #ifdef USEMETRIC
-      pid[VS_STEAM].SetInputLimits(0, 50000000 / steamPSens);
+      pid.SetInputLimits(0, 50000000 / steamPSens);
     #else
-      pid[VS_STEAM].SetInputLimits(0, 7250000 / steamPSens);
+      pid.SetInputLimits(0, 7250000 / steamPSens);
     #endif
-    pid[VS_STEAM].SetOutputLimits(0, PIDCycle[VS_STEAM] * PIDLIMIT_STEAM);
-    pid[VS_STEAM].SetTunings(getPIDp(VS_STEAM), getPIDi(VS_STEAM), getPIDd(VS_STEAM));
-    pid[VS_STEAM].SetMode(PID::AUTO_MODE);
-    pid[VS_STEAM].SetSampleTime(PID_CYCLE_TIME);
+    pid.SetOutputLimits(0, PIDCycle * PIDLIMIT_STEAM);
+    pid.SetTunings(pid.GetP_Param(), pid.GetI_Param(), pid.GetD_Param());
+    pid.SetMode(PID::AUTO_MODE);
+    pid.SetSampleTime(PID_CYCLE_TIME);
   #endif
 
   #ifdef DEBUG_PID_GAIN
@@ -201,7 +201,7 @@ void resetOutputs() {
   actProfiles = 0;
   
   for (byte i = VS_HLT; i <= LAST_HEAT_OUTPUT; i++)
-	  vessel[i]->setSetpoint(0);
+	  vessels[i]->setSetpoint(0);
 
   updateValves();
 }
@@ -278,234 +278,6 @@ void processPID_FLOW_CONTROL(byte vessel) {
 }
 #endif // defined PID_FLOW_CONTROL && defined PID_CONTROL_MANUAL
 
-/**
- * Called by processHeatOutputs to process a PID-enabled heat output.
- * Main things that happen here are updates to the PIDOutput and PIDInput arrays
- *   before calling compute() for the PID.
- * Once the PID has been computed we check if it results in heat being needed
- *   and we call either heatPin[vessel[VS]].set(HIGH); or heatPin[vessel[VS]].set(LOW);
- * NOTE: If PID is being processed by timer that happens elsewhere.
- */
-void processHeatOutputsPIDEnabled(const byte vessel[]) {
-  #ifdef PWM_BY_TIMER
-    uint8_t oldSREG;
-  #endif
-  if (vessel[VS] != VS_STEAM && vessel[VS] != VS_KETTLE && temp[vessel[TS]] == BAD_TEMP) {
-    PIDOutput[vessel[VS]] = 0;
-  } else {
-    if (pid[vessel[VS]].GetMode() == PID::AUTO_MODE) {
-      #ifdef PID_FLOW_CONTROL
-        if(vessel[VS] == VS_PUMP) PIDInput[vessel[VS]] = flowRate[VS_KETTLE];
-      #else
-        if (vessel[VS] == VS_STEAM) PIDInput[vessel[VS]] = steamPressure; 
-      #endif
-      else { 
-        PIDInput[vessel[VS]] = temp[vessel[TS]];
-      #ifdef PID_FEED_FORWARD
-        if(vessel[VS] == VS_MASH ) FFBias = temp[FEED_FORWARD_SENSOR];
-      #endif
-      }
-      pid[vessel[VS]].Compute();
-      #ifdef PID_FLOW_CONTROL
-        if(vessel[VS] == VS_PUMP && setpoint[vessel[VS]] == 0) PIDOutput[vessel[VS]] = 0; // if the setpoint is 0 then make sure we output 0, as dont want the min output always on. 
-      #endif
-      #ifdef PID_FEED_FORWARD
-        if(vessel[VS] == VS_MASH && setpoint[vessel[VS]] == 0) PIDOutput[vessel[VS]] = 0; // found a bug where the mash output could be turned on if setpoint was 0 but FFBias was not 0. 
-                                                             // this fixes the bug but still lets the integral gain learn to compensate for the FFBias while 
-                                                             // the setpoint is 0. 
-      #endif
-    }
-    #if defined PID_FLOW_CONTROL && defined PID_CONTROL_MANUAL
-      processPID_FLOW_CONTROL(vessel[VS]);
-    #endif // defined PID_FLOW_CONTROL && defined PID_CONTROL_MANUAL
-  }
-  
-  #ifdef HLT_MIN_HEAT_VOL
-    if(vessel[VS] == VS_HLT && volAvg[vessel[VS]] < HLT_MIN_HEAT_VOL) PIDOutput[vessel[VS]] = 0;
-  #endif
-  #ifdef MASH_MIN_HEAT_VOL
-    if(vessel[VS] == VS_MASH && volAvg[vessel[VS]] < MASH_MIN_HEAT_VOL) PIDOutput[vessel[VS]] = 0;
-  #endif
-  #ifdef KETTLE_MIN_HEAT_VOL
-    if(vessel[VS] == VS_KETTLE && volAvg[vessel[VS]] < KETTLE_MIN_HEAT_VOL) PIDOutput[vessel[VS]] = 0;
-  #endif
-    
-  //Trigger based element save
-  if (vesselMinTrigger(vessel[VS]) != NULL) if(!vesselMinTrigger(vessel[VS])->get()) PIDOutput[vessel[VS]] = 0;
-  
-  #ifndef PWM_BY_TIMER
-    //only 1 call to millis needed here, and if we get hit with an interrupt we still want to calculate based on the first read value of it
-    unsigned long timestamp = millis();
-    if ((!estop) && PIDOutput[vessel[VS]] >= timestamp - cycleStart[vessel[VS]] && timestamp != cycleStart[vessel[VS]]) heatPin[vessel[VS]].set(HIGH); else heatPin[vessel[VS]].set(LOW);
-  #else
-    //here we do as much math as we can OUT SIDE the ISR, we calculate the PWM cycle time in counter/timer counts
-    // and place it in the [vessel][0] value, then calculate the timer counts to get the desired PWM % and place it in [vessel][1]
-    // need to disable interrupts so a write into here can finish before an interrupt can come in and read it
-    oldSREG = SREG;
-    cli();
-    PIDOutputCountEquivalent[vessel[VS]][0] = PIDCycle[vessel[VS]] * 800;
-    PIDOutputCountEquivalent[vessel[VS]][1] = PIDOutput[vessel[VS]] * 8;
-    SREG = oldSREG; // restore interrupts
-  #endif
-  if (PIDOutput[vessel[VS]] == 0)  heatStatus[vessel[VS]] = 0; else heatStatus[vessel[VS]] = 1;
-}
-
-
-/**
- * Called by processHeatOutputsNonPIDEnabled to process a heat output when heatStatus[vessel] == true.
- */
-void processHeatOutputsNonPIDEnabledWithHeatOn(const byte vessel[]) {
-  // determine if setpoint has ben reached, or there is a bad temp reading.
-  // If it either condition, set the pin low (turn it off).
-  // we do not want the RIMS (in DIRECT_FIRED_RIMS) processed here either; it is taken care of in the MASH loop
-
-  //Indicates if the minimum volume has been reached (defaults to true in case trigger is not used)
-  boolean vesselMinTrig = 1;
-  if (vesselMinTrigger(vessel[VS]) != NULL) vesselMinTrig = (vesselMinTrigger(vessel[VS])->get());
-
-  if (
-    estop 
-    || (!vesselMinTrig) 
-    || (vessel[VS] != VS_STEAM && (temp[vessel[TS]] == BAD_TEMP || temp[vessel[TS]] >= setpoint[vessel[VS]]))
-    #ifndef DIRECT_FIRE_RIMS
-      || (vessel[VS] == VS_STEAM && steamPressure >= setpoint[vessel[VS]])
-    #endif
-  ) { 
-    // For DIRECT_FIRED_RIMS, the setpoint for both VS_MASH & VS_STEAM should be the same, 
-    // so nothing to do here.
-    heatPin[vessel[VS]].set(LOW);
-    heatStatus[vessel[VS]] = 0;
-  } else { 
-    // setpoint has not been reached, and temp reading is valid.
-    // Insure that the correct heat pin is enabled, and heatStatus updated.
-    #ifdef DIRECT_FIRED_RIMS
-      // When temp[VS_MASH] is less than setpoint[VS_MASH] - RIMS_TEMP_OFFSET, then
-      // the VS_MASH pint should be set high, and VS_STEAM set low.  If the different
-      // is within RIMS_TEMP_OFFSET, then the opposite.
-      if (vessel[VS] == VS_MASH) {
-        if (temp[TS_MASH] >= setpoint[VS_MASH] - (RIMS_TEMP_OFFSET * 100)) {
-          heatPin[VS_MASH].set(LOW);
-          heatStatus[VS_MASH] = 0;
-          if ((temp[TS_MASH] < setpoint[VS_MASH]) && (temp[RIMS_TEMP_SENSOR] < (RIMS_MAX_TEMP * 100))) {
-            heatPin[VS_STEAM].set(HIGH);
-            heatStatus[VS_STEAM] = 1;
-          } else {
-            heatPin[VS_STEAM].set(LOW);
-            heatStatus[VS_STEAM] = 0;
-          }
-        } else {
-          heatPin[VS_MASH].set(HIGH);
-          heatStatus[VS_MASH] = 1;
-          heatPin[VS_STEAM].set(LOW);
-          heatStatus[VS_STEAM] = 0;
-        }
-      } else {
-        heatPin[vessel[VS]].set(HIGH);
-        heatStatus[vessel[VS]] = 1;
-      }
-    #else
-      heatPin[vessel[VS]].set(HIGH);
-      heatStatus[vessel[VS]] = 1;
-    #endif
-  }
-}
-
-/**
- * Called by processHeatOutputsNonPIDEnabled to process a heat output when heatStatus[vessel] == false.
- */
-void processHeatOutputsNonPIDEnabledWithHeatOff(const byte vessel[]) {
-  // Determine is the vessel temperature is below the setpoint, accounting for hysteresis.
-  // we do not want the RIMS (in DIRECT_FIRED_RIMS) processed here either; it is taken care of in the MASH loop
-
-  //Indicates if the minimum volume has been reached (defaults to true in case trigger is not used)
-  boolean vesselMinTrig = 1;
-  if (vesselMinTrigger(vessel[VS]) != NULL) vesselMinTrig = (vesselMinTrigger(vessel[VS])->get());
-
-  if (
-    !estop 
-    && vesselMinTrig 
-    && (
-      (vessel[VS] != VS_STEAM && temp[vessel[TS]] != BAD_TEMP && (setpoint[vessel[VS]] - temp[vessel[TS]]) >= hysteresis[vessel[VS]] * 10) 
-    #ifndef DIRECT_FIRE_RIMS
-      || (vessel[VS] == VS_STEAM && (setpoint[vessel[VS]] - steamPressure) >= hysteresis[vessel[VS]] * 100)
-    #endif
-       )
-  ) {
-      // The temperature of the vessel is below what we want, so insure the correct pin is tunred on,
-      // and the heatStatus is updated.
-    #ifdef DIRECT_FIRED_RIMS
-      // When temp[VS_MASH] is less than setpoint[VS_MASH] - RIMS_TEMP_OFFSET, then
-      // the VS_MASH pint should be set high, and VS_STEAM set low.  If the difference
-      // is within RIMS_TEMP_OFFSET, then the opposite.
-      if (vessel[VS] == VS_MASH) {
-        if (temp[TS_MASH] >= setpoint[VS_MASH] - (RIMS_TEMP_OFFSET * 100)) {
-          heatPin[VS_MASH].set(LOW);
-          heatStatus[VS_MASH] = 0;
-          if ((temp[TS_MASH] < setpoint[VS_MASH]) && (temp[RIMS_TEMP_SENSOR] < (RIMS_MAX_TEMP * 100))) {
-            heatPin[VS_STEAM].set(HIGH);
-            heatStatus[VS_STEAM] = 1;
-          } else {
-            heatPin[VS_STEAM].set(LOW);
-            heatStatus[VS_STEAM] = 0;
-          }
-        } else {
-          heatPin[VS_MASH].set(HIGH);
-          heatStatus[VS_MASH] = 1;
-          heatPin[VS_STEAM].set(LOW);
-          heatStatus[VS_STEAM] = 0;
-        }
-      } else {
-        heatPin[vessel[VS]].set(HIGH);
-        heatStatus[vessel[VS]] = 1;
-      }
-    #else
-      heatPin[vessel[VS]].set(HIGH);
-      heatStatus[vessel[VS]] = 1;
-    #endif
-  } else {
-    // The heat is maintaining currently desired value, so insure heat source is (still) off.
-    // For DIRECT_FIRED_RIMS, the setpoint for both VS_MASH & VS_STEAM should be the same, 
-    // so nothing to do here.
-    heatPin[vessel[VS]].set(LOW);
-    heatStatus[vessel[VS]] = 0;
-    #ifdef DIRECT_FIRED_RIMS
-      if (vessel[VS] == VS_MASH) {
-        if ((!estop) && (temp[TS_MASH] < setpoint[VS_MASH]) && (temp[RIMS_TEMP_SENSOR] < (RIMS_MAX_TEMP * 100))) {
-          heatPin[VS_STEAM].set(HIGH);
-          heatStatus[VS_STEAM] = 1;
-        } else {
-          heatPin[VS_STEAM].set(LOW);
-          heatStatus[VS_STEAM] = 0;
-        }
-      }
-    #endif
-  }
-}
-
-/**
- * Called by processHeatOutputs to process a nonPID-enabled heat output.
- */
-void processHeatOutputsNonPIDEnabled(const byte vessel[]) {
-  if (heatStatus[vessel[VS]]) {
-    processHeatOutputsNonPIDEnabledWithHeatOn(vessel);
-  } else {
-    processHeatOutputsNonPIDEnabledWithHeatOff(vessel);
-  }
-  
-#ifdef DIRECT_FIRED_RIMS
-  // Check to insure RIMS is below safe level
-  if (temp[RIMS_TEMP_SENSOR] >= (RIMS_ALARM_TEMP * 100)  ) {
-  #ifdef ALARM_PIN
-    alarmPin.set(1); //Sound the alarm.
-  #endif
-  } else {
-  #ifdef ALARM_PIN
-    alarmPin.set(0);
-  #endif
-  }
-#endif  
-}
-
 /*
  * Things get a little complex here, so let's break it down.
  * processHeatOutputs() is called by the main brewCore() loop.
@@ -514,10 +286,8 @@ void processHeatOutputsNonPIDEnabled(const byte vessel[]) {
  *    Calls boilController() which manages the auto boil process. If
  *      auto boil is active it may set PIDOutput[VS_KETTLE]
  *    Then it loops through all of the vessels (using HEAT_OUTPUTS_COUNT
- *      as a maximum) and:
+ *      as a maximum) and calls their output update function.
  *      Skips various vessels depending on certain conditions.
- *      If the PID for the vessel is enabled it calls processHeatOutputsPIDEnabled
- *        otherwise it calls processHeatOutputsNonPIDEnabled.
  */       
 void processHeatOutputs() {
   //Process Heat Outputs
@@ -593,15 +363,15 @@ void processHeatOutputs() {
     }
     
     if (autoValve[AV_SPARGEIN]) {
-      if (vessels[VS_HLT]->getVolume() > vessels[VS_HLT]->targetVolume()) bitSet(actProfiles, VLV_SPARGEIN);
+      if (vessels[VS_HLT]->getVolume() > vessels[VS_HLT]->getTargetVolume()) bitSet(actProfiles, VLV_SPARGEIN);
         else bitClear(actProfiles, VLV_SPARGEIN);
     }
     if (autoValve[AV_SPARGEOUT]) {
-      if (vessels[VS_KETTLE]->getVolume() < vessels[VS_KETTLE]->targetVolume()) bitSet(actProfiles, VLV_SPARGEOUT);
+      if (vessels[VS_KETTLE]->getVolume() < vessels[VS_KETTLE]->getTargetVolume()) bitSet(actProfiles, VLV_SPARGEOUT);
       else bitClear(actProfiles, VLV_SPARGEOUT);
     }
     if (autoValve[AV_FLYSPARGE]) {
-		if (vessels[VS_KETTLE]->getVolume() < vessels[VS_KETTLE]->targetVolume()) {
+		if (vessels[VS_KETTLE]->getVolume() < vessels[VS_KETTLE]->getTargetVolume()) {
 #ifdef SPARGE_IN_PUMP_CONTROL
 			long hltVol = vessels[VS_HLT]->getVolume();
 			if ((long)vessels[VS_KETTLE]->getVolume() - (long)prevSpargeVol[0] >= SPARGE_IN_HYSTERESIS)

@@ -148,11 +148,11 @@ void sendVesselTemp(byte chan, Vessel* v)
 	if (vessel->getTemperature() == BAD_TEMP)
 		sendStringBTPD(chan, "    ----");
 	else
-		sendFloatsBTPD(chan, vessel->getSetpoint(), vessel->getTemperature());
+		sendFloatsBTPD(chan, vessels[vessel]->getSetpoint(), vessel->getTemperature());
 }
 
 void sendVsVol(byte chan, byte vessel) {
-  sendFloatsBTPD(chan, vessels->getTargetVolume() , vessels[vessel]->getVolume() );
+  sendFloatsBTPD(chan, vessels[vessel]->getTargetVolume() , vessels[vessel]->getVolume() );
 }
 
 void sendVesselVol(byte chan, Vessel* v)

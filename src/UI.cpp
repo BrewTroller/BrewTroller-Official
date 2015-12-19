@@ -533,23 +533,23 @@ void screenRefresh() {
         }
 #else
         for (byte i = VS_HLT; i <= VS_MASH; i++) {
-            vftoa(setpoint[i], buf, 100, 1);
+            vftoa(vessels[i]->getSetpoint(), buf, 100, 1);
             truncFloat(buf, 4);
             LCD.lPad(1, i * 6 + 9, buf, 4, ' ');
-            vftoa(temp[i], buf, 100, 1);
+            vftoa(vessels[i]->getTemperature(), buf, 100, 1);
             truncFloat(buf, 4);
-            if (temp[i] == BAD_TEMP) {
+            if ((vessels[i]->getTemperature() == BAD_TEMP) {
                 LCD.print_P(2, i * 6 + 9, UIStrings::Generic::TEMPBLANK);
             } else {
                 LCD.lPad(2, i * 6 + 9, buf, 4, ' ');
             }
             byte pct;
-            if (PIDEnabled[i]) {
-                pct = PIDOutput[i] / PIDCycle[i];
+            if ((vessels[i]->isPID()]) {
+                pct = (vessels[i]->getOutput() / (vessels[i]->getPIDCycle();
                 if (pct == 0) strcpy_P(buf, UIStrings::Generic::OFF);
                 else if (pct == 100) concatPSTRS(buf, UIStrings::Generic::SPACE, UIStrings::Generic::ON);
                 else { itoa(pct, buf, 10); strcat(buf, "%"); }
-            } else if (heatStatus[i]) {
+            } else if ((vessels[i]->isOn()) {
                 concatPSTRS(buf, UIStrings::Generic::SPACE, UIStrings::Generic::ON);
                 pct = 100;
             } else {
@@ -639,7 +639,7 @@ void screenRefresh() {
             if (pct == 0) strcpy_P(buf, UIStrings::Generic::OFF);
             else if (pct == 100) concatPSTRS(buf, UIStrings::Generic::SPACE, UIStrings::Generic::ON);
             else { itoa(pct, buf, 10); strcat(buf, "%"); }
-        } else if (heatStatus[TS_KETTLE]) {
+        } else if ((vessels[VS_KETTLE]->isOn()) {
             concatPSTRS(buf, UIStrings::Generic::SPACE, UIStrings::Generic::ON);
         } else {
             strcpy_P(buf, UIStrings::Generic::OFF);
@@ -653,11 +653,11 @@ void screenRefresh() {
                 int encValue = Encoder.change();
                 if (encValue >= 0) {
                     boilControlState = CONTROLSTATE_ON;
-                    vessels[VS_KETTLE]->getSetpoint() = encValue ? getBoilTemp() * SETPOINT_MULT : 0;
-                    PIDOutput[VS_KETTLE] = PIDCycle[VS_KETTLE] * encValue;
+                    vessels[VS_KETTLE]->setSetpoint(encValue ? getBoilTemp() * SETPOINT_MULT : 0);
+					vessels[VS_KETTLE]->updateOutputs();
                 }
             }
-            if (boilControlState == CONTROLSTATE_AUTO) Encoder.setCount(PIDOutput[VS_KETTLE] / PIDCycle[VS_KETTLE]);
+            if (boilControlState == CONTROLSTATE_AUTO) Encoder.setCount(vessels[VS_KETTLE]->getPercentOutput());
         }
         
     }
@@ -822,8 +822,8 @@ void screenEnter() {
                     
                     byte lastOption = scrollMenu("Fill Menu", &fillMenu);
                     if (lastOption == 0) { if(vessels[VS_HLT]->getTargetVolume() || vessels[VS_MASH]->getTargetVolume()) autoValve[AV_FILL] = 1; }
-                    else if (lastOption == 1) vessels[VS_HLT]->getTargetVolume() = getValue_P(UIStrings::Shared::HLT_TARGET_VOL, vessels[VS_HLT]->getTargetVolume(), 1000, 9999999, UIStrings::Units::VOLUNIT);
-                    else if (lastOption == 2) vessels[VS_MASH]->getTargetVolume() = getValue_P(UIStrings::FillMenu::MASH_TARGET_VOL, vessels[VS_MASH]->getTargetVolume(), 1000, 9999999, UIStrings::Units::VOLUNIT);
+                    else if (lastOption == 1) vessels[VS_HLT]->setTargetVolume(getValue_P(UIStrings::Shared::HLT_TARGET_VOL, vessels[VS_HLT]->getTargetVolume(), 1000, 9999999, UIStrings::Units::VOLUNIT));
+                    else if (lastOption == 2) vessels[VS_MASH]->setTargetVolume(getValue_P(UIStrings::FillMenu::MASH_TARGET_VOL, vessels[VS_MASH]->getTargetVolume(), 1000, 9999999, UIStrings::Units::VOLUNIT));
                     else if (lastOption == 3) continueClick();
                     else if (lastOption == 4) {
                         if (confirmAbort()) {
@@ -2288,7 +2288,7 @@ void cfgOutputs() {
         
 #ifdef PID_FLOW_CONTROL
         outputMenu.setItem_P(UIStrings::SystemSetup::OutputConfig::SPARGE_PUMP_MODE, VS_PUMP<<4 | OPT_MODE);
-        if (PIDEnabled[VS_PUMP]) {
+        if (PIDEnabled) {
             outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::PID_MODE, VS_PUMP<<4 | OPT_MODE);
         }
         else {
@@ -2299,7 +2299,7 @@ void cfgOutputs() {
         outputMenu.setItem_P(UIStrings::SystemSetup::OutputConfig::PUMPFLOW, VS_PUMP<<4 | OPT_PRESS);
 #elif defined USESTEAM
         outputMenu.setItem_P(UIStrings::SystemSetup::OutputConfig::STEAM_MODE, VS_STEAM<<4 | OPT_MODE);
-        if (PIDEnabled[VS_STEAM]) {
+        if (PIDEnabled) {
             outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::PID_MODE, VS_STEAM<<4 | OPT_MODE);
         }
         else {
@@ -2363,9 +2363,9 @@ void cfgOutputs() {
 }
 
 void setPIDGain(char sTitle[], byte vessel) {
-    byte retP = vessels[vessel]->GetP();
-    byte retI = vessels[vessel]->etP();
-    byte retD = vessels[vessel]->GetP();
+    byte retP = vessels[vessel]->GetPIDp();
+    byte retI = vessels[vessel]->GetPIDi();
+    byte retD = vessels[vessel]->GetPIDd();
     byte cursorPos = 0; //0 = p, 1 = i, 2 = d, 3 = OK
     boolean cursorState = 0; //0 = Unselected, 1 = Selected
     Encoder.setMin(0);
@@ -2528,7 +2528,7 @@ void volCalibMenu(char sTitle[], byte vessel) {
         byte lastOption = scrollMenu(sTitle, &calibMenu);
         if (lastOption > 9) return;
         else {
-            if (vessels[vessel]->getCalibrationPressure(i) > 0) {
+            if (vessels[vessel]->getCalibrationPressure(lastOption) > 0) {
                 //There is already a value saved for that volume.
                 //Review the saved value for the selected volume value.
                 volCalibEntryMenu(vessel, lastOption);
@@ -2536,7 +2536,7 @@ void volCalibMenu(char sTitle[], byte vessel) {
 #ifdef DEBUG_VOLCALIB
                 logVolCalib("Value before dialog:", analogRead(vSensor[vessel]));
 #endif
-                vessels[vessel]->setVolumeCalibration(lastOption, 0, getValue_P(UIStrings::SystemSetup::VolumeCalibration::CURR_VOL, 0, 1000, 9999999, UIStrings::Units::VOLUNIT)); //Set temporary the value to zero. It will be updated in the next step.
+                vessels[vessel]->updateVolumeCalibration(lastOption, 0, getValue_P(UIStrings::SystemSetup::VolumeCalibration::CURR_VOL, 0, 1000, 9999999, UIStrings::Units::VOLUNIT)); //Set temporary the value to zero. It will be updated in the next step.
                 volCalibEntryMenu(vessel, lastOption);
                 
 #ifdef DEBUG_VOLCALIB
@@ -2577,16 +2577,16 @@ void volCalibEntryMenu(byte vessel, byte entry) {
         
         if (lastOption == 0) {
             //Update the volume value. Calls the vessel class to update both internal representation and eeprom
-            vessels[vessel]->setVolumeCalibration( entry, newSensorValue, vessels[vessel]->getCalibrationVolume(entry)); 
+            vessels[vessel]->updateVolumeCalibration( entry, newSensorValue, vessels[vessel]->getCalibrationVolume(entry)); 
             return;
         } else if (lastOption == 1) {
             newSensorValue = (unsigned int) getValue_P(UIStrings::SystemSetup::VolumeCalibration::MANUAL_VOL_ENTRY, vessels[vessel]->getCalibrationPressure(entry), 1, 1023, UIStrings::Generic::EMPTY);
-			vessels[vessel]->setVolumeCalibration(entry, newSensorValue, vessels[vessel]->getCalibrationVolume(entry));
+			vessels[vessel]->updateVolumeCalibration(entry, newSensorValue, vessels[vessel]->getCalibrationVolume(entry));
             return;
         } else if (lastOption == 2) {
             //Delete the volume and value.
             if(confirmDel()) {
-				vessels[vessel]->setVolumeCalibration(entry, 0, 0);
+				vessels[vessel]->updateVolumeCalibration(entry, 0, 0);
                 return;
             }
         } else return;

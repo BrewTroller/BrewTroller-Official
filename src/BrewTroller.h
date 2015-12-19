@@ -190,4 +190,18 @@ extern unsigned int timer1_overflow_count = 0;
 extern unsigned int PIDOutputCountEquivalent[4][2] = {{0,0},{0,0},{0,0},{0,0}};
 #endif
 
+// set what the PID cycle time should be based on how fast the temp sensors will respond
+#if TS_ONEWIRE_RES == 12
+#define PID_CYCLE_TIME 750
+#elif TS_ONEWIRE_RES == 11
+#define PID_CYCLE_TIME 375
+#elif TS_ONEWIRE_RES == 10
+#define PID_CYCLE_TIME 188
+#elif TS_ONEWIRE_RES == 9
+#define PID_CYCLE_TIME 94
+#else
+// should not be this value, fail the compile
+#ERROR
+#endif
+
 #endif

@@ -424,7 +424,7 @@ void BTnic::execCmd(void) {
     case CMD_SET_OSET:  //N
       vessels[cmdIndex]->setPID(getCmdParamNum(1));
 	  vessels[cmdIndex]->setPIDCycle(getCmdParamNum(2));
-	  vessels[cmdIndex]->setTuning(getCmdParamNum(3), getCmdParamNum(4), getCmdParamNum(5));
+	  vessels[cmdIndex]->setTunings(getCmdParamNum(3), getCmdParamNum(4), getCmdParamNum(5));
 	     if (cmdIndex == VS_STEAM) {
         setSteamZero(getCmdParamNum(6));
         setSteamTgt(getCmdParamNum(7));
@@ -433,7 +433,7 @@ void BTnic::execCmd(void) {
       else vessels[cmdIndex]->setHysteresis(getCmdParamNum(6));
     case CMD_GET_OSET:  //D
       logFieldCmd(CMD_GET_OSET, cmdIndex);
-      logFieldI(vessels[cmdIndex]->isPid());
+      logFieldI(vessels[cmdIndex]->isPID());
       logFieldI(vessels[cmdIndex]->getPIDCycle());
       logFieldI(vessels[cmdIndex]->getP());
       logFieldI(vessels[cmdIndex]->getI());
@@ -602,8 +602,8 @@ void BTnic::execCmd(void) {
 
 
     case CMD_SET_VSET:  //R
-      setCapacity(cmdIndex, getCmdParamNum(1));
-      setVolLoss(cmdIndex, getCmdParamNum(2));
+      vessels[cmdIndex]->setCapacity(getCmdParamNum(1));
+      vessels[cmdIndex]->setDeadspace(getCmdParamNum(2));
     case CMD_GET_VSET:  //H
       logFieldCmd(CMD_GET_VSET, cmdIndex);
       logFieldI(getCapacity(cmdIndex));
@@ -676,10 +676,10 @@ void BTnic::execCmd(void) {
       
       
     case CMD_SET_SETPOINT:  //X
-      setSetpoint(cmdIndex, getCmdParamNum(1) * SETPOINT_DIV);
+      vessels[cmdIndex]->setSetpoint(getCmdParamNum(1));
     case CMD_SETPOINT:  //t
       logFieldCmd(CMD_SETPOINT, cmdIndex);
-      logFieldI(setpoint[cmdIndex] / (SETPOINT_MULT * SETPOINT_DIV));
+      logFieldI(vessels[cmdIndex]->getSetpoint());
       break;
       
 
@@ -748,7 +748,7 @@ void BTnic::execCmd(void) {
     
     case CMD_VOL:  //p
       logFieldCmd(CMD_VOL, cmdIndex);
-      logFieldI(volAvg[cmdIndex]);
+      logFieldI(vessels[cmdIndex]->getVolume());
       #ifdef FLOWRATE_CALCS
         logFieldI(flowRate[cmdIndex]);
       #else
@@ -785,31 +785,29 @@ void BTnic::execCmd(void) {
       break;
       
     case CMD_SET_TGTVOL:  //{
-      tgtVol[cmdIndex] = min(getCmdParamNum(1), getCapacity(cmdIndex));
+      vessels[cmdIndex]->setTargetVolume(min(getCmdParamNum(1), vessels[cmdIndex]->getCapacity());
     case CMD_GET_TGTVOL:  //|
       logFieldCmd(CMD_GET_TGTVOL, cmdIndex);
-      logFieldI(tgtVol[cmdIndex]);
+      logFieldI(vessels[cmdIndex]->getTargetVolume());
       break;
       
     case CMD_SET_BOILCTL: //}
       boilControlState = (ControlState)getCmdParamNum(1);
       switch (boilControlState) {
         case CONTROLSTATE_OFF:
-          PIDOutput[VS_KETTLE] = 0;
-          setpoint[VS_KETTLE] = 0;
+			vessels[VS_KETTLE]->setHeatOverride(SOFTSWITCH_OFF);
           break;
         case CONTROLSTATE_AUTO:
-          setpoint[VS_KETTLE] = getBoilTemp();
+			vessels[VS_KETTLE]->setHeatOverride(SOFTSWITCH_AUTO);
           break;
         case CONTROLSTATE_ON:
-          setpoint[VS_KETTLE] = 1;
-          PIDOutput[VS_KETTLE] = PIDCycle[VS_KETTLE] * getCmdParamNum(2);
+			vessels[VS_KETTLE]->setHeatOverride(SOFTSWITCH_ON);
         break;
       }
     case CMD_GET_BOILCTL: //~
       logFieldCmd(CMD_GET_BOILCTL, NO_CMDINDEX);
       logFieldI(boilControlState);
-      logFieldI(PIDOutput[VS_KETTLE] / PIDCycle[VS_KETTLE]);
+      logFieldI(vessels[VS_kettle]->getOutput());
       break;
       
     default: 

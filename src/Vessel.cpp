@@ -40,19 +40,6 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 
 extern int temp[9];
 
-// set what the PID cycle time should be based on how fast the temp sensors will respond
-#if TS_ONEWIRE_RES == 12
-#define PID_CYCLE_TIME 750
-#elif TS_ONEWIRE_RES == 11
-#define PID_CYCLE_TIME 375
-#elif TS_ONEWIRE_RES == 10
-#define PID_CYCLE_TIME 188
-#elif TS_ONEWIRE_RES == 9
-#define PID_CYCLE_TIME 94
-#else
-// should not be this value, fail the compile
-#ERROR
-#endif
 //Note that the includeAux numbers should be addresses e.g. TS_AUX1, not just a number (that's why they're bytes instead of booleans).
 	Vessel::Vessel(byte initEepromIndex, byte initIncludeAux[], byte FFBias, float initMinVolume = 0, byte initMinTriggerPin = 0, byte initMaxPower = 100)
 	{
@@ -185,7 +172,7 @@ extern int temp[9];
 		EEPROM.write(74 + eepromIndex * 5, i);
 		EEPROM.write(75 + eepromIndex * 5, d);
 		if (!pid) return; //This check is redundant - the PID loading code bails out if the PID isn't loaded - until someone changes it so that it doesn't :).
-		pid->setTunings(p, i, d);
+		pid->SetTunings(p, i, d);
 	}
 
 	void Vessel::updateTemperature()
@@ -264,11 +251,11 @@ extern int temp[9];
 
 			//only 1 call to millis needed here, and if we get hit with an interrupt we still want to calculate based on the first read value of it
 			unsigned long timestamp = millis();
-			if (timestamp - cycleStart > PIDcycle * 100) cycleStart += PIDcycle * 100;
+			if (timestamp - cycleStart[eepromIndex] > PIDcycle * 100) cycleStart[eepromIndex] += PIDcycle * 100;
 
 			//cycleStart is the millisecond value when the current PID cycle started.
 			//We compare the 
-			if (PIDoutput >= timestamp - cycleStart && timestamp != cycleStart)
+			if (PIDoutput >= timestamp - cycleStart[eepromIndex] && timestamp != cycleStart[eepromIndex])
 			{
 				heatPin.set(HIGH);
 				return true;
@@ -337,7 +324,7 @@ extern int temp[9];
 
 	void Vessel::setPIDCycle(float newPIDCycle)
 	{
-		EEPROM.write(76 + eepromIndex * 5, newHysterisis);
+		EEPROM.write(76 + eepromIndex * 5, newPIDCycle);
 		PIDcycle = newPIDCycle;
 	}
 	/////////////////////////////////////////////////////

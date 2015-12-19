@@ -132,7 +132,7 @@ static const uint8_t HEAT_OUTPUTS[HEAT_OUTPUTS_COUNT][2] = {{VS_HLT, TS_HLT}, {V
 static const int HEAT_OUTPUTS_COUNT = 3;
 static const uint8_t HEAT_OUTPUTS[HEAT_OUTPUTS_COUNT][2] = {{VS_HLT, TS_HLT}, {VS_MASH, TS_MASH}, {VS_KETTLE, TS_KETTLE}};
 #endif
-constexpr uint8_t NUM_VESSELS min(3, HEAT_OUTPUTS_COUNT);
+constexpr uint8_t NUM_VESSELS (HEAT_OUTPUTSCOUNT < 3 ? HEAT_OUTPUTS_COUNT : 3);
 
 // These two should be used as the array index when operating on a HEAT_OUTPUT array.
 // They need to be variables instead of #defines because of use as index subscripts.

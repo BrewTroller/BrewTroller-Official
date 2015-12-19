@@ -37,7 +37,7 @@ void updateVols() {
   //Check volume on VOLUME_READ_INTERVAL and update vol with average of VOLUME_READ_COUNT readings
   if (millis() - lastVolChk > VOLUME_READ_INTERVAL) {
     for (byte i = VS_HLT; i <= NUM_VESSELS; i++) {
-		vessels[i]->updateVolume();
+		vessels[i]->takeVolumeReading();
     }
     volCount++;
     if (volCount >= VOLUME_READ_COUNT) volCount = 0;

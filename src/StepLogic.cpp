@@ -215,7 +215,7 @@ void brewStepFill(enum StepSignal signal, struct ProgramThread *thread) {
       vessels[VS_HLT]->setTargetVolume(calcSpargeVol(thread->recipe));
       vessels[VS_MASH]->setTargetVolume(calcStrikeVol(thread->recipe));
       if (getProgMLHeatSrc(thread->recipe) == VS_HLT) {
-		  vessels[VS_HLT]->setTargetVolume(min(vessels[VS_HLT]->getVolume() + vessels[VS_MASH]->getTargetVolume(), vessels[VS_HLT]->getCapacity());
+		  vessels[VS_HLT]->setTargetVolume(min(vessels[VS_HLT]->getVolume() + vessels[VS_MASH]->getTargetVolume(), vessels[VS_HLT]->getCapacity()));
 		  vessels[VS_MASH]->setTargetVolume(0);
       }
       #ifdef AUTO_FILL_START
@@ -293,7 +293,7 @@ void brewStepPreheat(enum StepSignal signal, struct ProgramThread *thread) {
         #elif defined MASH_PREHEAT_STEP1
 		vessels[VS_MASH]->setSetpoint(getFirstStepTemp(stepProgram[BREWSTEP_PREHEAT]));
         #else
-		vessels[VS_MASH].setSetpoint(0);
+		vessels[VS_MASH]->setSetpoint(0);
         #endif        
       } else {
         vessels[VS_HLT]->setSetpoint(getProgHLT(thread->recipe));
@@ -314,7 +314,7 @@ void brewStepPreheat(enum StepSignal signal, struct ProgramThread *thread) {
       programThreadSetStep(thread, BREWSTEP_PREHEAT);
       break;
     case STEPSIGNAL_UPDATE:
-      if (!preheated[preheatVessel] && vessels[preheatVessel]->getTemperature() >= vessels[preheatVessel].getSetpoint()) {
+      if (!preheated[preheatVessel] && vessels[preheatVessel]->getTemperature() >= vessels[preheatVessel]->getSetpoint()) {
         preheated[preheatVessel] = 1;
         setAlarm(1);
       }
@@ -492,7 +492,7 @@ void brewStepMashHelper(byte mashStep, enum StepSignal signal, struct ProgramThr
             getProgMashTemp(stepProgram[BREWSTEP_DOUGHIN + mashStep], mashStep) == 0 
             || (preheated[VS_MASH] && timerValue[TIMER_MASH] == 0)
           #else
-            vessels[VS_MASH].getSetpoint() == 0 
+            vessels[VS_MASH]->getSetpoint() == 0 
             || (preheated[VS_MASH] && timerValue[TIMER_MASH] == 0)
           #endif
          )

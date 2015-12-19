@@ -926,7 +926,6 @@ void logDebugPIDGain(byte vessel) {
   logFieldI(pid[vessel].GetD_Param());
   logEnd();
 }
-#endif
 
 #endif  // COM_SERIAL0 == ASCII
 #endif

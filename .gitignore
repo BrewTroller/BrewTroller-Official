@@ -13,3 +13,9 @@
 
 #build directory
 build/*
+
+#VS files
+.vs/*
+BT.VC.opendb
+BT.sdf
+BT.sln

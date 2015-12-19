@@ -256,9 +256,9 @@ void setSteamPSens(unsigned int value) {
   steamPSens = value;
   #ifndef PID_FLOW_CONTROL
   #ifdef USEMETRIC
-    pid[VS_STEAM].SetInputLimits(0, 50000 / steamPSens);
+    pid.SetInputLimits(0, 50000 / steamPSens);
   #else
-    pid[VS_STEAM].SetInputLimits(0, 7250 / steamPSens);
+    pid.SetInputLimits(0, 7250 / steamPSens);
   #endif
   #endif
   EEPROMwriteInt(117, value);
@@ -618,16 +618,23 @@ void initEEPROM() {
 
   //Default Output Settings: p: 3, i: 4, d: 2, cycle: 4s, Hysteresis 0.3C(0.5F)
   for (byte vessel = VS_HLT; vessel <= VS_STEAM; vessel++) {
-    setPIDp(vessel, 3);
-    setPIDi(vessel, 4);
-    setPIDd(vessel, 2);
-    setPIDCycle(vessel, 4);
-    if (vessel != VS_STEAM)
-    #ifdef USEMETRIC
-      setHysteresis(vessel, 3);
-    #else
-      setHysteresis(vessel, 5);      
-    #endif
+	  if (vessel != VS_STEAM) {
+#ifdef USEMETRIC
+		  setHysteresis(vessel, 3);
+#else
+		  setHysteresis(vessel, 5);
+#endif
+		  vessels[vessel]->setP(3);
+		  vessels[vessel]->setI(4),
+		vessels[vessel]->setP(2);
+		  vessels[vessel]->setPIDCycle(4);
+
+	  }
+	  else
+	  {
+		  pid.setHysteresis(5);
+		  pid.setTunings(3, 4, 2);
+	  }
   }
 
   //Default Grain Temp = 60F/16C
