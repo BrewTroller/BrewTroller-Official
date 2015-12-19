@@ -35,6 +35,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 #include "Timer.h"
 #include "EEPROM.h"
 
+//EVENT_SETPOINT: eventParam = vessel ID
 void eventHandler(byte eventID, int eventParam) {
   //Global Event handler
   //EVENT_STEPINIT: Nothing to do here (Pass to UI handler below)
@@ -45,7 +46,7 @@ void eventHandler(byte eventID, int eventParam) {
     byte vlvHeat = vesselVLVHeat(eventParam);
     byte vlvIdle = vesselVLVIdle(eventParam);
     
-    if (setpoint[eventParam]) autoValve[avProfile] = 1;
+    if (vessels[eventParam]->getSetpoint()) autoValve[avProfile] = 1;
     else { 
       autoValve[avProfile] = 0; 
       if (vlvConfigIsActive(vlvIdle)) bitClear(actProfiles, vlvIdle);
@@ -101,15 +102,13 @@ void eventHandler(byte eventID, int eventParam) {
   }
   
   void hltMinISR() {
-    heatPin[VS_HLT].set(LOW);
-    heatStatus[VS_HLT] = 0;
+	  vessels[VS_HLT]->updateOutput();
     bitClear(actProfiles, VLV_HLTHEAT);
   }
   
   void mashMinISR() {
-    heatPin[VS_MASH].set(LOW);
-    heatStatus[VS_MASH] = 0;
-    bitClear(actProfiles, VLV_MASHHEAT);
+	vessels[VS_MASH]->updateOutput();
+	bitClear(actProfiles, VLV_MASHHEAT);
     #ifdef DIRECT_FIRED_RIMS
       heatPin[VS_STEAM].set(LOW);
       heatStatus[VS_STEAM] = 0;
@@ -117,8 +116,7 @@ void eventHandler(byte eventID, int eventParam) {
   }
   
   void kettleMinISR() {
-    heatPin[VS_KETTLE].set(LOW);
-    heatStatus[VS_KETTLE] = 0;    
+	  vessels[VS_KETTLE]->updateOutput();
     bitClear(actProfiles, VLV_KETTLEHEAT);
   }
 #endif

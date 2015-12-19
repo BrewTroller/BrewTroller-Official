@@ -142,4 +142,10 @@ typedef enum {
   NUM_CONTROLSTATES
 } ControlState;
 
+typedef enum {
+	SOFTSWITCH_OFF,
+	SOFTSWITCH_ON,
+	SOFTSWITCH_AUTO,
+	SOFTSWITCH_MANUAL
+} SoftSwitch;
 #endif

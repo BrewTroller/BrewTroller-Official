@@ -6,8 +6,7 @@ The vessel class stores and manages data and actions pertaining to vessels, such
 and should not be subclassed, for performance reasons and because it's important for other parts of the code to be able to interact
 with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle) so that we can easily support different vessel configurations.
 
-Also, this class is designed to read all eeprom settings on load. If settings such as which temperature sensor is assigned to this vessel are changed 
-after the system is booted, the object should be destroyed and recreated.
+This class is designed to read all eeprom settings on load and generally hnadle its own eeprom reading.
 
 NOTE: Some functionality supported in BT2.6 is not yet supported in this version. This includes:
  - PWM
@@ -16,7 +15,7 @@ NOTE: Some functionality supported in BT2.6 is not yet supported in this version
 */
 
 #include "Config.h"
-
+#include "Enum.h"
 #include <pin.h>
 #include <PID_Beta6.h>
 
@@ -35,13 +34,13 @@ private:
 	float capacity; //Maximum volume
 	float deadspace; //Dead space
 	byte minTriggerPin; //Pin that triggers a low volume condition
-	
+
 
 	//Temperature
 	//Note that we use doubles here for type compatibility with the PID library. On most Arduino systems, double and float use the same precision (and on the systems where they don't there is plenty of memory).
 
 	pin heatPin;
-	double setpoint; //The setpoint for this vessel
+	double setpoint = 0; //The setpoint for this vessel
 	bool usePID; //TRUE = use PID mode, FALSE = on/off mode
 	PID* pid = NULL; //PID object for use with PID
 	byte feedforward = 0; //The ID of the feedforward sensor. Valid values are 1-3, corresponding to AUX1-3. Anything outside that range will be ignored
@@ -54,40 +53,81 @@ private:
 	//Using int and ulong here to stay consistent with existing code. These could probably be converted to byte and float.
 	unsigned int volumeCalibrationPressure[10]; //The pressures used for calibration
 	unsigned long volumeCalibrationVolume[10]; //The volumes used for calibration
+	float targetVolume = 0;
+	SoftSwitch heatOverride = SOFTSWITCH_AUTO; // SOFTSWITCH_OFF, _ON, _AUTO 
+
 
 	//Valves require broader state awareness (e.g. MLT valve config might be different for mash vs. sparge) and are handled outside this class.
 
 	//Working statuses
-	float volumeReadings[10]; //To-do: allow user to customize number of volume readings to use in sample
+	float volumeReadings[VOLUME_READ_COUNT]; //To-do: allow user to customize number of volume readings to use in sample
 	byte oldestVolumeReading; //Array index of the oldest volume reading, which will get overwritten by the next one
 
-	double temperature;
-	double feedforwardTemperature;
+	double temperature = 0;
+	double feedforwardTemperature = 0;
 
-	double PIDoutput; //The current output level of the PID
+	double PIDoutput = 0; //The current output level of the PID
 
 	//Cached values for performance
-	float volume;
+	float volume = 0;
 	byte usesAuxInputs; //The count of aux inputs used for averaging
 
 	void updateTemperature(); //Fetch the latest temperature from the sensor
 
 public:
+	//All set functions also write the value to EEPROM
+
 	//No default constructor because we need to know which eeprom index to use
 	Vessel(byte initEepromIndex, byte initIncludeAux[], byte FFBias, float initMinVolume, byte initMinTriggerPin, byte initMaxPower);
-	~Vessel() ;
+	~Vessel();
 
 	//Temperature control functions
-	void setSetpoint(double );
-	double getSetpoint();
-	double getTemperature();
-	void setMaxPower(byte );
+	void setSetpoint(double); //Sets the setpoint and updates outputs accordingly
+	double getSetpoint(); //Returns the current setpoint
+	double getTemperature(); //Returns the current temperature reading
+	byte getOutput(); //Returns the current output level
+	byte getPercentOutput(); //Returns the output scaled 0-100
+	void setMaxPower(byte);
+	inline byte getMaxPower() {
+		return maxPower;
+	};
+	inline float getPIDCycle() { return PIDcycle; }
+	void setPIDCycle(float);
+	inline float getHysterisis() { return hysteresis; }
+	void setHysterisis(float);
+	inline float getP() { if (PID) return PID.GetP_Param(); else return 3; } //3,4,1 are default values for PID control. Arguably we should return an error code and let the caller figure it out.
+	inline float getI() { if (PID) return PID.GetI_Param(); else return 4; }
+	inline float getD() { if (PID) return PID.GetD_Param(); else return 1; }
+	void setTunings(double p, double i, double d); //Also writes tunings to eeprom
+	void setTSAddress(byte*); //Also writes to EEPROM
+
+	inline boolean isPID() { return usePID; }
+	void setPID(bool);
 
 	bool updateOutput(); //Turn output on or off based on temperature, returning whether the output is on
+	void manualOutput(int); //Manual output control, sets the output to a fixed PID value
 
-	void updateVolumeCalibration(byte , unsigned long , int );
+	//Volume functions
+	void updateVolumeCalibration(byte, unsigned long, int); //Update a volume calibration value, including writing to eeprom
 
 	float getVolume(); //Return the volume, as calculated based on this 
 	void takeVolumeReading(); //Take a sample of the volume
+	inline void setTargetVolume(float target) { targetVolume = target; };
+	inline float getTargetVolume() { return targetVolume / 1000.0; };
+	inline float getDeadspace() { return deadspace; }
+	void setDeadspace();
+	
+	inline float getCapacity() { return capacity; }
+	void setCapacity(float capacity);
+
+	inline unsigned long getCalibrationVolume(byte index) { return volumeCalibrationVolume; }
+	inline unsigned int getCalibrationPressure(byte index) { return volumeCalibrationVolume; }
+	
+	boolean isOn(); //Returns whether the heating element is on at this very moment (cycles on and off with PID). Use getOutput() to see the exact level.
+	void setHeatOverride(byte); //Forces the element on or off, or sets it to auto. Used with RGBIO8 soft switches.
+	byte getHeatOverride(); 
 };
+
+//Subroutine to initialize the system's vessels
+void initVessels();
 #endif

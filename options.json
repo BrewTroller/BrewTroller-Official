@@ -42,6 +42,46 @@
 			{"name": "Single Vessel Mode", "optName": "SINGLE_VESSEL_SUPPORT", "on": false}
 		]
 	},
+  {
+    "type": "switch",
+    "id": "MASH_AVERAGING",
+    "title": "Mash Averaging",
+    "description": "Average Aux Temperature Sensors into Mash Temperature",
+    "options": [
+      {
+        "name": "Include Aux1",
+        "optName": "MASH_AVG_AUX1",
+        "on": false
+      },
+      {
+        "name": "Include Aux2",
+        "optName": "MASH_AVG_AUX2",
+        "on": false
+      },
+      {
+        "name": "Include Aux3",
+        "optName": "MASH_AVG_AUX3",
+        "on": false
+      }
+    ]
+  },
+  {
+		"type": "radio",
+		"id": "FEEDFORWARD",
+		"title": "Mash Feedforward Sensor",
+		"description": "Select an optional feedforward sensor to use in the mash",
+		"options": [
+      {
+        "optName": "0",
+        "name": "None"
+      },
+      {"optName":"1", "name": "Aux1"},
+			{"optName":"2", "name": "Aux2"},
+			{"optName":"3", "name": "Aux3"}
+		],
+		"default": "None"
+	},
+	
 	{
 		"type": "switch",
 		"id": "VOLUME_SENSORS",

@@ -25,10 +25,13 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 
   Update 9/22/2010 to support enhanced functions and mutiple schemas.
   
+  NOTE:	This code will not work with the latest refactoring. This is some ridiculously inscrutable code. If you really need this to work,
+  please let the maintainers know. Most of the code has been commented out, but the EEPROM flash section has been left intact as an emergency
+  backup to allow restoring the EEPROM if all else fails.
 */
 
 #ifdef COM_SERIAL0
-#if COM_SERIAL0 == ASCII
+#if COM_SERIAL0 == ASCII 
 
 //**********************************************************************************
 //Code for Schemas 0 & 1
@@ -37,6 +40,8 @@ unsigned long lastLog;
 boolean msgQueued;
 byte logCount, msgField;
 char msg[CMD_MSG_FIELDS][CMD_FIELD_CHARS];
+
+
 
 void logStart_P (const char *sType) {
  Serial.print(millis(),DEC);
@@ -71,6 +76,7 @@ void logString_P (const char *sType, const char *sText) {
  logEnd();
 }
 
+
 boolean chkMsg() {
   if (!msgQueued) {
     while (Serial.available()) {
@@ -78,7 +84,7 @@ boolean chkMsg() {
       if (byteIn == '\r') { 
         msgQueued = 1;
         //Configuration Class (CFG) Commands
-        if(strcasecmp(msg[0], "GET_BOIL") == 0) {
+/*        if(strcasecmp(msg[0], "GET_BOIL") == 0) {
           logBoilTemp();
           clearMsg();
         } else if(strcasecmp(msg[0], "GET_CAL") == 0) {
@@ -141,7 +147,8 @@ boolean chkMsg() {
         } else if(strcasecmp(msg[0], "SET_CAL") == 0) {
           byte vessel = atoi(msg[1]);
           if (msgField == 21 && vessel >= VS_HLT && vessel <= VS_KETTLE) {
-            for (byte i = 0; i < 10; i++) setVolCalib(vessel, i, atol(msg[i * 2 + 3]), strtoul(msg[i * 2 + 2], NULL, 10));
+            for (byte i = 0; i < 10; i++) 
+				   vessels[vessel]->updateVolumeCalibration(i, atol(msg[i * 2 + 3]), strtoul(msg[i * 2 + 2], NULL, 10));
             clearMsg();
             logVolCalib(vessel);
           } else rejectParam();
@@ -373,7 +380,9 @@ boolean chkMsg() {
             logCalcVols(program);
             clearMsg();
           } else rejectParam();
-        } else if(strcasecmp(msg[0], "GET_EEPROM") == 0) {
+        } else 
+		*/
+if(strcasecmp(msg[0], "GET_EEPROM") == 0) {
         if (msgField == 2) {
           int address = atoi(msg[1]);
           int length = atoi(msg[2]);
@@ -384,7 +393,9 @@ boolean chkMsg() {
             clearMsg();
           }
         } else rejectParam();
-      } else if(strcasecmp(msg[0], "SET_EEPROM") == 0) {
+      } else 
+	  
+if(strcasecmp(msg[0], "SET_EEPROM") == 0) {
           setEEPROM();
           clearMsg();
 #endif

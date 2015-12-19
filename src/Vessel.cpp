@@ -30,7 +30,7 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 */
 
 #include <avr/eeprom.h>
-
+#include "BrewTroller.h"
 #include "Vessel.h"
 #include "EEPROM.h"	
 #include "Temp.h"
@@ -38,10 +38,9 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 #include "Volume.h"
 #include "Outputs.h" //Needed only for minTriggerPin
 
-extern unsigned int cycleStart[4];
 extern bool estop;
 extern int temp[9];
-
+extern Vessel vessels[NUM_VESSELS];
 
 // set what the PID cycle time should be based on how fast the temp sensors will respond
 #if TS_ONEWIRE_RES == 12
@@ -60,8 +59,14 @@ extern int temp[9];
 	Vessel::Vessel(byte initEepromIndex, byte initIncludeAux[], byte FFBias, float initMinVolume = 0, byte initMinTriggerPin = 0, byte initMaxPower = 100)
 	{
 
-		for (int i = 0; i < 10; i++)
+		for (int i = 0; i < VOLUME_READ_COUNT; i++)
 			volumeReadings[i] = 0;
+		oldestVolumeReading = 0;
+		 temperature = 0;
+		feedforwardTemperature = 0;
+
+		PIDoutput = 0;
+		volume = targetVolume = 0;
 
 		eepromIndex = initEepromIndex;
 		minVolume = initMinVolume;
@@ -74,13 +79,14 @@ extern int temp[9];
 		usesAuxInputs = includeAux[0] + includeAux[1] + includeAux[2];
 
 		//Load settings from eeprom
-
+		//TODO: use EEPROM encapsulation instead
 		//Load temperature sensor information - needs to be before PID setup so we have the temp probe addresses in place
 		//**********************************************************************************
 		//Temperature Sensors: HLT (0-7), MASH (8-15), KETTLE (16-23), H2OIN (24-31), H2OOUT (32-39),
 		//          BEEROUT (40-47), AUX1 (48-55), AUX2 (56-63), AUX3 (64-71)
 		//**********************************************************************************
 		EEPROMreadBytes(8 * eepromIndex, sensorAddress, 8);
+		setpoint = EEPROM.read(299 + i) * SETPOINT_MULT;
 		if (FFBias)
 		{
 			feedforward = FFBias;
@@ -88,27 +94,29 @@ extern int temp[9];
 		}
 
 		usePID = getPIDEnabled(eepromIndex);
-		if (usePID)
-		{ 
-			float PID_P, PID_I, PID_D; //P, I and D values for PID
+		//Always load PID values even if the setting is not currently set to PID, because otherwise they won't be available for the config UI
+		float PID_P, PID_I, PID_D; //P, I and D values for PID
 
-			PIDcycle = getPIDCycle(eepromIndex);
-			PID_P = getPIDp(eepromIndex);
-			PID_I = getPIDi(eepromIndex);
-			PID_D = getPIDd(eepromIndex);
+		PIDcycle = getPIDCycle(eepromIndex);
+		PID_P = getPIDp(eepromIndex);
+		PID_I = getPIDi(eepromIndex);
+		PID_D = getPIDd(eepromIndex);
 
-			//Feedforward version included but commented out for later reference
-			if (feedforward)
-				pid = new PID(&temperature, &PIDoutput, &setpoint, &feedforwardTemperature, PID_P, PID_I, PID_D);
-			else
-				pid = new PID(&temperature, &PIDoutput, &setpoint, PID_P, PID_I, PID_D);
+		//Feedforward version included but commented out for later reference
+		if (feedforward)
+			pid = new PID(&temperature, &PIDoutput, &setpoint, &feedforwardTemperature, PID_P, PID_I, PID_D);
+		else
+			pid = new PID(&temperature, &PIDoutput, &setpoint, PID_P, PID_I, PID_D);
 
-			pid->SetInputLimits(0, 25500);
-			pid->SetOutputLimits(0, PIDcycle * maxPower);
-			pid->SetMode(PID::AUTO_MODE);
+		//If the PID load failed, we are out of memory. While we could try to push through, this could be unsafe, so bail out.
+		if (!pid)
+			exit(1);
+
+		pid->SetInputLimits(0, 25500);
+		pid->SetOutputLimits(0, PIDcycle * maxPower);
+		pid->SetMode(PID::AUTO_MODE);
+		pid->SetSampleTime(PID_CYCLE_TIME);
 		
-			pid->SetSampleTime(PID_CYCLE_TIME);
-		}
 		hysteresis = getHysteresis(eepromIndex); 
 		capacity = getCapacity(eepromIndex);
 		deadspace = getVolLoss(eepromIndex);
@@ -150,7 +158,11 @@ extern int temp[9];
 	//Temperature control functions
 	void Vessel::setSetpoint(double newSetPoint)
 	{
-		setpoint = newSetPoint;
+		setpoint = newSetPoint * SETPOINT_MULT;
+		EEPROM.write(299 + eepromIndex, newSetPoint);
+		if (setpoint == 0)
+			feedforwardTemperature = 0;
+		updateOutput();
 	}
 
 	double Vessel::getSetpoint()
@@ -168,10 +180,20 @@ extern int temp[9];
 		maxPower = newMaxPower;
 	}
 
+	void Vessel::setTunings(double p, double i, double d)
+	{
+		//These EEPROM.cpp functions write the PID value to EEPROM and do nothing else
+		EEPROM.write(73 + eepromIndex * 5, p);
+		EEPROM.write(74 + eepromIndex * 5, i);
+		EEPROM.write(75 + eepromIndex * 5, d);
+		if (!PID) return; //This check is redundant - the PID loading code bails out if the PID isn't loaded - until someone changes it so that it doesn't :).
+		PID->setTunings(p, i, d);
+	}
+
 	void Vessel::updateTemperature()
 	{
 		//Fetch the latest temperature from the sensor, which returns 100ths of a degree
-		temperature = 100.0 * read_temp(sensorAddress);
+		temperature = read_temp(sensorAddress) / 100.0;
 		
 		if (usesAuxInputs)
 		{
@@ -180,7 +202,7 @@ extern int temp[9];
 			{
 				if (includeAux[i])
 				{
-					tempTemp = 100.0 * temp[includeAux[i]];
+					tempTemp = temp[includeAux[i]] / 100.0;
 					if (temperature == BAD_TEMP) //Note that in the case where we have a bad read, and then get another bad value, this maintains temperature == BAD_TEMP without needing to special-case it
 						temperature = tempTemp;
 					else
@@ -192,40 +214,63 @@ extern int temp[9];
 		}
 		if (feedforward)
 		{
-			feedforwardTemperature = 100.0 * read_temp(feedforwardAddress);
+			feedforwardTemperature = read_temp(feedforwardAddress) / 100.0;
 			if (feedforwardTemperature == BAD_TEMP)
 				feedforwardTemperature = temperature; //If we got a bad read on the feedforward, but have a good read on the mash itself, we can just use the mash temp as the feedforward to let us keep mashing
 	
 		}
 	}
 
+	void Vessel::setTSAddress(byte newAddress[8]) 
+	{
+		memcpy(sensorAddress, newAddress, 8 * sizeof(byte));
+		EEPROMwriteBytes(eepromIndex * 8, addr, 8); 
+	}
 	//Turn output on or off based on temperature, returning whether the output is on
-	bool Vessel::updateOutput()
+	bool Vessel::updateOutput(unsigned int* cycleStart)
 	{
 		//Update temperature for use in all later calculations
 		updateTemperature();
 
 
-		if (estop || getVolume() < minVolume || temperature == BAD_TEMP  ||
-			(minTriggerPin && !vesselMinTrigger(minTriggerPin)->get()))
+		if (estop || getVolume() < minVolume || (temperature == BAD_TEMP && heatOverride != SOFTSWITCH_MANUAL && heatOverride != SOFTSWITCH_ON) || //Allow manual control of heat even when temp sensor is broken
+			(vesselMinTrigger(minTriggerPin) && !vesselMinTrigger(minTriggerPin)->get()))
 
 			//The latter condition checks for the digital trigger input for low volume 
 		{
 			//Turn output off due to error condition
 			heatPin.set(LOW);
+			PIDoutput = 0;
 			return false;
 		}
 
-		if (usePID)
+#ifdef RGBIO8_ENABLE
+		//This code is worth excluding when RGBIO8 is disabled because it runs every time we update the output
+		if (heatOverride == SOFTSWITCH_OFF)
 		{
-			//Note that this uses pointers to 
-			pid->Compute();
+			heatPin.set(LOW);
+			return false;
+		}
+		else if (heatOverride == SOFTSWITCH_ON)
+		{
+			heatPin.set(HIGH);
+			return true;
+		}
+		//Other possible value is SOFTSWITCH_AUTO and SOFTSWITCH_MANUAL
+#endif
+		if (usePID || heatOverride == SOFTSWITCH_MANUAL)
+		{
+			//Note that this uses pointers to the temperature, output and feedforward variables
+			if (!heatOverride == SOFTSWITCH_MANUAL)
+				pid->Compute(); //If it's manual, preserve the manual value
+
 			//only 1 call to millis needed here, and if we get hit with an interrupt we still want to calculate based on the first read value of it
 			unsigned long timestamp = millis();
+			if (timestamp - cycleStart > PIDcycle * 100) cycleStart += PIDcycle * 100;
 
 			//cycleStart is the millisecond value when the current PID cycle started.
 			//We compare the 
-			if (PIDoutput >= timestamp - cycleStart[eepromIndex] && timestamp != cycleStart[eepromIndex])
+			if (PIDoutput >= timestamp - cycleStart && timestamp != cycleStart)
 			{
 				heatPin.set(HIGH);
 				return true;
@@ -242,17 +287,73 @@ extern int temp[9];
 			{
 				//Turn output on
 				heatPin.set(HIGH);
+				PIDOutput = 100;
 				return true;
 			}
 			else if (getTemperature() > getSetpoint()+hysteresis)
 			{
 				//Turn output off
 				heatPin.set(LOW);
+				PIDOutput = 0;
 				return false;
 			}
 		}
 	}
 	
+
+
+	void Vessel::manualOutput(int newOutput)
+	{
+		PIDoutput = newOutput;
+		overrideOutput = SOFTSWITCH_MANUAL;
+		(void)updateOutput();
+	}
+
+
+	bool Vessel::isOn()
+	{
+		return (heatPin.get());
+	}
+
+	byte Vessel::getOutput() {
+		return PIDoutput;
+	}
+
+	byte Vessel::getPercentOutput() {
+		return PIDoutput / PIDcycle;
+	}
+	void Vessel::setTempOverride(byte oride)
+	{
+		tempOverride = oride;
+	}
+
+	byte Vessel::setTempOverride()
+	{
+		return tempOverride;
+	}
+
+	void Vessel::setPID(bool newPID)
+	{
+		usePID = newPID;
+		byte options = EEPROM.read(72);
+		bitWrite(options, eepromIndex, newPID);
+		EEPROM.write(72, options);
+	}
+
+	void Vessel::setHysterisis(float newHysterisis)
+	{
+		EEPROM.write(77 + eempromIndex * 5, newHysterisis); 
+		hysterisis = newHysterisis;
+	}
+
+	void Vessel::setPIDCycle(float newPIDCycle)
+	{
+		EEPROM.write(76 + eempromIndex * 5, newHysterisis);
+		PIDcycle = newPIDCycle;
+	}
+	/////////////////////////////////////////////////////
+	// Volume settings
+	/////////////////////////////////////////////////////
 
 	void Vessel::updateVolumeCalibration(byte index, unsigned long vol, int pressure)
 	{
@@ -264,9 +365,22 @@ extern int temp[9];
 		EEPROMwriteInt(239 + eepromIndex * 20 + index * 2, pressure);
 	}
 
+	void Vessel::updateCapacity(float newCapacity)
+	{
+		capacity = newCapacity;
+		EEPROMwriteLong(93 + eepromIndex * 4, newCapacity);
+	}
+
+
+	void Vessel::updateDeadlpace(float newDeadspace)
+	{
+		deadspace = newDeadspace;
+		EEPROMwriteInt(105 + eepromIndex * 2, newDeadspace); 
+	}
+
 	float Vessel::getVolume() 
 	{
-		return volume;
+		return volume / 1000.0;
 	} 
 	
 	//Take a sample of the volume
@@ -276,10 +390,41 @@ extern int temp[9];
 		//Take volume reading
 		reading = readVolume(volumePinID, volumeCalibrationVolume, volumeCalibrationPressure);
 
-		volume = volume + (reading - volumeReadings[oldestVolumeReading]) / 10;
+		volume = volume + (reading - volumeReadings[oldestVolumeReading]) / VOLUME_READ_COUNT;
 		volumeReadings[oldestVolumeReading] = reading;
-		oldestVolumeReading = (oldestVolumeReading + 1) % 10; //This could be made faster by switching to a power of 2 and using a bitmask
+		oldestVolumeReading = (oldestVolumeReading + 1) % VOLUME_READ_COUNT; //This could be made faster by using a power of 2 as the read count and using a bitmask
 	}
 
+	void initVessels()
+	{
+		byte pidLimits[4] = { PIDLIMIT_HLT, PIDLIMIT_MASH, PIDLIMIT_KETTLE, PIDLIMIT_STEAM };
+		byte initIncludeAux[3] = { false, false, false };
+		byte mashIncludeAux[3] = { MASH_AVG_AUX1, MASH_AVG_AUX2, MASH_AVG_AUX3};
+		byte triggerPin;
+
+		for (byte i = 0; i < NUM_VESSELS; i++)
+		{
+			if (vessels[i] != NULL) delete vessels[i];
+
+			switch (i)
+			{
+				case 0:
+					triggerPin = TRIGGER_HLTMIN;
+					break;
+				case 1:
+					triggerPin = TRIGGER_MASHMIN;
+					break;
+				case 2:
+					triggerPin = TRIGGER_KETTLEMIN;
+					break;
+				default:
+					triggerPin = 0;
+			}
+			if (i == 2 && FEEDFORWARD)
+				vessels[i] = new Vessel(i, mashIncludeAux, FEEDFORWARD, 0, triggerPin, pidLimits[i]); //That random 0 is minVolume which is not currently implemented due to lack of UI
+			else
+				vessels[i] = new Vessel(i, initIncludeAux, 0, 0, byte triggerPin, pidLimits[i]);
+		}
+	}
 
 

@@ -26,49 +26,41 @@ void setTSAddr(byte sensor, byte addr[8]);
 //**********************************************************************************
 //PID Enabled (72); Bit 1 = HLT, Bit 2 = Mash, Bit 3 = Kettle, Bit 4 = Steam
 //**********************************************************************************
-void setPIDEnabled(byte vessel, boolean setting);
 bool getPIDEnabled(byte vessel);
 
 //**********************************************************************************
 //PIDp HLT (73), Mash (78), Kettle (83), Steam (88)
 //**********************************************************************************
-void setPIDp(byte vessel, byte value);
 byte getPIDp(byte vessel);
 
 //**********************************************************************************
 //PIDi HLT (74), Mash (79), Kettle (84), Steam (89)
 //**********************************************************************************
-void setPIDi(byte vessel, byte value);
 byte getPIDi(byte vessel);
 
 //**********************************************************************************
 //PIDd HLT (75), Mash (80), Kettle (85), Steam (90)
 //**********************************************************************************
-void setPIDd(byte vessel, byte value);
 byte getPIDd(byte vessel);
 
 //**********************************************************************************
 //PIDCycle HLT (76), Mash (81), Kettle (86), Steam (91)
 //**********************************************************************************
-void setPIDCycle(byte vessel, byte value);
 byte getPIDCycle(byte vessel);
 
 //**********************************************************************************
 //Hysteresis HLT (77), Mash (82), Kettle (87), Steam (92)
 //**********************************************************************************
-void setHysteresis(byte vessel, byte value);
 byte getHysteresis(byte vessel);
 
 //**********************************************************************************
 //Capacity HLT (93-96), Mash (97-100), Kettle (101-104)
 //**********************************************************************************
-void setCapacity(byte vessel, unsigned long value);
 unsigned long getCapacity(byte vessel);
 
 //**********************************************************************************
 //volLoss HLT (105-106), Mash (107-108), Kettle (109-110)
 //**********************************************************************************
-void setVolLoss(byte vessel, unsigned int value);
 unsigned int getVolLoss(byte vessel);
 
 //**********************************************************************************
@@ -108,7 +100,6 @@ void setSteamPSens(unsigned int value);
 //calibVols HLT (119-158), Mash (159-198), Kettle (199-238)
 //calibVals HLT (239-258), Mash (259-278), Kettle (279-298)
 //**********************************************************************************
-void setVolCalib(byte vessel, byte slot, unsigned int value, unsigned long vol);
 
 //*****************************************************************************************************************************
 // Power Loss Recovery Functions

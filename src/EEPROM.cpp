@@ -36,15 +36,9 @@ void loadSetup() {
   //TSensors: HLT (0-7), MASH (8-15), KETTLE (16-23), H2OIN (24-31), H2OOUT (32-39),
   //          BEEROUT (40-47), AUX1 (48-55), AUX2 (56-63), AUX3 (64-71)
   //**********************************************************************************
-  EEPROMreadBytes(0, *tSensor, 72);
-  #ifdef HLT_AS_KETTLE
-    EEPROMreadBytes(0, tSensor[TS_KETTLE], 8);
-  #elif defined KETTLE_AS_MASH
-    EEPROMreadBytes(16, tSensor[TS_MASH], 8);
-  #elif defined SINGLE_VESSEL_SUPPORT
-    EEPROMreadBytes(0, tSensor[TS_MASH], 8);
-    EEPROMreadBytes(0, tSensor[TS_KETTLE], 8);
-  #endif
+  //Vessel sensors are read in here but aren't used.
+	EEPROMreadBytes(0, *tSensor, 72);
+  
  
   //**********************************************************************************
   //PID Enabled (72); Bit 1 = HLT, Bit 2 = Mash, Bit 3 = Kettle, Bit 4 = Steam
@@ -54,14 +48,7 @@ void loadSetup() {
   //PIDCycle HLT (76), Mash (81), Kettle (86), Steam (91)
   //Hysteresis HLT (77), Mash (82), Kettle (87), Steam (92)
   //**********************************************************************************
-  {
-    byte options = EEPROM.read(72);
-    for (byte i = VS_HLT; i <= VS_STEAM; i++) {
-      PIDEnabled[i] = bitRead(options, i);
-      PIDCycle[i] = EEPROM.read(76 + i * 5);
-      hysteresis[i] = EEPROM.read(77 + i * 5);
-    }
-  }
+	//Loaded directly by vessels  
   
   //**********************************************************************************
   //boilPwr (112)
@@ -80,34 +67,22 @@ void loadSetup() {
   //calibVols HLT (119-158), Mash (159-198), Kettle (199-238)
   //calibVals HLT (239-258), Mash (259-278), Kettle (279-298)
   //**********************************************************************************
-  eeprom_read_block(&calibVols, (unsigned char *) 119, 120);
-  eeprom_read_block(&calibVals, (unsigned char *) 239, 60);
-
-  //Load HLT calibrations to kettle
-  #ifdef HLT_AS_KETTLE
-    eeprom_read_block(&calibVols[VS_KETTLE], (unsigned char *) 119, 40);
-    eeprom_read_block(&calibVals[VS_KETTLE], (unsigned char *) 239, 20);
-  #elif defined KETTLE_AS_MASH
-    eeprom_read_block(&calibVols[VS_MASH], (unsigned char *) 199, 40);
-    eeprom_read_block(&calibVals[VS_MASH], (unsigned char *) 279, 20);
-  #elif defined SINGLE_VESSEL_SUPPORT
-    eeprom_read_block(&calibVols[VS_MASH], (unsigned char *) 119, 40);
-    eeprom_read_block(&calibVals[VS_MASH], (unsigned char *) 239, 20);
-    eeprom_read_block(&calibVols[VS_KETTLE], (unsigned char *) 119, 40);
-    eeprom_read_block(&calibVals[VS_KETTLE], (unsigned char *) 239, 20);
-  #endif
+	//Loaded directly by vessels
 
   //**********************************************************************************
   //setpoints (299-301)
   //**********************************************************************************
-  for (byte i=VS_HLT; i<=VS_KETTLE; i++) { 
-    setpoint[i] = EEPROM.read(299 + i) * SETPOINT_MULT;
+  for (byte i=VS_HLT; i<=NUM_VESSELS; i++) { //TODO: Make this operate only for the number of vessels, not always for all 3 vessels
+	  //TODO: why is EEPROM code setting an event handler? This should be somewhere else.
+    //Setting loaded directly by vessels
     eventHandler(EVENT_SETPOINT, i);
   }
+  
   
   //**********************************************************************************
   //timers (302-305)
   //**********************************************************************************
+ 
   for (byte i=TIMER_MASH; i<=TIMER_BOIL; i++) { timerValue[i] = EEPROMreadInt(302 + i * 2) * 60000; }
 
   //**********************************************************************************
@@ -173,40 +148,19 @@ void loadSetup() {
 //          BEEROUT (40-47), AUX1 (48-55), AUX2 (56-63), AUX3 (64-71)
 //**********************************************************************************
 void setTSAddr(byte sensor, byte addr[8]) {
-    #ifdef HLT_AS_KETTLE
-    if (sensor == TS_HLT || sensor == TS_KETTLE) {
-      //Also copy HLT setting to Kettle
-      memcpy(tSensor[TS_KETTLE], addr, 8);
-      sensor = VS_HLT; //Set sensor for EEPROM write
-    }
-  #elif defined KETTLE_AS_MASH
-    if (sensor == TS_MASH || sensor == TS_KETTLE) {
-      //Also copy Kettle setting to Mash
-      memcpy(tSensor[TS_MASH], addr, 8);
-      sensor = VS_KETTLE; //Set sensor for EEPROM write
-    }
-  #elif defined SINGLE_VESSEL_SUPPORT
-    if (sensor == TS_HLT || sensor == TS_MASH || sensor == TS_KETTLE) {
-      //Also copy HLT setting to Mash/Kettle
-      memcpy(tSensor[TS_MASH], addr, 8);
-      memcpy(tSensor[TS_KETTLE], addr, 8);
-      sensor = VS_HLT; //Set sensor for EEPROM write
-    }
-  #endif
-  memcpy(tSensor[sensor], addr, 8);
-  EEPROMwriteBytes(sensor * 8, addr, 8);
+	if (sensor < NUM_VESSELS)
+		vessels[sensor]->setTSAddress(addr);
+	else
+	{
+		memcpy(tSensor[sensor], addr, 8);
+		EEPROMwriteBytes(sensor * 8, addr, 8);
+	}
 }
 
 //**********************************************************************************
 //PID Enabled (72); Bit 1 = HLT, Bit 2 = Mash, Bit 3 = Kettle, Bit 4 = Steam
 //**********************************************************************************
-void setPIDEnabled(byte vessel, boolean setting) {
-  PIDEnabled[vessel] = setting;
-  byte options = EEPROM.read(72);
-  bitWrite(options, vessel, setting);
-  EEPROM.write(72, options);
-}
-
+//Set moved to vessel code
 bool getPIDEnabled(byte vessel) {
 	byte options = EEPROM.read(72);
 	return bitRead(options, vessel);
@@ -215,37 +169,25 @@ bool getPIDEnabled(byte vessel) {
 //**********************************************************************************
 //PIDp HLT (73), Mash (78), Kettle (83), Steam (88)
 //**********************************************************************************
-void setPIDp(byte vessel, byte value) {
-  pid[vessel].SetTunings(value, pid[vessel].GetI_Param(), pid[vessel].GetD_Param());
-  EEPROM.write(73 + vessel * 5, value);
-}
+//Moved to vessel code
 byte getPIDp(byte vessel) { return EEPROM.read(73 + vessel * 5); }
 
 //**********************************************************************************
 //PIDi HLT (74), Mash (79), Kettle (84), Steam (89)
 //**********************************************************************************
-void setPIDi(byte vessel, byte value) {
-  pid[vessel].SetTunings(pid[vessel].GetP_Param(), value, pid[vessel].GetD_Param());
-  EEPROM.write(74 + vessel * 5, value);
-}
+//Set moved  to vessel code
 byte getPIDi(byte vessel) { return EEPROM.read(74 + vessel * 5); }
 
 //**********************************************************************************
 //PIDd HLT (75), Mash (80), Kettle (85), Steam (90)
 //**********************************************************************************
-void setPIDd(byte vessel, byte value) {
-  pid[vessel].SetTunings(pid[vessel].GetP_Param(), pid[vessel].GetI_Param(), value);
-  EEPROM.write(75 + vessel * 5, value);
-}
+//Set moved  to vessel code
 byte getPIDd(byte vessel) { return EEPROM.read(75 + vessel * 5); }
 
 //**********************************************************************************
 //PIDCycle HLT (76), Mash (81), Kettle (86), Steam (91)
 //**********************************************************************************
-void setPIDCycle(byte vessel, byte value) {
-  PIDCycle[vessel] = value;
-  EEPROM.write(76 + vessel * 5, value);
-}
+//Set moved to vessel code
 byte getPIDCycle(byte vessel)
 {
 	byte options = EEPROM.read(76 + vessel * 5);
@@ -255,11 +197,7 @@ byte getPIDCycle(byte vessel)
 //**********************************************************************************
 //Hysteresis HLT (77), Mash (82), Kettle (87), Steam (92)
 //**********************************************************************************
-void setHysteresis(byte vessel, byte value) {
-  hysteresis[vessel] = value;
-  EEPROM.write(77 + vessel * 5, value);
-}
-
+//Set moved to vessel code
 byte getHysteresis(byte vessel)
 {
 	byte options = EEPROM.read(77 + vessel*5);
@@ -269,18 +207,11 @@ byte getHysteresis(byte vessel)
 //**********************************************************************************
 //Capacity HLT (93-96), Mash (97-100), Kettle (101-104)
 //**********************************************************************************
-void setCapacity(byte vessel, unsigned long value) {
-  EEPROMwriteLong(93 + vessel * 4, value);
-}
-unsigned long getCapacity(byte vessel) { return EEPROMreadLong(93 + vessel * 4); }
-
+//Moved to vessel code
 //**********************************************************************************
 //volLoss HLT (105-106), Mash (107-108), Kettle (109-110)
 //**********************************************************************************
-void setVolLoss(byte vessel, unsigned int value) {
-  EEPROMwriteInt(105 + vessel * 2, value);
-}
-unsigned int getVolLoss(byte vessel) { return EEPROMreadInt(105 + vessel * 2); }
+//Moved to vessel code
 
 //**********************************************************************************
 //Boil Temp (111)
@@ -337,34 +268,7 @@ void setSteamPSens(unsigned int value) {
 //calibVols HLT (119-158), Mash (159-198), Kettle (199-238)
 //calibVals HLT (239-258), Mash (259-278), Kettle (279-298)
 //**********************************************************************************
-void setVolCalib(byte vessel, byte slot, unsigned int value, unsigned long vol) {
-  #ifdef HLT_AS_KETTLE
-    if (vessel == VS_HLT || vessel == VS_KETTLE) {
-      //Also copy HLT setting to Kettle
-      calibVols[VS_KETTLE][slot] = vol;
-      calibVals[VS_KETTLE][slot] = value;
-      vessel = VS_HLT; //Set vessel for EEPROM write
-    }
-  #elif defined KETTLE_AS_MASH
-    if (vessel == VS_MASH || vessel == VS_KETTLE) {
-      //Also copy Kettle setting to Mash
-      calibVols[VS_MASH][slot] = vol;
-      calibVals[VS_MASH][slot] = value;
-      vessel = VS_KETTLE; //Set vessel for EEPROM write
-    }
-  #elif defined SINGLE_VESSEL_SUPPORT
-    calibVols[VS_MASH][slot] = vol;
-    calibVals[VS_MASH][slot] = value;  
-    calibVols[VS_KETTLE][slot] = vol;
-    calibVals[VS_KETTLE][slot] = value;
-    vessel = VS_HLT; //Set vessel for EEPROM write
-  #endif
-  
-  calibVols[vessel][slot] = vol;
-  calibVals[vessel][slot] = value;
-  EEPROMwriteLong(119 + vessel * 40 + slot * 4, vol);
-  EEPROMwriteInt(239 + vessel * 20 + slot * 2, value);
-}
+//Moved to vessel code
 
 //*****************************************************************************************************************************
 // Power Loss Recovery Functions
@@ -378,9 +282,9 @@ void setSetpoint(byte vessel, int value) {
     if (vessel == VS_STEAM) setpoint[vessel] = value;
     else setpoint[vessel] = value * SETPOINT_MULT;
   #else
-    setpoint[vessel] = value * SETPOINT_MULT;
+	vessels[i]->setSetpoint(value);
   #endif
-  EEPROM.write(299 + vessel, value);
+  
   eventHandler(EVENT_SETPOINT, vessel);
 }
 

@@ -213,30 +213,3 @@ void tempInit() {
   void getDSAddr(byte addrRet[8]){};
 #endif
 
-#if defined MASH_AVG
-void mashAvg() {
-  byte sensorCount = 1;
-  unsigned long avgTemp = temp[TS_MASH];
-  #if defined MASH_AVG_AUX1
-    if (temp[TS_AUX1] != BAD_TEMP) {
-      avgTemp += temp[TS_AUX1];
-      sensorCount++;
-    }
-  #endif
-  #if defined MASH_AVG_AUX2
-    if (temp[TS_AUX2] != BAD_TEMP) {
-      avgTemp += temp[TS_AUX2];
-      sensorCount++;
-    }
-  #endif
-  #if defined MASH_AVG_AUX3
-    if (temp[TS_AUX3] != BAD_TEMP) {
-      avgTemp += temp[TS_AUX3];
-      sensorCount++;
-    }
-  #endif
-  temp[TS_MASH] = avgTemp / sensorCount;
-}
-#endif
-
-

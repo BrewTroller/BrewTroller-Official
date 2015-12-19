@@ -36,6 +36,10 @@
 // USER COMPILE OPTIONS
 //*****************************************************************************************************************************
 
+
+
+
+
 //**********************************************************************************
 // UNIT (Metric/US)
 //**********************************************************************************
@@ -128,6 +132,8 @@ static const uint8_t HEAT_OUTPUTS[HEAT_OUTPUTS_COUNT][2] = {{VS_HLT, TS_HLT}, {V
 static const int HEAT_OUTPUTS_COUNT = 3;
 static const uint8_t HEAT_OUTPUTS[HEAT_OUTPUTS_COUNT][2] = {{VS_HLT, TS_HLT}, {VS_MASH, TS_MASH}, {VS_KETTLE, TS_KETTLE}};
 #endif
+constexpr uint8_t NUM_VESSELS min(3, HEAT_OUTPUTS_COUNT);
+
 // These two should be used as the array index when operating on a HEAT_OUTPUT array.
 // They need to be variables instead of #defines because of use as index subscripts.
 static const uint8_t VS = 0;
@@ -152,8 +158,8 @@ static const uint8_t TS = 1;
 // under TSensor and output (0-2) Array Element Constants
 // NOTE: not a good idea to use any sensor you average into the MASH sensor as your feed forward
 //
-//#define PID_FEED_FORWARD
-//#define FEED_FORWARD_SENSOR TS_AUX1
+#cmakedefine FEEDFORWARD
+
 
 //**********************************************************************************
 // PWM ouputs controled by timer rather than brew core loop
@@ -264,9 +270,9 @@ static const uint8_t TS = 1;
 //**********************************************************************************
 // MASH_AVG_AUXx: Uncomment one or more of the following lines to include averaging
 // of AUX1, AUX2 and/or AUX3 temp sensors with mash temp sensor.
-//#define MASH_AVG_AUX1
-//#define MASH_AVG_AUX2
-//#define MASH_AVG_AUX3
+#cmakedefine MASH_AVG_AUX1
+#cmakedefine MASH_AVG_AUX2
+#cmakedefine MASH_AVG_AUX3
 
 //Enable Mash Avergaing Logic if any Mash_AVG_AUXx options were enabled
 #if defined MASH_AVG_AUX1 || defined MASH_AVG_AUX2 || defined MASH_AVG_AUX3

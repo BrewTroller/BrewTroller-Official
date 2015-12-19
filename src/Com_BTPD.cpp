@@ -48,16 +48,16 @@ unsigned long lastBTPD;
 void updateBTPD() {
 	if (millis() - lastBTPD > BTPD_INTERVAL) {
 		#ifdef BTPD_HLT_TEMP
-			sendVsTemp(BTPD_HLT_TEMP, TS_HLT, VS_HLT);
+		sendVesselTemp(BTPD_MASH_TEMP, vessels[VS_HLT]);
 		#endif
 		#ifdef BTPD_MASH_TEMP
-			sendVsTemp(BTPD_MASH_TEMP, TS_MASH, VS_MASH);
+			sendVesselTemp(BTPD_MASH_TEMP, vessels[VS_MASH]);
 		#endif
 		#ifdef BTPD_KETTLE_TEMP
-			sendVsTemp(BTPD_KETTLE_TEMP, TS_KETTLE, VS_KETTLE);
+			sendVesselTemp(BTPD_MASH_TEMP, vessels[VS_KETTLE]);
 		#endif
 		#ifdef BTPD_KETTLE_TEMPTIME
-			sendFloatsBTPD(BTPD_KETTLE_TEMPTIME, temp[TS_KETTLE] / 100.0, timer2Float(timerValue[TIMER_BOIL]));
+			sendFloatsBTPD(BTPD_KETTLE_TEMPTIME, vessels[VS_KETTLE].getTemperature() , timer2Float(timerValue[TIMER_BOIL]));
 		#endif
 		#ifdef BTPD_H2O_TEMPS
 			sendFloatsBTPD(BTPD_H2O_TEMPS, temp[TS_H2OIN] / 100.0, temp[TS_H2OOUT] / 100.0);
@@ -103,13 +103,13 @@ void updateBTPD() {
 			#endif
 		} else {
 			#ifdef BTPD_HLT_VOL
-				sendVsVol(BTPD_HLT_VOL, TS_HLT);
+				sendVesselVol(BTPD_HLT_VOL, vessels[VS_HLT]);
 			#endif
 			#ifdef BTPD_MASH_VOL
-				sendVsVol(BTPD_MASH_VOL, TS_MASH);
+				sendVesselVol(BTPD_MASH_VOL, vessels[VS_MASH]);
 			#endif
 			#ifdef BTPD_KETTLE_VOL
-				sendVsVol(BTPD_KETTLE_VOL, TS_KETTLE);
+				sendVesselVol(BTPD_KETTLE_VOL, vessels[VS_KETTLE]);
 			#endif
 		}
 		// the temps with no volume always display
@@ -143,10 +143,22 @@ void sendVsTemp(byte chan, byte sensor, byte vessel) {
     sendFloatsBTPD(chan, setpoint[vessel] / 100.0, temp[sensor] / 100.0);
 }
 
+void sendVesselTemp(byte chan, Vessel* v)
+{
+	if (vessel.getTemperature() == BAD_TEMP)
+		sendStringBTPD(chan, "    ----");
+	else
+		sendFloatsBTPD(chan, vessel.getSetpoint(), vessel.getTemperature);
+}
+
 void sendVsVol(byte chan, byte vessel) {
   sendFloatsBTPD(chan, tgtVol[vessel] / 1000.0, volAvg[vessel] / 1000.0);
 }
 
+void sendVesselVol(byte chan, Vessel v)
+{
+	sendFloatsBTPD(chan, v.getVolume(), v.getTargetVolume());
+}
 void sendStringBTPD(byte chan, const char *string) {
   Wire.beginTransmission(chan);
   Wire.write((uint8_t *)string, strlen(string));

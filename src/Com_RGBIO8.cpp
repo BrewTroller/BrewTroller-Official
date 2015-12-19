@@ -3,12 +3,10 @@
 #include "Config.h"
 #include "Com_RGBIO8.h"
 
-#define SOFTSWITCH_OFF 0
-#define SOFTSWITCH_ON 1
-#define SOFTSWITCH_AUTO 2
 
-byte softSwitchPv[PVOUT_COUNT];
-byte softSwitchHeat[HEAT_OUTPUTS_COUNT];
+
+SoftSwitch softSwitchPv[PVOUT_COUNT];
+SoftSwitch softSwitchHeat[HEAT_OUTPUTS_COUNT];
 
 RGBIO8 rgbio8s[RGBIO8_NUM_BOARDS];
 unsigned long lastRGBIO8 = 0;
@@ -194,6 +192,7 @@ void RGBIO8::update(void) {
         // this is a heat input
         if (inputs_manual & (1 << i)) {
           softSwitchHeat[a->index] = SOFTSWITCH_ON;
+		  vessels[a->index].
         }
         else if (inputs_auto & (1 << i)) {
           softSwitchHeat[a->index] = SOFTSWITCH_AUTO;
@@ -226,11 +225,8 @@ void RGBIO8::update(void) {
     if (a->type) {
       if (a->type == 1) {
         // this is a heat output
-        // If PIDEnabled[a->index] is set and the PID is heating, heatStatus
-        // will always be set. It does not reflect the state of the pin.
-        // If we want to reflect the actual state of the pin we'd also
-        // need to check against heatPin[a->index].get().
-        if (heatStatus[a->index]) {
+		//Note that this code now reflects the actual state of the pin, meaning that it will flip on and off in time with the PID output
+        if (vessels[a->index]->isOn()) {
           if (softSwitchHeat[a->index] == SOFTSWITCH_AUTO) {
             setOutput(i, output_recipes[a->recipe_id][2]);
           }

@@ -364,12 +364,12 @@ void BTnic::execCmd(void) {
       logFieldI(autoValveBitmask());
       logFieldI(actProfiles);
       logFieldI(computeValveBits());
-      for (byte vessel = VS_HLT; vessel <= VS_KETTLE; vessel++) {
-        logFieldI(setpoint[vessel]);
-        logFieldI(temp[vessel]);
+      for (byte vessel = VS_HLT; vessel <= NUM_VESSELS; vessel++) {
+        logFieldI(vessels[vessel]->getSetpoint());
+        logFieldI(vessels[vessel]->getTemperature());
         logFieldI(getHeatPower(vessel)); 
-        logFieldI(tgtVol[vessel]);
-        logFieldI(volAvg[vessel]);
+        logFieldI(vessels[vessel]->getTargetVolume());
+        logFieldI(vessels[vessel]->getVolume());
         #ifdef FLOWRATE_CALCS
           logFieldI(flowRate[vessel]);
         #else
@@ -400,15 +400,15 @@ void BTnic::execCmd(void) {
       {
         byte vessel = cmdIndex / 10;
         byte calIndex = cmdIndex - vessel * 10;
-        setVolCalib(vessel, calIndex, getCmdParamNum(2), getCmdParamNum(1));
+        vessels[vessel]->updateVolumeCalibration(calIndex, getCmdParamNum(2), getCmdParamNum(1));
       }
     case CMD_GET_CAL: //B
       {
         logFieldCmd(CMD_GET_CAL, cmdIndex);
         byte vessel = cmdIndex / 10;
         byte calIndex = cmdIndex - vessel * 10;      
-        logFieldI(calibVols[vessel][calIndex]);
-        logFieldI(calibVals[vessel][calIndex]);
+        logFieldI(vessels[vessel]->getCalibrationVolume(calIndex));
+        logFieldI(vessels[vessel]->getCalibrationPressure(calIndex));
       }
       break;
       
@@ -435,11 +435,11 @@ void BTnic::execCmd(void) {
       else setHysteresis(cmdIndex, getCmdParamNum(6));
     case CMD_GET_OSET:  //D
       logFieldCmd(CMD_GET_OSET, cmdIndex);
-      logFieldI(PIDEnabled[cmdIndex]);
-      logFieldI(PIDCycle[cmdIndex]);
-      logFieldI(getPIDp(cmdIndex));
-      logFieldI(getPIDi(cmdIndex));
-      logFieldI(getPIDd(cmdIndex));
+      logFieldI(vessels[cmdIndex]->isPid());
+      logFieldI(vessels[cmdIndex]->getPIDCycle());
+      logFieldI(vessels[cmdIndex]->getP());
+      logFieldI(vessels[cmdIndex]->getI());
+      logFieldI(vessels[cmdIndex]->getD());
       if (cmdIndex == VS_STEAM) {
         logFieldI(getSteamTgt());
         #ifndef PID_FLOW_CONTROL
@@ -448,7 +448,7 @@ void BTnic::execCmd(void) {
         #endif
       } 
       else {
-        logFieldI(hysteresis[cmdIndex]);
+        logFieldI(vessels[cmdIndex]->getHysteresis());
         logFieldI(0);
         logFieldI(0);
       }

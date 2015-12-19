@@ -31,8 +31,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 #include "EEPROM.h"
 #include "Outputs.h"
 #include "Events.h"
-
-extern const int HEAT_OUTPUTS_COUNT;
+#include "Vessels.h"
 
 #ifdef PID_FLOW_CONTROL 
   #define LAST_HEAT_OUTPUT VS_PUMP // not this is mostly done for code readability as VS_PUMP = VS_STEAM
@@ -44,21 +43,6 @@ extern const int HEAT_OUTPUTS_COUNT;
   #else
     #define LAST_HEAT_OUTPUT VS_KETTLE
   #endif
-#endif
-
-
-// set what the PID cycle time should be based on how fast the temp sensors will respond
-#if TS_ONEWIRE_RES == 12
-  #define PID_CYCLE_TIME 750
-#elif TS_ONEWIRE_RES == 11
-  #define PID_CYCLE_TIME 375
-#elif TS_ONEWIRE_RES == 10
-  #define PID_CYCLE_TIME 188
-#elif TS_ONEWIRE_RES == 9
-  #define PID_CYCLE_TIME 94
-#else
-  // should not be this value, fail the compile
-  #ERROR
 #endif
 
 #ifdef PWM_BY_TIMER
@@ -128,45 +112,8 @@ void pinInit() {
   #ifdef ALARM_PIN
     alarmPin.setup(ALARM_PIN, OUTPUT);
   #endif
-  //Setup HLT Pin
-  #ifdef HLTHEAT_PIN
-    heatPin[VS_HLT].setup(HLTHEAT_PIN, OUTPUT);
-  #endif
-
-  #ifdef SINGLE_VESSEL_SUPPORT
-    //Single Vessel: Also setup HLT pin for Mash/Kettle
-    #ifdef HLTHEAT_PIN
-      heatPin[VS_MASH].setup(HLTHEAT_PIN, OUTPUT);
-      heatPin[VS_KETTLE].setup(HLTHEAT_PIN, OUTPUT);
-    #endif
-  #else
-    //Setup Mash/Kettle Vessel Heat Pins for non-Single Vessel
-    #ifdef KETTLE_AS_MASH
-      //Kettle as Mash option
-      #ifdef KETTLEHEAT_PIN
-        heatPin[VS_MASH].setup(KETTLEHEAT_PIN, OUTPUT);
-      #endif
-    #else
-      //Normal Mash Vessel
-      #ifdef MASHHEAT_PIN
-        heatPin[VS_MASH].setup(MASHHEAT_PIN, OUTPUT);
-      #endif
-    #endif
-    #ifdef HLT_AS_KETTLE
-      //HLT as Kettle Option
-      #ifdef HLTHEAT_PIN
-        heatPin[VS_KETTLE].setup(HLTHEAT_PIN, OUTPUT);
-      #endif      
-    #else
-      //Normal Kettle
-      #ifdef KETTLEHEAT_PIN
-        heatPin[VS_KETTLE].setup(KETTLEHEAT_PIN, OUTPUT);
-      #endif
-    #endif
-  #endif
   
   #ifdef DIRECT_FIRED_RIMS
-    //MASHHEAT_PIN should be defined, so setup above.
     heatPin[VS_STEAM].setup(STEAMHEAT_PIN, OUTPUT);
   #endif
 
@@ -175,6 +122,7 @@ void pinInit() {
       heatPin[VS_STEAM].setup(STEAMHEAT_PIN, OUTPUT);
     #endif
   #endif
+
   #ifdef PID_FLOW_CONTROL
     #ifdef PWMPUMP_PIN
       heatPin[VS_PUMP].setup(PWMPUMP_PIN, OUTPUT);
@@ -215,16 +163,6 @@ void pidInit() {
     PIDCycle[VS_PUMP] = 1; // for PID pump flow the STEAM heat output is set to a fixed 10hz signal with 100 step outputs. 
   #endif
   
-  for (byte vessel = VS_HLT; vessel <= VS_KETTLE; vessel++) {
-    pid[vessel].SetInputLimits(0, 25500);
-    pid[vessel].SetOutputLimits(0, PIDCycle[vessel] * pidLimits[vessel]);
-    pid[vessel].SetTunings(getPIDp(vessel), getPIDi(vessel), getPIDd(vessel));
-    pid[vessel].SetMode(PID::AUTO_MODE);
-    pid[vessel].SetSampleTime(PID_CYCLE_TIME);
-  }
-  pid[VS_KETTLE].SetMode(PID::MANUAL_MODE);
-
-
   #ifdef PID_FLOW_CONTROL
     #ifdef USEMETRIC
       pid[VS_PUMP].SetInputLimits(0, 255000); // equivalent of 25.5 LPM (255 * 100)
@@ -261,34 +199,30 @@ void pidInit() {
 
 void resetOutputs() {
   actProfiles = 0;
-  updateValves();
+  
   for (byte i = VS_HLT; i <= LAST_HEAT_OUTPUT; i++)
-    resetHeatOutput(i);
+	  vessel[i]->setSetpoint(0);
+
+  updateValves();
 }
 
 void resetHeatOutput(byte vessel) {
   #ifdef PWM_BY_TIMER
     uint8_t oldSREG;
   #endif
-  setSetpoint(vessel, 0);
-  PIDOutput[vessel] = 0;
-  #ifdef PID_FEED_FORWARD
-    if(vessel == VS_MASH)
-      FFBias = 0;
-  #endif
+  vessels[vessel]->setSetpoint(0);
+  
   #ifdef PWM_BY_TIMER
     // need to disable interrupts so a write into here can finish before an interrupt can come in and read it
     oldSREG = SREG;
     cli();
     //if we are not a 8K output then we can set it to 0, but if we are we need to set it to 1000 to make the duty cycle 0
     PIDOutputCountEquivalent[vessel][1] = 0;
-  #endif
-  heatPin[vessel].set(LOW);
-  #ifdef PWM_BY_TIMER
     SREG = oldSREG; // restore interrupts
   #endif
 }  
 
+//TODO: Make the below section work with new vessel definitions
 #if defined PID_FLOW_CONTROL && defined PID_CONTROL_MANUAL
 void processPID_FLOW_CONTROL(byte vessel) {
   if(vessel == VS_PUMP){ //manual control if PID isnt working due to long sample times or other reasons
@@ -591,61 +525,24 @@ void processHeatOutputs() {
     if(timetoset <= millis() && timetoset != 0){
       RIMStimeExpired = 1;
       timetoset = 0;
-      setSetpoint(TS_MASH, getProgMashTemp(stepProgram[steptoset], steptoset - 5));
+      vessels[VS_MASH]->setSetpoint(getProgMashTemp(stepProgram[steptoset], steptoset - 5));
     }
   #endif
   
-  //Process Auto Boil Control Logic
-  boilController();
-  
   for (int vesselIndex = 0; vesselIndex < HEAT_OUTPUTS_COUNT; vesselIndex++) {
     #ifndef PWM_BY_TIMER
-      unsigned long timestamp = millis();
+  
       if (cycleStart[vesselIndex] == 0) cycleStart[vesselIndex] = timestamp;
-      if (timestamp - cycleStart[vesselIndex] > PIDCycle[vesselIndex] * 100) cycleStart[vesselIndex] += PIDCycle[vesselIndex] * 100;
+      
     #endif
     
-    #ifdef HLT_AS_KETTLE
-      if (
-        (vesselIndex == VS_KETTLE && setpoint[VS_HLT]) //Skip kettle heat if HLT setpoint is active
-        || (vesselIndex == VS_HLT && !setpoint[VS_HLT] && setpoint[VS_KETTLE]) //Skip HLT if HLT setpoint is inactive and Kettle setpoint is active
-      ) continue;
-    #elif defined KETTLE_AS_MASH
-      if (
-        (vesselIndex == VS_KETTLE && setpoint[VS_MASH]) //Skip kettle heat if Mash setpoint is active
-        || (vesselIndex == VS_MASH && !setpoint[VS_MASH] && setpoint[VS_KETTLE]) //Skip Mash if Mash setpoint is inactive and Kettle setpoint is active
-      ) continue;
-    #elif defined SINGLE_VESSEL_SUPPORT
-      if (
-        (!setpoint[vesselIndex] && (setpoint[VS_HLT] || setpoint[VS_MASH] || setpoint[VS_KETTLE]))
-        || (setpoint[VS_MASH] && vesselIndex != VS_MASH)
-        || (setpoint[VS_KETTLE] && vesselIndex == VS_HLT)
-      ) continue;
-    #endif
-    
-    #ifdef RGBIO8_ENABLE
+	  vessels[vesselIndex]->updateOutput(&(cycleStart[vesselIndex]));
+	#ifdef RGBIO8_ENABLE
     if (softSwitchHeat[vesselIndex] == SOFTSWITCH_AUTO) {
       // Auto
     #endif
-      if (PIDEnabled[HEAT_OUTPUTS[vesselIndex][VS]]) {
-        processHeatOutputsPIDEnabled(HEAT_OUTPUTS[vesselIndex]);
-      } else {
-        processHeatOutputsNonPIDEnabled(HEAT_OUTPUTS[vesselIndex]);
-      }
-    #ifdef RGBIO8_ENABLE
+    
     }
-    else if (!estop && softSwitchHeat[vesselIndex] == SOFTSWITCH_ON) {
-      // On
-      heatPin[vesselIndex].set(HIGH);
-      heatStatus[vesselIndex] = 1;
-    }
-    else {
-      // Off, or invalid, which is as good as Off
-      heatPin[vesselIndex].set(LOW);
-      heatStatus[vesselIndex] = 0;
-    }
-    #endif
-  }
 }
 
 #ifdef PVOUT
@@ -673,10 +570,10 @@ void processHeatOutputs() {
     #endif
     //Do Valves
     if (autoValve[AV_FILL]) {
-      if (volAvg[VS_HLT] < tgtVol[VS_HLT]) bitSet(actProfiles, VLV_FILLHLT);
+      if (vessels[VS_HLT]->getVolume() < vessels[VS_HLT]->getTargetVolume()) bitSet(actProfiles, VLV_FILLHLT);
         else bitClear(actProfiles, VLV_FILLHLT);
         
-      if (volAvg[VS_MASH] < tgtVol[VS_MASH]) bitSet(actProfiles, VLV_FILLMASH);
+      if (vessels[VS_MASH]->getVolume() < vessels[VS_MASH]->getTargetVolume()) bitSet(actProfiles, VLV_FILLMASH);
         else bitClear(actProfiles, VLV_FILLMASH);
     }
     
@@ -685,7 +582,7 @@ void processHeatOutputs() {
       byte vlvHeat = vesselVLVHeat(i);
       byte vlvIdle = vesselVLVIdle(i);
       if (autoValve[vesselAV(i)]) {
-        if (heatStatus[i]) {
+		  if (vessels[i]->getOutput()) {
           if (vlvConfigIsActive(vlvIdle)) bitClear(actProfiles, vlvIdle);
           if (!vlvConfigIsActive(vlvHeat)) bitSet(actProfiles, vlvHeat);
         } else {
@@ -696,35 +593,36 @@ void processHeatOutputs() {
     }
     
     if (autoValve[AV_SPARGEIN]) {
-      if (volAvg[VS_HLT] > tgtVol[VS_HLT]) bitSet(actProfiles, VLV_SPARGEIN);
+      if (vessels[VS_HLT]->getVolume() > vessels[VS_HLT]->targetVolume()) bitSet(actProfiles, VLV_SPARGEIN);
         else bitClear(actProfiles, VLV_SPARGEIN);
     }
     if (autoValve[AV_SPARGEOUT]) {
-      if (volAvg[VS_KETTLE] < tgtVol[VS_KETTLE]) bitSet(actProfiles, VLV_SPARGEOUT);
+      if (vessels[VS_KETTLE]->getVolume() < vessels[VS_KETTLE]->targetVolume()) bitSet(actProfiles, VLV_SPARGEOUT);
       else bitClear(actProfiles, VLV_SPARGEOUT);
     }
     if (autoValve[AV_FLYSPARGE]) {
-      if (volAvg[VS_KETTLE] < tgtVol[VS_KETTLE]) {
-        #ifdef SPARGE_IN_PUMP_CONTROL
-          if((long)volAvg[VS_KETTLE] - (long)prevSpargeVol[0] >= SPARGE_IN_HYSTERESIS)
-          {
-            #ifdef HLT_MIN_REFILL
-               HLTStopVol = (SpargeVol > HLT_MIN_REFILL_VOL ? getVolLoss(VS_HLT) : (HLT_MIN_REFILL_VOL - SpargeVol));
-               if(volAvg[VS_HLT] > HLTStopVol + 20)
-            #else
-               if(volAvg[VS_HLT] > getVolLoss(VS_HLT) + 20)
-            #endif
-                 bitSet(actProfiles, VLV_SPARGEIN);
-             prevSpargeVol[0] = volAvg[VS_KETTLE];
-          }
-          #ifdef HLT_FLY_SPARGE_STOP
-          else if((long)prevSpargeVol[1] - (long)volAvg[VS_HLT] >= SPARGE_IN_HYSTERESIS || volAvg[VS_HLT] < HLT_FLY_SPARGE_STOP_VOLUME + 20)
-          #else
-          else if((long)prevSpargeVol[1] - (long)volAvg[VS_HLT] >= SPARGE_IN_HYSTERESIS || volAvg[VS_HLT] < getVolLoss(VS_HLT) + 20)
-          #endif
+		if (vessels[VS_KETTLE]->getVolume() < vessels[VS_KETTLE]->targetVolume()) {
+#ifdef SPARGE_IN_PUMP_CONTROL
+			long hltVol = vessels[VS_HLT]->getVolume();
+			if ((long)vessels[VS_KETTLE]->getVolume() - (long)prevSpargeVol[0] >= SPARGE_IN_HYSTERESIS)
+			{
+#ifdef HLT_MIN_REFILL
+				HLTStopVol = (SpargeVol > HLT_MIN_REFILL_VOL ? getVolLoss(VS_HLT) : (HLT_MIN_REFILL_VOL - SpargeVol));
+				if (hltVol > HLTStopVol + 20) //I have no idea where this random 20 came from here... Some sort of safety factor in min vols?
+#else
+				if (hltVol > vessels[VS_HLT]->getDeadspace() + 20)
+#endif
+					bitSet(actProfiles, VLV_SPARGEIN);
+				prevSpargeVol[0] = hltVol
+			}
+#ifdef HLT_FLY_SPARGE_STOP
+			else if ((long)prevSpargeVol[1] - (long)hltVol >= SPARGE_IN_HYSTERESIS || hltVol < HLT_FLY_SPARGE_STOP_VOLUME + 20)
+#else
+			else if ((long)prevSpargeVol[1] - (long)hltVol >= SPARGE_IN_HYSTERESIS || hltVol < vessels[VS_HLT]->getDeadspace() + 20)
+#endif
           {
              bitClear(actProfiles, VLV_SPARGEIN);
-             prevSpargeVol[1] = volAvg[VS_HLT];
+			 prevSpargeVol[1] = vessels[VS_HLT]->getVolume();
           }
         #else
           bitSet(actProfiles, VLV_SPARGEIN);
@@ -805,13 +703,6 @@ boolean vlvConfigIsActive(byte profile) {
   return bitRead(actProfiles, profile);
 }
 
-void boilController () {
-  if (boilControlState == CONTROLSTATE_AUTO) {
-    if(temp[TS_KETTLE] < setpoint[TS_KETTLE]) PIDOutput[VS_KETTLE] = PIDCycle[VS_KETTLE] * PIDLIMIT_KETTLE;
-    else PIDOutput[VS_KETTLE] = PIDCycle[VS_KETTLE] * min(boilPwr, PIDLIMIT_KETTLE);
-  }
-}
-
 //Map AutoValve Profiles to Vessels
 byte vesselAV(byte vessel) {
   if (vessel == VS_HLT) return AV_HLT;
@@ -846,6 +737,6 @@ byte autoValveBitmask(void) {
 }
 
 byte getHeatPower (byte vessel) {
-  return (PIDEnabled[vessel] ? (PIDOutput[vessel] / PIDCycle[vessel]) : (heatStatus[vessel] ? 100 : 0));
+	return vessels[vessel]->getOutput();
 }
 
