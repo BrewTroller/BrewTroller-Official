@@ -158,8 +158,8 @@ static const uint8_t TS = 1;
 // under TSensor and output (0-2) Array Element Constants
 // NOTE: not a good idea to use any sensor you average into the MASH sensor as your feed forward
 //
-#define FEEDFORWARD "${FEEDFORWARD}"
-
+///#define FEEDFORWARD ${FEEDFORWARD}
+#define FEEDFORWARD false
 
 //**********************************************************************************
 // PWM ouputs controled by timer rather than brew core loop
@@ -173,8 +173,8 @@ static const uint8_t TS = 1;
 // two PWM outputs which will be 8khz can be defined below, comment them both out if none are that high.
 // Also, the reported period for the 8khz outputs is going to look like 1 seconds in both the UI and the log.
 // You will not however be able to set the the PWM frequency from the UI because it is set at 8khz, the value
-// given in the UI will be ignored. The % output however will be reported properly through the UI and log.
-//#define PWM_BY_TIMER
+// given in +the UI will be ignored. The % output however will be reported properly through the UI and log.
+//          #define PWM_BY_TIMER
 //**********************************************************************************
 
 //**********************************************************************************
@@ -185,7 +185,7 @@ static const uint8_t TS = 1;
 // control the pump takes over the steam output, and thus the steam output cannot be used for steam.
 // Note: This code is designed to work with PWM_BY_TIMER
 // Note2: Given our current 10 bit adc and the average pressure sensor resolution for volume you only get about
-// 7 ADC clicks per quart, thus if you have your flow rate calcs set to happen to fast you'll always show a 0 flow
+//*/ 7 ADC clicks per quart, thus if you have your flow rate calcs set to happen to fast you'll always show a 0 flow
 // rate. You'll need at least 20 seconds between flow rate calcs to be able to measure this slow of a flow rate.
 // Note3: the Pump output must be set to PID for this to work as well.
 // Note4: In the UI when you enter the Pump flow rate it's entered in 10ths of a quart per minute, so 1 quart per
@@ -270,14 +270,11 @@ static const uint8_t TS = 1;
 //**********************************************************************************
 // MASH_AVG_AUXx: Uncomment one or more of the following lines to include averaging
 // of AUX1, AUX2 and/or AUX3 temp sensors with mash temp sensor.
-#cmakedefine MASH_AVG_AUX1 
-#cmakedefine MASH_AVG_AUX2 
-#cmakedefine MASH_AVG_AUX3 
 
-//Enable Mash Avergaing Logic if any Mash_AVG_AUXx options were enabled
-#if defined MASH_AVG_AUX1 || defined MASH_AVG_AUX2 || defined MASH_AVG_AUX3
-#define MASH_AVG
-#endif
+//#cmakedefine MASH_AVG_AUX1 
+///#cmakedefine MASH_AVG_AUX2 
+//#cmakedefine MASH_AVG_AUX3 
+
 //**********************************************************************************
 
 
@@ -467,8 +464,7 @@ static const uint8_t TS = 1;
 // VOLUME_MANUAL: Modifies the user interface to show target volumes instead of
 // current volumes for people who are not using volume sensors. The target
 // volume information will be shown during Add Grain and during Sparge.
-//
-#cmakedefine VOLUME_MANUAL
+//#cmakedefine VOLUME_MANUAL
 //**********************************************************************************
 
 //**********************************************************************************

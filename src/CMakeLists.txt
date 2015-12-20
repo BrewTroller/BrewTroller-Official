@@ -90,12 +90,9 @@ option(MASH_AVG_A1 "Average Aux1 into Mash Temperature" OFF)
 option(MASH_AVG_A2 "Average Aux2 into Mash Temperature" OFF)
 option(MASH_AVG_A3 "Average Aux3 into Mash Temperature" OFF)
 
-set(FEEDFORWARD 0 CACHE STRING "Select the number of an optional auxiliary sensor to provide feedforward control of the mash PID:
-0 (none)
-1
-2
-3")
-add_definitions("-D${FEEDFORWARD}")
+#Valid options are 0-3
+#set(FEEDFORWARD 0)
+#add_definitions("-D${FEEDFORWARD}")
 
 #####
 # Volume Options

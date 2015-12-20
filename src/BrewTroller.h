@@ -18,11 +18,6 @@ const extern void(* softReset) (void);
 // Compile Time Logic
 //**********************************************************************************
 
-//Enable Mash Avergaing Logic if any Mash_AVG_AUXx options were enabled
-#if defined MASH_AVG_AUX1 || defined MASH_AVG_AUX2 || defined MASH_AVG_AUX3
-  #define MASH_AVG
-#endif
-
 #ifdef USEMETRIC
   #define SETPOINT_MULT 50
   #define SETPOINT_DIV 2

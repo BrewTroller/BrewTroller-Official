@@ -374,7 +374,7 @@ extern int temp[9];
 	void initVessels()
 	{
 		byte pidLimits[4] = { PIDLIMIT_HLT, PIDLIMIT_MASH, PIDLIMIT_KETTLE, PIDLIMIT_STEAM };
-		byte initIncludeAux[3] = { false, false, false };
+		bool initIncludeAux[3] = { false, false, false };
 		bool mashIncludeAux[3] = { MASH_AVG_AUX1, MASH_AVG_AUX2, MASH_AVG_AUX3 };
 		byte triggerPin;
 
