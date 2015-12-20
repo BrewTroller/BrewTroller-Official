@@ -165,7 +165,7 @@ extern boolean timerStatus[2], alarmStatus;
 extern boolean logData;
 
 //Brew Step Logic Globals
-extern boolean preheated[4];
+
 extern ControlState boilControlState;
 
 //Bit 1 = Boil; Bit 2-11 (See Below); Bit 12 = End of Boil; Bit 13-15 (Open); Bit 16 = Preboil (If Compile Option Enabled)

@@ -284,45 +284,42 @@ void brewStepPreheat(enum StepSignal signal, struct ProgramThread *thread) {
         vlvConfig[VLV_MASHIDLE] = 0;
       #endif
       preheatVessel = getProgMLHeatSrc(thread->recipe);
-      
-      if (preheatVessel == VS_HLT) {
-        vessels[VS_HLT]->setSetpoint(calcStrikeTemp(thread->recipe));
-        
-        #ifdef MASH_PREHEAT_STRIKE
-		vessels[VS_MASH]->setSetpoint(calcStrikeTemp(stepProgram[BREWSTEP_PREHEAT]));
-        #elif defined MASH_PREHEAT_STEP1
-		vessels[VS_MASH]->setSetpoint(getFirstStepTemp(stepProgram[BREWSTEP_PREHEAT]));
-        #else
-		vessels[VS_MASH]->setSetpoint(0);
-        #endif        
-      } else {
-        vessels[VS_HLT]->setSetpoint(getProgHLT(thread->recipe));
-        vessels[VS_MASH]->setSetpoint(calcStrikeTemp(thread->recipe));
-      }
+    
+	  byte preheatTemp;
+#ifdef MASH_PREHEAT_STRIKE
+	  preheatTemp = calcStrikeTemp(stepProgram[BREWSTEP_PREHEAT]);
+#elif defined MASH_PREHEAT_STEP1
+	  preheatTemp = calcStrikeTemp(stepProgram[BREWSTEP_PREHEAT]);
+#else
+	  preheatTemp = 0; //Don't preheat
+#endif        
+	  vessels[VS_HLT]->setSetpoint(getProgHLT(thread->recipe));
+	  if (preheatTemp)
+		vessels[preheatVessel]->setSetpoint(calcStrikeTemp(thread->recipe)); //This will overwrite the HLT's fixed setpoint if the HLT is the preheat vessel. That is by design.
       
       #ifndef PID_FLOW_CONTROL
         setSetpoint(VS_STEAM, getSteamTgt());
       #endif
-      preheated[VS_HLT] = 0;
-      preheated[VS_MASH] = 0;
-      //No timer used for preheat
+      
+	//No timer used for preheat
       clearTimer(TIMER_MASH);
       #ifdef MASH_PREHEAT_SENSOR
+	  //TODO: make this configurable in new model
         //Overwrite mash temp sensor address from EEPROM using the memory location of the specified sensor (sensor element number * 8 bytes)
-        EEPROMreadBytes(MASH_PREHEAT_SENSOR * 8, tSensor[TS_MASH], 8);
+        //EEPROMreadBytes(MASH_PREHEAT_SENSOR * 8, tSensor[TS_MASH], 8);
       #endif
       programThreadSetStep(thread, BREWSTEP_PREHEAT);
       break;
     case STEPSIGNAL_UPDATE:
-      if (!preheated[preheatVessel] && vessels[preheatVessel]->getTemperature() >= vessels[preheatVessel]->getSetpoint()) {
-        preheated[preheatVessel] = 1;
-        setAlarm(1);
-      }
+		if (vessels[preheatVessel]->hasReachedTargetTemperature())
+		{
+			setAlarm(1);
+#ifdef AUTO_PREHEAT_EXIT 
+			if (preheated[preheatVessel])
+				brewStepPreheat(STEPSIGNAL_ADVANCE, thread);
+#endif
+		}
     
-      #ifdef AUTO_PREHEAT_EXIT 
-        if (preheated[preheatVessel])
-          brewStepPreheat(STEPSIGNAL_ADVANCE, thread);
-      #endif
       #if defined SMART_HERMS_HLT && defined SMART_HERMS_PREHEAT
         smartHERMSHLT();
       #endif
@@ -470,7 +467,7 @@ void brewStepMashHelper(byte mashStep, enum StepSignal signal, struct ProgramThr
       #ifndef PID_FLOW_CONTROL
       setSetpoint(VS_STEAM, getSteamTgt());
       #endif
-      preheated[VS_MASH] = 0;
+      
       //Set timer only if empty (for purposes of power loss recovery)
       if (!timerValue[TIMER_MASH]) setTimer(TIMER_MASH, getProgMashMins(thread->recipe, mashStep)); 
       //Leave timer paused until preheated
@@ -481,8 +478,7 @@ void brewStepMashHelper(byte mashStep, enum StepSignal signal, struct ProgramThr
       #ifdef SMART_HERMS_HLT
         smartHERMSHLT();
       #endif
-      if (!preheated[VS_MASH] && vessels[VS_MASH]->getTemperature() >= vessels[VS_MASH]->getSetpoint()) {
-        preheated[VS_MASH] = 1;
+      if (vessels[VS_MASH]->hasReachedTargetTemperature()) {
         //Unpause Timer
         if (!timerStatus[TIMER_MASH]) pauseTimer(TIMER_MASH);
       }
@@ -490,10 +486,10 @@ void brewStepMashHelper(byte mashStep, enum StepSignal signal, struct ProgramThr
       if (
           #ifdef RIMS_MLT_SETPOINT_DELAY
             getProgMashTemp(stepProgram[BREWSTEP_DOUGHIN + mashStep], mashStep) == 0 
-            || (preheated[VS_MASH] && timerValue[TIMER_MASH] == 0)
+            || (vessels[VS_MASH]->hasReachedTargetTemperature() && timerValue[TIMER_MASH] == 0)
           #else
             vessels[VS_MASH]->getSetpoint() == 0 
-            || (preheated[VS_MASH] && timerValue[TIMER_MASH] == 0)
+            || ((vessels[preheatVessel]->hasReachedTargetTemperature() && timerValue[TIMER_MASH] == 0))
           #endif
          )
         brewStepMashHelper(mashStep, STEPSIGNAL_ADVANCE, thread);
@@ -653,7 +649,7 @@ void brewStepBoil(enum StepSignal signal, struct ProgramThread *thread) {
         resetHeatOutput(VS_PUMP); // turn off the pump if we are moving to boil. 
       #endif
       vessels[VS_KETTLE]->setSetpoint(getBoilTemp());
-      preheated[VS_KETTLE] = 0;
+      
       boilAdds = getProgAdds(thread->recipe);
       
       //Set timer only if empty (for purposes of power loss recovery)
@@ -680,8 +676,7 @@ void brewStepBoil(enum StepSignal signal, struct ProgramThread *thread) {
           setBoilAddsTrig(triggered);
         }
       #endif
-      if (!preheated[VS_KETTLE] && vessels[VS_KETTLE]->getTemperature() >= vessels[VS_KETTLE]->getSetpoint() && vessels[VS_KETTLE]->getSetpoint() > 0) {
-        preheated[VS_KETTLE] = 1;
+      if (vessels[VS_KETTLE]->hasReachedTargetTemperature()) {
         //Unpause Timer
         if (!timerStatus[TIMER_BOIL])
           pauseTimer(TIMER_BOIL);
@@ -691,7 +686,7 @@ void brewStepBoil(enum StepSignal signal, struct ProgramThread *thread) {
         bitClear(actProfiles, VLV_HOPADD);
         lastHop = 0;
       }
-      if (preheated[VS_KETTLE]) {
+      if (vessels[VS_KETTLE]->hasReachedTargetTemperature()) {
         //Boil Addition
         if ((boilAdds ^ triggered) & 1) {
           bitSet(actProfiles, VLV_HOPADD);
@@ -716,7 +711,7 @@ void brewStepBoil(enum StepSignal signal, struct ProgramThread *thread) {
         #endif
       }
       //Exit Condition  
-      if(preheated[VS_KETTLE] && timerValue[TIMER_BOIL] == 0) {
+      if(vessels[VS_KETTLE]->hasReachedTargetTemperature() && timerValue[TIMER_BOIL] == 0) {
         //Kill Kettle power at end of timer...
         boilControlState = CONTROLSTATE_OFF;
         resetHeatOutput(VS_KETTLE);      
@@ -795,7 +790,7 @@ unsigned long calcStrikeVol(byte recipe) {
     #ifndef USEMETRIC
       retValue = round(retValue / 4.0);
     #endif
-    retValue += getVolLoss(TS_MASH);
+    retValue += vessels[VS_MASH]->getDeadspace();
   }
   else {
     //No Sparge Logic (Matio Ratio = 0)
@@ -805,7 +800,7 @@ unsigned long calcStrikeVol(byte recipe) {
     retValue += calcGrainLoss(recipe);
     
     //Add Loss from other Vessels
-    retValue += (getVolLoss(TS_HLT) + getVolLoss(TS_MASH));
+    retValue += (vessels[VS_HLT]->getDeadspace() + vessels[VS_MASH]->getDeadspace());
   }
   return retValue;
 }

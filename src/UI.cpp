@@ -869,12 +869,12 @@ void screenEnter() {
                 else if (lastOption == 2) {
                     setTimer(TIMER_MASH, getTimerValue(UIStrings::MashMenu::MASH_TIMER, timerValue[TIMER_MASH] / 60000, 1));
                     //Force Preheated
-                    preheated[VS_MASH] = 1;
+					vessels[VS_MASH]->ignorePreheat(); 
                 }
                 else if (lastOption == 3) {
                     pauseTimer(TIMER_MASH);
                     //Force Preheated
-                    preheated[VS_MASH] = 1;
+					vessels[VS_MASH]->ignorePreheat();
                 }
                 else if (lastOption == 4) {
                     byte brewstep = BREWSTEP_NONE;
@@ -1002,12 +1002,12 @@ void screenEnter() {
                 if (lastOption == 0) {
                     setTimer(TIMER_BOIL, getTimerValue(UIStrings::BoilMenu::BOIL_TIMER, timerValue[TIMER_BOIL] / 60000, 2));
                     //Force Preheated
-                    preheated[VS_KETTLE] = 1;
+					vessels[VS_KETTLE]->ignorePreheat();
                 }
                 else if (lastOption == 1) {
                     pauseTimer(TIMER_BOIL);
                     //Force Preheated
-                    preheated[VS_KETTLE] = 1;
+					vessels[VS_KETTLE]->ignorePreheat();
                 }
                 else if (lastOption == 2) boilControlMenu();
                 else if (lastOption == 3) {
@@ -2563,7 +2563,7 @@ void volCalibEntryMenu(byte vessel, byte entry) {
         strcat_P(sTitle, UIStrings::Generic::SPACE);
         strcat_P(sTitle, UIStrings::Units::VOLUNIT);
         
-        unsigned int newSensorValue = GetCalibrationValue(vessel);
+        unsigned int newSensorValue = vessels[vessel]->getCalibrationValue();
         
         calibMenu.setItem_P(UIStrings::SystemSetup::VolumeCalibration::UPDATE, 0);
         calibMenu.appendItem(itoa(vessels[vessel]->getCalibrationPressure(entry), buf, 10), 0); //Show the currently saved value which can be zero.

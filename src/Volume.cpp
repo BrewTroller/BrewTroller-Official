@@ -146,19 +146,3 @@ unsigned long readPressure( byte aPin, unsigned int sens, unsigned int zero) {
     return retValue * 29 / 200; 
   #endif
 }
-
-unsigned int GetCalibrationValue(byte vessel){
-  unsigned int newSensorValueAverage = 0;
-  
-  for(byte i = 0; i < VOLUME_READ_COUNT; i++){
-    newSensorValueAverage += analogRead(vSensor[vessel]);
-    unsigned long intervalEnd = millis() + VOLUME_READ_INTERVAL;
-    while(millis() < intervalEnd) {
-      #ifdef HEARTBEAT
-        heartbeat();
-      #endif
-    }  
-  }
-  
-  return (newSensorValueAverage / VOLUME_READ_COUNT);
-}

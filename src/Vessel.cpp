@@ -103,8 +103,8 @@ extern int temp[9];
 		pid->SetSampleTime(PID_CYCLE_TIME);
 		
 		hysteresis = ::getHysteresis(eepromIndex); 
-		capacity = ::getCapacity(eepromIndex);
-		deadspace = ::getVolLoss(eepromIndex);
+		capacity = EEPROMreadLong(93 + eepromIndex * 4);
+		deadspace = EEPROMreadInt(105 + eepromIndex * 2);
 
 		//Load volume calibration ettings
 		//**********************************************************************************
@@ -143,6 +143,8 @@ extern int temp[9];
 	//Temperature control functions
 	void Vessel::setSetpoint(double newSetPoint)
 	{
+		if (newSetPoint * SETPOINT_MULT > setpoint)
+			preheated = false;
 		setpoint = newSetPoint * SETPOINT_MULT;
 		EEPROM.write(299 + eepromIndex, newSetPoint);
 		if (setpoint == 0)
@@ -204,6 +206,8 @@ extern int temp[9];
 				feedforwardTemperature = temperature; //If we got a bad read on the feedforward, but have a good read on the mash itself, we can just use the mash temp as the feedforward to let us keep mashing
 	
 		}
+		if (temperature > setpoint)
+			preheated = true;
 	}
 
 	void Vessel::setTSAddress(byte newAddress[8]) 
@@ -327,6 +331,18 @@ extern int temp[9];
 		EEPROM.write(76 + eepromIndex * 5, newPIDCycle);
 		PIDcycle = newPIDCycle;
 	}
+
+	void setHeatOverride(SoftSwitch oride)
+	{//Forces the element on or off, or sets it to auto. Used with RGBIO8 soft switches.
+		heatOverride = oride;
+		(void)updateOutput();
+	}
+
+	SoftSwitch getHeatOverride() {
+		return heatOverride;
+	}
+
+	
 	/////////////////////////////////////////////////////
 	// Volume settings
 	/////////////////////////////////////////////////////
@@ -369,6 +385,22 @@ extern int temp[9];
 		volume = volume + (reading - volumeReadings[oldestVolumeReading]) / VOLUME_READ_COUNT;
 		volumeReadings[oldestVolumeReading] = reading;
 		oldestVolumeReading = (oldestVolumeReading + 1) % VOLUME_READ_COUNT; //This could be made faster by using a power of 2 as the read count and using a bitmask
+	}
+
+	unsigned int Vessel::getCalibrationValue(byte vessel) {
+		unsigned int newSensorValueAverage = 0;
+
+		for (byte i = 0; i < VOLUME_READ_COUNT; i++) {
+			newSensorValueAverage += analogRead(volumeSensorID);
+			unsigned long intervalEnd = millis() + VOLUME_READ_INTERVAL;
+			while (millis() < intervalEnd) {
+#ifdef HEARTBEAT
+				heartbeat();
+#endif
+			}
+		}
+
+		return (newSensorValueAverage / VOLUME_READ_COUNT);
 	}
 
 	void initVessels()

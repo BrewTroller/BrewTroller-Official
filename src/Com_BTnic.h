@@ -606,8 +606,8 @@ void BTnic::execCmd(void) {
       vessels[cmdIndex]->setDeadspace(getCmdParamNum(2));
     case CMD_GET_VSET:  //H
       logFieldCmd(CMD_GET_VSET, cmdIndex);
-      logFieldI(getCapacity(cmdIndex));
-      logFieldI(getVolLoss(cmdIndex));  
+      logFieldI(vessels[cmdIndex]->getCapacity());
+      logFieldI(vessels[cmdIndex]->getDeadspace());  
       break;
 
 
@@ -616,7 +616,7 @@ void BTnic::execCmd(void) {
       logFieldCmd(CMD_INIT_EEPROM, NO_CMDINDEX);
       initEEPROM();
       break;
-      
+      c
 
     case CMD_SCAN_TS:  //J
       {
