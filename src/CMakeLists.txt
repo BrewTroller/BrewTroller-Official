@@ -91,8 +91,8 @@ option(MASH_AVG_A2 "Average Aux2 into Mash Temperature" OFF)
 option(MASH_AVG_A3 "Average Aux3 into Mash Temperature" OFF)
 
 #Valid options are 0-3
-#set(FEEDFORWARD 0)
-#add_definitions("-D${FEEDFORWARD}")
+set(FF_OPT 0)
+add_definitions("-DFF_OPT=${FF_OPT}")
 
 #####
 # Volume Options

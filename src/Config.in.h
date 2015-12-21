@@ -158,8 +158,7 @@ static const uint8_t TS = 1;
 // under TSensor and output (0-2) Array Element Constants
 // NOTE: not a good idea to use any sensor you average into the MASH sensor as your feed forward
 //
-///#define FEEDFORWARD ${FEEDFORWARD}
-#define FEEDFORWARD false
+#define FEEDFORWARD ${FF_OPT}
 
 //**********************************************************************************
 // PWM ouputs controled by timer rather than brew core loop
