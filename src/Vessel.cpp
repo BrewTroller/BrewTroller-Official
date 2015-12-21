@@ -387,15 +387,15 @@ extern int temp[9];
 		oldestVolumeReading = (oldestVolumeReading + 1) % VOLUME_READ_COUNT; //This could be made faster by using a power of 2 as the read count and using a bitmask
 	}
 
-	unsigned int Vessel::getCalibrationValue(byte vessel) {
+	unsigned int Vessel::getCalibrationValue(-) {
 		unsigned int newSensorValueAverage = 0;
 
 		for (byte i = 0; i < VOLUME_READ_COUNT; i++) {
 			newSensorValueAverage += analogRead(volumeSensorID);
-			unsigned long intervalEnd = millis() + VOLUME_READ_INTERVAL;
+v			unsigned long intervalEnd = millis() + VOLUME_READ_INTERVAL;
 			while (millis() < intervalEnd) {
 #ifdef HEARTBEAT
-				heartbeat();
+			heartbeat();
 #endif
 			}
 		}

@@ -1,4 +1,4 @@
-/*  
+ /*  
    Copyright (C) 2009, 2010 Matt Reba, Jeremiah Dillingham
 
     This file is part of BrewTroller.
@@ -616,7 +616,7 @@ void BTnic::execCmd(void) {
       logFieldCmd(CMD_INIT_EEPROM, NO_CMDINDEX);
       initEEPROM();
       break;
-      c
+      
 
     case CMD_SCAN_TS:  //J
       {

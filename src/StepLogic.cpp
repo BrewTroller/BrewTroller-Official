@@ -1,4 +1,4 @@
-/*  
+/*  +
    Copyright (C) 2009, 2010 Matt Reba, Jeremiah Dillingham
 
     This file is part of BrewTroller.
@@ -489,7 +489,7 @@ void brewStepMashHelper(byte mashStep, enum StepSignal signal, struct ProgramThr
             || (vessels[VS_MASH]->hasReachedTargetTemperature() && timerValue[TIMER_MASH] == 0)
           #else
             vessels[VS_MASH]->getSetpoint() == 0 
-            || ((vessels[preheatVessel]->hasReachedTargetTemperature() && timerValue[TIMER_MASH] == 0))
+            || (vessels[VS_MASH]->hasReachedTargetTemperature() && timerValue[TIMER_MASH] == 0)
           #endif
          )
         brewStepMashHelper(mashStep, STEPSIGNAL_ADVANCE, thread);
