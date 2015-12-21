@@ -85,12 +85,12 @@ public:
 
 	//Temperature control functions
 	void setSetpoint(double); //Sets the setpoint and updates outputs accordingly
-	inline double getSetpoint(); //Returns the current setpoint
-	inline double getTemperature(); //Returns the current temperature reading
+	 double getSetpoint(); //Returns the current setpoint
+	double getTemperature(); //Returns the current temperature reading
 	inline void ignorePreheat() { preheated = true; } //In some circumstances we want to ignore the fact that this vessel isn't actually preheated, like if the user triggers a timer to start early from the UI.
-	inline byte getOutput(); //Returns the current output level
-	inline byte getPercentOutput(); //Returns the output scaled 0-100
-	inline void setMaxPower(byte);
+	byte getOutput(); //Returns the current output level
+	byte getPercentOutput(); //Returns the output scaled 0-100
+	void setMaxPower(byte);
 	inline byte getMaxPower() {
 		return maxPower;
 	};
@@ -115,7 +115,7 @@ public:
 	void updateVolumeCalibration(byte, unsigned long, int); //Update a volume calibration value, including writing to eeprom
 	unsigned int getCalibrationValue(); //Get a calibration value from the pressure sensor. Needs to be public to show the value in the UI.
 
-	inline float getVolume(); //Return the volume, as calculated based on this vessel's pressure sensor
+	float getVolume(); //Return the volume, as calculated based on this vessel's pressure sensor
 	void takeVolumeReading(); //Take a sample of the volume
 	inline void setTargetVolume(float target) { targetVolume = target * 1000.0; };
 	inline float getTargetVolume() { return targetVolume / 1000.0; };
@@ -128,9 +128,9 @@ public:
 	inline unsigned long getCalibrationVolume(byte index) { return volumeCalibrationVolume[index]; }
 	inline unsigned int getCalibrationPressure(byte index) { return volumeCalibrationVolume[index]; }
 	
-	inline bool isOn(); //Returns whether the heating element is on at this very moment (cycles on and off with PID). Use getOutput() to see the exact level.
+	 bool isOn(); //Returns whether the heating element is on at this very moment (cycles on and off with PID). Use getOutput() to see the exact level.
 	void setHeatOverride(SoftSwitch); //Forces the element on or off, or sets it to auto. Used with RGBIO8 soft switches.
-	inline SoftSwitch getHeatOverride(); 
+	 SoftSwitch getHeatOverride(); 
 };
 
 //Subroutine to initialize the system's vessels

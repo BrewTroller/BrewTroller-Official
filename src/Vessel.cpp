@@ -37,6 +37,7 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 #include "HardwareProfile.h"
 #include "Volume.h"
 #include "Outputs.h" //Needed only for minTriggerPin
+#include "BrewCore.h" //Needed for heartbeat
 
 extern int temp[9];
 
@@ -332,13 +333,13 @@ extern int temp[9];
 		PIDcycle = newPIDCycle;
 	}
 
-	void setHeatOverride(SoftSwitch oride)
+	void Vessel::setHeatOverride(SoftSwitch oride)
 	{//Forces the element on or off, or sets it to auto. Used with RGBIO8 soft switches.
 		heatOverride = oride;
 		(void)updateOutput();
 	}
 
-	SoftSwitch getHeatOverride() {
+	SoftSwitch Vessel::getHeatOverride() {
 		return heatOverride;
 	}
 
@@ -387,12 +388,12 @@ extern int temp[9];
 		oldestVolumeReading = (oldestVolumeReading + 1) % VOLUME_READ_COUNT; //This could be made faster by using a power of 2 as the read count and using a bitmask
 	}
 
-	unsigned int Vessel::getCalibrationValue(-) {
+	unsigned int Vessel::getCalibrationValue() {
 		unsigned int newSensorValueAverage = 0;
 
 		for (byte i = 0; i < VOLUME_READ_COUNT; i++) {
-			newSensorValueAverage += analogRead(volumeSensorID);
-v			unsigned long intervalEnd = millis() + VOLUME_READ_INTERVAL;
+			newSensorValueAverage += analogRead(volumePinID);
+			unsigned long intervalEnd = millis() + VOLUME_READ_INTERVAL;
 			while (millis() < intervalEnd) {
 #ifdef HEARTBEAT
 			heartbeat();
