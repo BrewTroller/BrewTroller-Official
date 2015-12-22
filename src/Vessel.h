@@ -11,7 +11,6 @@ This class is designed to read all eeprom settings on load and generally hnadle 
 NOTE: Some functionality supported in BT2.6 is not yet supported in this version. This includes:
  - PWM
  - Steam
- - Maximum temperature cutoff and alarm
 */
 
 #include "Config.h"
@@ -35,10 +34,12 @@ private:
 	float deadspace; //Dead space
 	byte minTriggerPin; //Pin that triggers a low volume condition
 	
+	
 	SoftSwitch heatOverride = SOFTSWITCH_AUTO; // SOFTSWITCH_OFF, _ON, _AUTO 
 
 	//Temperature
 	//Note that we use doubles here for type compatibility with the PID library. On most Arduino systems, double and float use the same precision (and on the systems where they don't there is plenty of memory).
+	double minTemperature, maxTemperature; //Min and maximum temperatures to allow. Temperatures outside this range trigger 
 
 	pin heatPin;
 	double setpoint = 0; //The setpoint for this vessel
@@ -74,13 +75,13 @@ private:
 	float volume = 0;
 	byte usesAuxInputs; //The count of aux inputs used for averaging
 
-	void updateTemperature(); //Fetch the latest temperature from the sensor
+	void updateTemperature(); //Fetch the latest temperature fro* SETPOINT_MULTm the sensor
 	
 public:
 	//All set functions also write the value to EEPROM
 
 	//No default constructor because we need to know which eeprom index to use
-	Vessel(byte initEepromIndex, bool initIncludeAux[], byte FFBias, float initMinVolume, byte initMinTriggerPin, byte initMaxPower);
+	Vessel(byte initEepromIndex, bool initIncludeAux[], byte FFBias, float initMinVolume, byte initMinTriggerPin, byte initMaxPower, double initMinTemperature, double initMaxTemperature);
 	~Vessel();
 
 	//Temperature control functions

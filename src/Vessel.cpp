@@ -39,10 +39,10 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 #include "Outputs.h" //Needed only for minTriggerPin
 #include "BrewCore.h" //Needed for heartbeat
 
-extern int temp[9];
+extern int temp[9]; //Needed to access aux sensors
 
 //Note that the includeAux numbers should be addresses e.g. TS_AUX1, not just a number (that's why they're bytes instead of booleans).
-	Vessel::Vessel(byte initEepromIndex, bool initIncludeAux[], byte FFBias, float initMinVolume = 0, byte initMinTriggerPin = 0, byte initMaxPower = 100)
+	Vessel::Vessel(byte initEepromIndex, bool initIncludeAux[], byte FFBias, float initMinVolume = 0, byte initMinTriggerPin = 0, byte initMaxPower = 100, double initMinTemperature = 30, double initMaxTemperature = 250)
 	{
 
 		for (int i = 0; i < VOLUME_READ_COUNT; i++)
@@ -53,7 +53,8 @@ extern int temp[9];
 
 		PIDoutput = 0;
 		volume = targetVolume = 0;
-
+		minTemperature = initMinTemperature;
+		maxTemperature = initMaxTemperature;
 		eepromIndex = initEepromIndex;
 		minVolume = initMinVolume;
 		maxPower = initMaxPower;
@@ -148,7 +149,7 @@ extern int temp[9];
 			preheated = false;
 		setpoint = newSetPoint * SETPOINT_MULT;
 		EEPROM.write(299 + eepromIndex, newSetPoint);
-		if (setpoint == 0)
+		if (setpoint == 0)* SETPOINT_MULT
 			feedforwardTemperature = 0;
 		updateOutput();
 	}
@@ -200,6 +201,16 @@ extern int temp[9];
 			if (temperature != BAD_TEMP)
 				temperature /= usesAuxInputs;
 		}
+		
+		
+		//If we are suffering a temperature excursion or malfunction, set the alarm, cut off the setpoint, and turn off the outputs
+		if (temperature == BAD_TEMP || temperature < minTemperature or temperature > maxTemperature)
+		{
+		  setAlarm(1);
+		  setSetpoint(0);
+		  return;
+		}
+		
 		if (feedforward)
 		{
 			feedforwardTemperature = read_temp(feedforwardAddress) / 100.0;
@@ -207,8 +218,10 @@ extern int temp[9];
 				feedforwardTemperature = temperature; //If we got a bad read on the feedforward, but have a good read on the mash itself, we can just use the mash temp as the feedforward to let us keep mashing
 	
 		}
+		
 		if (temperature > setpoint)
 			preheated = true;
+		
 	}
 
 	void Vessel::setTSAddress(byte newAddress[8]) 
