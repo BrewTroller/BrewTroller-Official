@@ -653,7 +653,7 @@ void screenRefresh() {
                 int encValue = Encoder.change();
                 if (encValue >= 0) {
                     boilControlState = CONTROLSTATE_ON;
-                    vessels[VS_KETTLE]->setSetpoint(encValue ? getBoilTemp() * SETPOINT_MULT : 0);
+                    vessels[VS_KETTLE]->setSetpoint(encValue ? getBoilTemp() : 0);
 					vessels[VS_KETTLE]->updateOutput();
                 }
             }
@@ -864,8 +864,8 @@ void screenEnter() {
                 mashMenu.setItem_P(UIStrings::Generic::EXIT, 255);
                 
                 byte lastOption = scrollMenu("Mash Menu", &mashMenu);
-                if (lastOption == 0) setSetpoint(VS_HLT, getValue_P(UIStrings::Shared::HLT_SETPOINT, vessels[VS_HLT]->getSetpoint() / SETPOINT_MULT, SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
-                else if (lastOption == 1) setSetpoint(VS_MASH, getValue_P(UIStrings::MashMenu::MASH_SETPOINT, vessels[VS_MASH]->getSetpoint() / SETPOINT_MULT, SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
+                if (lastOption == 0) setSetpoint(VS_HLT, getValue_P(UIStrings::Shared::HLT_SETPOINT, vessels[VS_HLT]->getSetpoint() , SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
+                else if (lastOption == 1) setSetpoint(VS_MASH, getValue_P(UIStrings::MashMenu::MASH_SETPOINT, vessels[VS_MASH]->getSetpoint() , SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
                 else if (lastOption == 2) {
                     setTimer(TIMER_MASH, getTimerValue(UIStrings::MashMenu::MASH_TIMER, timerValue[TIMER_MASH] / 60000, 1));
                     //Force Preheated
@@ -981,7 +981,7 @@ void screenEnter() {
                 
                 boilMenu.setItem_P(UIStrings::BoilMenu::BOIL_TEMP, 3);
                 boilMenu.appendItem_P(UIStrings::Generic::COLON_SPACE, 3);
-                vftoa(getBoilTemp() * SETPOINT_MULT, buf, 100, 1);
+                vftoa(getBoilTemp() , buf, 100, 1);
                 truncFloat(buf, 5);
                 boilMenu.appendItem(buf, 3);
                 boilMenu.appendItem_P(UIStrings::Units::TUNIT, 3);
@@ -1260,21 +1260,21 @@ void editProgram(byte pgm) {
         }
         
         progMenu.setItem_P(UIStrings::Program::ProgramMenu::HLT_TEMP, 4);
-        vftoa(getProgHLT(pgm) * SETPOINT_MULT, buf, 100, 1);
+        vftoa(getProgHLT(pgm), buf, 100, 1);
         truncFloat(buf, 4);
         progMenu.appendItem(buf, 4);
         progMenu.appendItem_P(UIStrings::Units::TUNIT, 4);
         
         progMenu.setItem_P(UIStrings::Program::ProgramMenu::SPARGE_TEMP, 5);
         progMenu.appendItem_P(UIStrings::Generic::COLON, 5);
-        vftoa(getProgSparge(pgm) * SETPOINT_MULT, buf, 100, 1);
+        vftoa(getProgSparge(pgm), buf, 100, 1);
         truncFloat(buf, 4);
         progMenu.appendItem(buf, 5);
         progMenu.appendItem_P(UIStrings::Units::TUNIT, 5);
         
         progMenu.setItem_P(UIStrings::Program::ProgramMenu::PITCH_TEMP, 6);
         progMenu.appendItem_P(UIStrings::Generic::COLON, 6);
-        vftoa(getProgPitch(pgm) * SETPOINT_MULT, buf, 100, 1);
+        vftoa(getProgPitch(pgm), buf, 100, 1);
         truncFloat(buf, 4);
         progMenu.appendItem(buf, 6);
         progMenu.appendItem_P(UIStrings::Units::TUNIT, 6);
@@ -1384,7 +1384,7 @@ void editMashSchedule(byte pgm) {
             mashMenu.appendItem(itoa(getProgMashMins(pgm, i), buf, 10), i << 4 | OPT_SETMINS);
             mashMenu.appendItem(" min", i << 4 | OPT_SETMINS);
             
-            vftoa(getProgMashTemp(pgm, i) * SETPOINT_MULT, buf, 100, 1);
+            vftoa(getProgMashTemp(pgm, i) , buf, 100, 1);
             truncFloat(buf, 4);
             mashMenu.appendItem(buf, i << 4 | OPT_SETTEMP);
             mashMenu.appendItem_P(UIStrings::Units::TUNIT, i << 4 | OPT_SETTEMP);

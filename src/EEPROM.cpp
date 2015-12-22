@@ -409,7 +409,7 @@ void getProgName(byte preset, char *name) {
 //Sparge Temp (P:21)
 //**********************************************************************************
 void setProgSparge(byte preset, byte sparge) { EEPROM.write(PROGRAM_START_ADDR + preset * PROGRAM_SIZE + 21, sparge); }
-byte getProgSparge(byte preset) { return EEPROM.read(PROGRAM_START_ADDR + preset * PROGRAM_SIZE + 21); }
+byte getProgSparge(byte preset) { return EEPROM.read(PROGRAM_START_ADDR + preset * PROGRAM_SIZE + 21) * SETPOINT_MULT; }
 
 //**********************************************************************************
 //Boil Mins (P:22-23)
@@ -429,7 +429,7 @@ unsigned int getProgRatio(byte preset) { return EEPROMreadInt(PROGRAM_START_ADDR
 //Mash Temps (P:26-31)
 //**********************************************************************************
 void setProgMashTemp(byte preset, byte mashStep, byte mashTemp) { EEPROM.write(PROGRAM_START_ADDR + preset * PROGRAM_SIZE + 26 + mashStep, mashTemp); }
-byte getProgMashTemp(byte preset, byte mashStep) { return EEPROM.read(PROGRAM_START_ADDR + preset * PROGRAM_SIZE + 26 + mashStep); }
+byte getProgMashTemp(byte preset, byte mashStep) { return EEPROM.read(PROGRAM_START_ADDR + preset * PROGRAM_SIZE + 26 + mashStep) * SETPOINT_MULT; }
 
 //**********************************************************************************
 //Mash Times (P:32-37)
@@ -459,13 +459,13 @@ byte getProgMLHeatSrc(byte preset) { return EEPROM.read(PROGRAM_START_ADDR + pre
 //HLT Temp (P:43)
 //**********************************************************************************
 void setProgHLT(byte preset, byte HLT) { EEPROM.write(PROGRAM_START_ADDR + preset * PROGRAM_SIZE + 43, HLT); }
-byte getProgHLT(byte preset) { return EEPROM.read(PROGRAM_START_ADDR + preset * PROGRAM_SIZE + 43); }
+byte getProgHLT(byte preset) { return EEPROM.read(PROGRAM_START_ADDR + preset * PROGRAM_SIZE + 43) * SETPOINT_MULT; }
 
 //**********************************************************************************
 //Pitch Temp (P:44)
 //**********************************************************************************
 void setProgPitch(byte preset, byte pitch) { EEPROM.write(PROGRAM_START_ADDR + preset * PROGRAM_SIZE + 44, pitch); }
-byte getProgPitch(byte preset) { return EEPROM.read(PROGRAM_START_ADDR + preset * PROGRAM_SIZE + 44); }
+byte getProgPitch(byte preset) { return EEPROM.read(PROGRAM_START_ADDR + preset * PROGRAM_SIZE + 44) * SETPOINT_MULT; }
 
 //**********************************************************************************
 //Boil Addition Alarms (P:45-46)

@@ -155,7 +155,7 @@ extern int temp[9];
 
 	double Vessel::getSetpoint()
 	{
-		return setpoint;
+		return setpoint / SETPOINT_MULT;
 	}
 
 	double Vessel::getTemperature()
