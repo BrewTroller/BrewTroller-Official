@@ -425,12 +425,15 @@ void BTnic::execCmd(void) {
       vessels[cmdIndex]->setPID(getCmdParamNum(1));
 	  vessels[cmdIndex]->setPIDCycle(getCmdParamNum(2));
 	  vessels[cmdIndex]->setTunings(getCmdParamNum(3), getCmdParamNum(4), getCmdParamNum(5));
+#ifdef USESTEAM
 	     if (cmdIndex == VS_STEAM) {
-        setSteamZero(getCmdParamNum(6));
-        setSteamTgt(getCmdParamNum(7));
-        setSteamPSens(getCmdParamNum(8));
-      } 
-      else vessels[cmdIndex]->setHysteresis(getCmdParamNum(6));
+        vessels[VS_STEAM]->updateVolumeCalibration(0,0,getCmdParamNum(6));
+        vessels[VS_STEAM]->setSetpoint(getCmdParamNum(7));
+        vessels[VS_STEAM]->setPressureSensitivity(getCmdParamNum(8)); 
+    } else
+ #endif
+      
+       vessels[cmdIndex]->setHysteresis(getCmdParamNum(6));
     case CMD_GET_OSET:  //D
       logFieldCmd(CMD_GET_OSET, cmdIndex);
       logFieldI(vessels[cmdIndex]->isPID());
@@ -438,14 +441,13 @@ void BTnic::execCmd(void) {
       logFieldI(vessels[cmdIndex]->getP());
       logFieldI(vessels[cmdIndex]->getI());
       logFieldI(vessels[cmdIndex]->getD());
+#ifdef USESTEAM
       if (cmdIndex == VS_STEAM) {
-        logFieldI(getSteamTgt());
-        #ifndef PID_FLOW_CONTROL
-          logFieldI(steamZero);
-          logFieldI(steamPSens);
-        #endif
-      } 
-      else {
+        logFieldI(vessels[VS_STEAM]->getSetpoint());
+        } 
+      else 
+#endif 
+      {
         logFieldI(vessels[cmdIndex]->getHysteresis());
         logFieldI(0);
         logFieldI(0);
@@ -767,8 +769,8 @@ void BTnic::execCmd(void) {
       logFieldCmd(CMD_STEAM, NO_CMDINDEX);
       #ifdef PID_FLOW_CONTROL
         logFieldI(flowRate[VS_MASH]);
-      #else
-        logFieldI(steamPressure);  
+      #elseif defined VS_STEAM
+        logFieldI(vessels[VS_STEAM]->getPressure());  
       #endif
       break;
 

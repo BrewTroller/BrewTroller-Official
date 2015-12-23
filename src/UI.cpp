@@ -2346,12 +2346,12 @@ void cfgOutputs() {
 #endif
 #ifdef USESTEAM
         } else if ((lastOption & B00001111) == OPT_SENSOR) {
-            setSteamPSens(getValue_P(UIStrings::SystemSetup::OutputConfig::STEAMSENSOR, steamPSens, 10, 9999, UIStrings::SystemSetup::OutputConfig::PRES_UNIT));
+            vessels[VS_STEAM]->setPressureSensitivity(getValue_P(UIStrings::SystemSetup::OutputConfig::STEAMSENSOR, vessels[VS_STEAM]->getPressureSensitivity(), 10, 9999, UIStrings::SystemSetup::OutputConfig::PRES_UNIT));
         } else if ((lastOption & B00001111) == OPT_ZERO) {
             LCD.clear();
             LCD.print_P(0, 0, UIStrings::SystemSetup::OutputConfig::STEAMZERO);
             LCD.print_P(1,2, UIStrings::SystemSetup::OutputConfig::CALIB_ZERO);
-            if (confirmChoice(UIStrings::Generic::CONTINUE, 3)) setSteamZero(analogRead(STEAMPRESS_APIN));
+            if (confirmChoice(UIStrings::Generic::CONTINUE, 3)) vessels[VS_STEAM]->updateVolumeCalibration(0,0,analogRead(STEAMPRESS_APIN));
 #endif
         } else if ((lastOption & B00001111) == OPT_BOILTEMP) {
             setBoilTemp(getValue_P(UIStrings::BoilMenu::BOIL_TEMP, getBoilTemp(), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));

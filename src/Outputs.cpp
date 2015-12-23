@@ -113,16 +113,6 @@ void pinInit() {
     alarmPin.setup(ALARM_PIN, OUTPUT);
   #endif
   
-  #ifdef DIRECT_FIRED_RIMS
-    heatPin[VS_STEAM].setup(STEAMHEAT_PIN, OUTPUT);
-  #endif
-
-  #ifdef USESTEAM
-    #ifdef STEAMHEAT_PIN
-      heatPin[VS_STEAM].setup(STEAMHEAT_PIN, OUTPUT);
-    #endif
-  #endif
-
   #ifdef PID_FLOW_CONTROL
     #ifdef PWMPUMP_PIN
       heatPin[VS_PUMP].setup(PWMPUMP_PIN, OUTPUT);
@@ -180,20 +170,11 @@ void pidInit() {
     #ifdef PID_CONTROL_MANUAL
       nextcompute = millis() + FLOWRATE_READ_INTERVAL;
     #endif
-  #else
-    #ifdef USEMETRIC
-      pid.SetInputLimits(0, 50000000 / steamPSens);
-    #else
-      pid.SetInputLimits(0, 7250000 / steamPSens);
+  
     #endif
-    pid.SetOutputLimits(0, PIDCycle * PIDLIMIT_STEAM);
-    pid.SetTunings(pid.GetP_Param(), pid.GetI_Param(), pid.GetD_Param());
-    pid.SetMode(PID::AUTO_MODE);
-    pid.SetSampleTime(PID_CYCLE_TIME);
-  #endif
 
   #ifdef DEBUG_PID_GAIN
-    for (byte vessel = VS_HLT; vessel <= VS_STEAM; vessel++) logDebugPIDGain(vessel);
+    for (byte vessel = VS_HLT; vessel <= NUM_VESSELS; vessel++) logDebugPIDGain(vessel);
   #endif
 }
 

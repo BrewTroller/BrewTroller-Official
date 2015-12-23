@@ -18,6 +18,7 @@ NOTE: Some functionality supported in BT2.6 is not yet supported in this version
 #include <pin.h>
 #include <PID_Beta6.h>
 
+//TODO: Split Steam vessel out into separate class (templated?)
 
 class Vessel
 {
@@ -46,7 +47,8 @@ private:
 	bool usePID; //TRUE = use PID mode, FALSE = on/off mode
 	PID* pid = NULL; //PID object for use with PID
 	byte feedforward = 0; //The ID of the feedforward sensor. Valid values are 1-3, corresponding to AUX1-3. Anything outside that range will be ignored
-
+	bool usesSteam; //Does this vessel use steam input for fine changes?
+	
 	float PIDcycle;
 	float hysteresis;
 	bool includeAux[3]; //Whether to average AUX1-3; stores their indices
@@ -57,8 +59,10 @@ private:
 	unsigned long volumeCalibrationVolume[10]; //The volumes used for calibration
 	float targetVolume = 0;
 	
-
-
+#ifdef USESTEAM
+	int steamPressureSensitivity;
+#endif
+	
 	//Valves require broader state awareness (e.g. MLT valve config might be different for mash vs. sparge) and are handled outside this class.
 
 	//Working statuses
@@ -118,11 +122,18 @@ public:
 
 	float getVolume(); //Return the volume, as calculated based on this vessel's pressure sensor
 	void takeVolumeReading(); //Take a sample of the volume
+	inline float getPressure() {return volume;} //Unlike the volume code, this doesn't multiply by a factor of 1000
+	
 	inline void setTargetVolume(float target) { targetVolume = target * 1000.0; };
 	inline float getTargetVolume() { return targetVolume / 1000.0; };
+	inline float getTargetPressure() {return targetVolume;} 
 	inline float getDeadspace() { return deadspace; }
 	void setDeadspace(float);
 	
+#ifdef USESTEAM
+	void setPressureSensitivity(int);
+	inline int getPressureSensitivity() {return steamPressureSensitivity; }
+#endif
 	inline float getCapacity() { return capacity; }
 	void setCapacity(float capacity);
 

@@ -136,12 +136,10 @@ extern unsigned int cycleStart[4];
 extern unsigned long cycleStart[4];
 #endif
 extern boolean heatStatus, PIDEnabled;
-extern unsigned int steamPSens, steamZero;
 
 extern byte pidLimits;
 
 //Steam Pressure in thousandths
-extern unsigned long steamPressure;
 extern byte boilPwr;
 
 extern PID pid;

@@ -297,8 +297,8 @@ void brewStepPreheat(enum StepSignal signal, struct ProgramThread *thread) {
 	  if (preheatTemp)
 		vessels[preheatVessel]->setSetpoint(calcStrikeTemp(thread->recipe)); //This will overwrite the HLT's fixed setpoint if the HLT is the preheat vessel. That is by design.
       
-      #ifndef PID_FLOW_CONTROL
-        setSetpoint(VS_STEAM, getSteamTgt());
+      #if !defined PID_FLOW_CONTROL && defined USESTEAM
+        vessels[VS_STEAM]->setSetpoint(getSteamTgt());
       #endif
       
 	//No timer used for preheat
@@ -355,8 +355,8 @@ void brewStepGrainIn(enum StepSignal signal, struct ProgramThread *thread) {
       grainInStart = 0;
       resetHeatOutput(VS_HLT);
       resetHeatOutput(VS_MASH);
-      #ifndef PID_FLOW_CONTROL
-        setSetpoint(VS_STEAM, getSteamTgt());
+      #if !defined PID_FLOW_CONTROL && defined USESTEAM
+        vessels[VS_STEAM]->setSetpoint(getSteamTgt());
       #endif
       setAlarm(1);
       bitSet(actProfiles, VLV_ADDGRAIN);
@@ -464,8 +464,8 @@ void brewStepMashHelper(byte mashStep, enum StepSignal signal, struct ProgramThr
 	  vessels[VS_MASH]->setSetpoint(getProgMashTemp(thread->recipe, mashStep));
       #endif
       
-      #ifndef PID_FLOW_CONTROL
-      setSetpoint(VS_STEAM, getSteamTgt());
+      #if ! defined PID_FLOW_CONTROL && defined USESTEAM
+      vessels[VS_STEAM]->setSetpoint(getSteamTgt());
       #endif
       
       //Set timer only if empty (for purposes of power loss recovery)
@@ -550,14 +550,14 @@ void brewStepMashHold(enum StepSignal signal, struct ProgramThread *thread) {
         while (vessels[VS_MASH]->getSetpoint() == 0 && i >= MASHSTEP_DOUGHIN && i <= MASHSTEP_MASHOUT)
 			vessels[VS_MASH]->setSetpoint(getProgMashTemp(thread->recipe, i--));
       }
-      #ifndef PID_FLOW_CONTROL
-        setSetpoint(VS_STEAM, getSteamTgt());
+      #if !defined PID_FLOW_CONTROL && defined USESTEAM
+        vessels[VS_STEAM]->setSetpoint(getSteamTgt());
       #endif
       programThreadSetStep(thread, BREWSTEP_MASHHOLD);
       break;
     case STEPSIGNAL_UPDATE:
       #ifdef AUTO_MASH_HOLD_EXIT 
-        if (!zoneIsActive(ZONE_BOIL) && temp[VS_HLT] >= setpoint[VS_HLT])
+        if (!zoneIsActive(ZONE_BOIL) && vessels[VS_HLT]->isPreheated())
           brewStepMashHold(STEPSIGNAL_ADVANCE, thread);
       #endif
       break;

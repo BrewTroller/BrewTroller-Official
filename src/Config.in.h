@@ -570,24 +570,16 @@ static const uint8_t TS = 1;
 // is beaing reached, or any other step change grater than RIMS_TEMP_OFFSET, this
 // allows VS_MASH to be used for the quicker temeperature change, then for VS_STEAM to
 // take over for finer temperaature control.
-//#define DIRECT_FIRED_RIMS
-#ifdef DIRECT_FIRED_RIMS
-// If you are not recirculating your mash, the offset should probably be greater.
-#define RIMS_TEMP_OFFSET 5
-// Specify the temperature sensor used in the RIMS tube. TS_AUX1, TS_AUX2 or TS_AUX3 is recommended.
-#define RIMS_TEMP_SENSOR TS_AUX1
-// You really should have a sensor in your RIMS tube: this #defines allow you to set
-// the maximum temp that the RIMS tuube is allowed to reach.  It is important to note
-// that both the sensor and the heating element should be submersed in liqued, with
-// the input and output ports facing up, so that the tube can not run dry.
-#define RIMS_MAX_TEMP 180
-// As the SSD can get stuck in the ON state, if the RIMS_ALARM_TEMP temperature is
-// reached, turn on the alarm.
-#define RIMS_ALARM_TEMP 190
+
+#ifdef USESTEAM
+// If you are not recirculating your mash, the offset should probably be greater. TODO: Make this configurable
+#define STEAM_OFFSET 5
+
+
 // If your HLT output passes through your RIMS tube to your mash kettle, you may want
 // to define RIMS_DURING_SPARGE so that it can also control the temp of your sparge
 // water.  The logic here is somehwat different than for mashing, in that it will only
-// control the VS_STEAM output.  You can use this in conjuction with HLT_HEAT_SPARGE
+// control the VS_STEAM output. TODO: Fix the code described by the previous sentence so it's more logical. You can use this in conjuction with HLT_HEAT_SPARGE
 // to fire the HLT too.
 #define RIMS_DURING_SPARGE
 #endif
