@@ -60,3 +60,12 @@ unsigned long pow10(byte power) {
   for (byte i = 0; i < power; i++) retValue *= 10;
   return retValue;
 }
+
+unsigned int tempConvertUnits(unsigned int temp)
+{
+#ifdef USEMETRIC
+	return temp * 9.0 / 5 + 32;
+#else
+	return temp;
+#endif
+}
