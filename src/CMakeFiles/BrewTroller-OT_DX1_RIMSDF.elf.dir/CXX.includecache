@@ -1,0 +1,308 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/david/Develop/BrewTroller-Official/src/BrewCore.h
+
+/home/david/Develop/BrewTroller-Official/src/BrewTroller.h
+Arduino.h
+-
+pin.h
+-
+PID_Beta6.h
+-
+HardwareProfile.h
+/home/david/Develop/BrewTroller-Official/src/HardwareProfile.h
+PVOut.h
+/home/david/Develop/BrewTroller-Official/src/PVOut.h
+UI_LCD.h
+/home/david/Develop/BrewTroller-Official/src/UI_LCD.h
+Vessel.h
+/home/david/Develop/BrewTroller-Official/src/Vessel.h
+LiquidCrystalFP.h
+-
+
+/home/david/Develop/BrewTroller-Official/src/EEPROM.h
+Arduino.h
+-
+
+/home/david/Develop/BrewTroller-Official/src/Enum.h
+
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/BrewTroller 1.0 - 2.1/HWProfile.h
+
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/BrewTroller 2.2 - 2.4/HWProfile.h
+
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/BrewTroller 3.x/HWProfile.h
+
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/BrewTroller 4.0 Pro/HWProfile.h
+
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller BX1/HERMS I2CLCD/HWProfile.h
+
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller BX1/HERMS/HWProfile.h
+
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller BX1/RIMS or Direct Fired I2CLCD/HWProfile.h
+
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller BX1/RIMS or Direct Fired/HWProfile.h
+
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller BX1/Single Vessel/HWProfile.h
+
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller BX1/Steam or PWM Pump I2CLCD/HWProfile.h
+
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller BX1/Steam or PWM Pump/HWProfile.h
+
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller DX1/HERMS/HWProfile.h
+
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller DX1/RIMS or Direct Fired/HWProfile.h
+
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller DX1/Single Vessel/HWProfile.h
+
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller DX1/Steam or PWM Pump/HWProfile.h
+
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller EX1/HERMS/HWProfile.h
+
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller EX1/RIMS or Direct Fired/HWProfile.h
+
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller EX1/Single Vessel/HWProfile.h
+
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller EX1/Steam or PWM Pump/HWProfile.h
+
+/home/david/Develop/BrewTroller-Official/src/HardwareProfile.h
+HWProfiles/BrewTroller 1.0 - 2.1/HWProfile.h
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/BrewTroller 1.0 - 2.1/HWProfile.h
+HWProfiles/BrewTroller 2.2 - 2.4/HWProfile.h
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/BrewTroller 2.2 - 2.4/HWProfile.h
+HWProfiles/BrewTroller 3.x/HWProfile.h
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/BrewTroller 3.x/HWProfile.h
+HWProfiles/BrewTroller 4.0 Pro/HWProfile.h
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/BrewTroller 4.0 Pro/HWProfile.h
+HWProfiles/OpenTroller BX1/HERMS/HWProfile.h
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller BX1/HERMS/HWProfile.h
+HWProfiles/OpenTroller BX1/HERMS I2CLCD/HWProfile.h
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller BX1/HERMS I2CLCD/HWProfile.h
+HWProfiles/OpenTroller BX1/RIMS or Direct Fired/HWProfile.h
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller BX1/RIMS or Direct Fired/HWProfile.h
+HWProfiles/OpenTroller BX1/RIMS or Direct Fired I2CLCD/HWProfile.h
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller BX1/RIMS or Direct Fired I2CLCD/HWProfile.h
+HWProfiles/OpenTroller BX1/Single Vessel/HWProfile.h
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller BX1/Single Vessel/HWProfile.h
+HWProfiles/OpenTroller BX1/Steam or PWM Pump/HWProfile.h
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller BX1/Steam or PWM Pump/HWProfile.h
+HWProfiles/OpenTroller BX1/Steam or PWM Pump I2CLCD/HWProfile.h
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller BX1/Steam or PWM Pump I2CLCD/HWProfile.h
+HWProfiles/OpenTroller DX1/HERMS/HWProfile.h
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller DX1/HERMS/HWProfile.h
+HWProfiles/OpenTroller DX1/RIMS or Direct Fired/HWProfile.h
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller DX1/RIMS or Direct Fired/HWProfile.h
+HWProfiles/OpenTroller DX1/Single Vessel/HWProfile.h
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller DX1/Single Vessel/HWProfile.h
+HWProfiles/OpenTroller DX1/Steam or PWM Pump/HWProfile.h
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller DX1/Steam or PWM Pump/HWProfile.h
+HWProfiles/OpenTroller EX1/HERMS/HWProfile.h
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller EX1/HERMS/HWProfile.h
+HWProfiles/OpenTroller EX1/RIMS or Direct Fired/HWProfile.h
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller EX1/RIMS or Direct Fired/HWProfile.h
+HWProfiles/OpenTroller EX1/Single Vessel/HWProfile.h
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller EX1/Single Vessel/HWProfile.h
+HWProfiles/OpenTroller EX1/Steam or PWM Pump/HWProfile.h
+/home/david/Develop/BrewTroller-Official/src/HWProfiles/OpenTroller EX1/Steam or PWM Pump/HWProfile.h
+
+/home/david/Develop/BrewTroller-Official/src/Outputs.h
+Arduino.h
+-
+pin.h
+-
+
+/home/david/Develop/BrewTroller-Official/src/PVOut.h
+pin.h
+-
+Config.h
+/home/david/Develop/BrewTroller-Official/src/Config.h
+HardwareProfile.h
+/home/david/Develop/BrewTroller-Official/src/HardwareProfile.h
+ModbusMaster.h
+-
+HardwareSerial.h
+-
+
+/home/david/Develop/BrewTroller-Official/src/Temp.h
+Arduino.h
+-
+Temp.h
+/home/david/Develop/BrewTroller-Official/src/Temp.h
+HardwareProfile.h
+/home/david/Develop/BrewTroller-Official/src/HardwareProfile.h
+
+/home/david/Develop/BrewTroller-Official/src/Timer.h
+Arduino.h
+-
+
+/home/david/Develop/BrewTroller-Official/src/UI_LCD.h
+Config.h
+/home/david/Develop/BrewTroller-Official/src/Config.h
+Enum.h
+/home/david/Develop/BrewTroller-Official/src/Enum.h
+HardwareProfile.h
+/home/david/Develop/BrewTroller-Official/src/HardwareProfile.h
+Wire.h
+-
+LiquidCrystalFP.h
+-
+stdlib.h
+-
+EEPROM.h
+-
+
+/home/david/Develop/BrewTroller-Official/src/Vessel.cpp
+avr/eeprom.h
+-
+BrewTroller.h
+/home/david/Develop/BrewTroller-Official/src/BrewTroller.h
+Vessel.h
+/home/david/Develop/BrewTroller-Official/src/Vessel.h
+EEPROM.h
+/home/david/Develop/BrewTroller-Official/src/EEPROM.h
+Temp.h
+/home/david/Develop/BrewTroller-Official/src/Temp.h
+HardwareProfile.h
+/home/david/Develop/BrewTroller-Official/src/HardwareProfile.h
+Volume.h
+/home/david/Develop/BrewTroller-Official/src/Volume.h
+Outputs.h
+/home/david/Develop/BrewTroller-Official/src/Outputs.h
+BrewCore.h
+/home/david/Develop/BrewTroller-Official/src/BrewCore.h
+Timer.h
+/home/david/Develop/BrewTroller-Official/src/Timer.h
+
+/home/david/Develop/BrewTroller-Official/src/Vessel.h
+Config.h
+/home/david/Develop/BrewTroller-Official/src/Config.h
+Enum.h
+/home/david/Develop/BrewTroller-Official/src/Enum.h
+pin.h
+-
+PID_Beta6.h
+-
+
+/home/david/Develop/BrewTroller-Official/src/Volume.h
+
+Config.h
+stdint.h
+-
+/home/david/Develop/BrewTroller-Official/src/Enum.h
+-
+
+lib/PID_Beta6/PID_Beta6.h
+Arduino.h
+-
+
+lib/Wire/Wire.h
+inttypes.h
+-
+Stream.h
+lib/Wire/Stream.h
+
+lib/arduino/Arduino.h
+stdlib.h
+-
+string.h
+-
+math.h
+-
+avr/pgmspace.h
+-
+avr/io.h
+-
+avr/interrupt.h
+-
+binary.h
+lib/arduino/binary.h
+WCharacter.h
+lib/arduino/WCharacter.h
+WString.h
+lib/arduino/WString.h
+HardwareSerial.h
+lib/arduino/HardwareSerial.h
+pins_arduino.h
+lib/arduino/pins_arduino.h
+
+lib/arduino/HardwareSerial.h
+inttypes.h
+-
+Stream.h
+lib/arduino/Stream.h
+USBAPI.h
+lib/arduino/USBAPI.h
+
+lib/arduino/Print.h
+inttypes.h
+-
+stdio.h
+-
+WString.h
+lib/arduino/WString.h
+Printable.h
+lib/arduino/Printable.h
+
+lib/arduino/Printable.h
+new.h
+-
+
+lib/arduino/Stream.h
+inttypes.h
+-
+Print.h
+lib/arduino/Print.h
+
+lib/arduino/USBAPI.h
+
+lib/arduino/WCharacter.h
+ctype.h
+-
+
+lib/arduino/WString.h
+stdlib.h
+-
+string.h
+-
+ctype.h
+-
+avr/pgmspace.h
+-
+
+lib/arduino/binary.h
+
+lib/arduino/new.h
+stdlib.h
+-
+
+lib/arduino/pins_arduino.h
+avr/pgmspace.h
+-
+
+lib/fastpin/pin.h
+pins_arduino.h
+-
+avr/io.h
+-
+Arduino.h
+-
+
+lib/liquidcrystalfp/LiquidCrystalFP.h
+inttypes.h
+-
+Print.h
+-
+pin.h
+-
+
+lib/modbusmaster/ModbusMaster.h
+Arduino.h
+-
+util/crc16.h
+-
+

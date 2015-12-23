@@ -108,15 +108,14 @@ void eventHandler(byte eventID, int eventParam) {
   
   void mashMinISR() {
 	vessels[VS_MASH]->updateOutput();
+#ifdef USESTEAM
+	vessels[VS_STEAM]->updateOutput();
+#endif
 	bitClear(actProfiles, VLV_MASHHEAT);
-    #ifdef DIRECT_FIRED_RIMS
-      heatPin[VS_STEAM].set(LOW);
-      heatStatus[VS_STEAM] = 0;
-    #endif
   }
   
   void kettleMinISR() {
-	  vessels[VS_KETTLE]->updateOutput();
+    vessels[VS_KETTLE]->updateOutput();
     bitClear(actProfiles, VLV_KETTLEHEAT);
   }
 #endif

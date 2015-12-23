@@ -11,7 +11,6 @@ This class is designed to read all eeprom settings on load and generally hnadle 
 NOTE: Some functionality supported in BT2.6 is not yet supported in this version. This includes:
  - PWM
  - Steam
- - Maximum temperature cutoff and alarm
 */
 
 #include "Config.h"
@@ -19,6 +18,7 @@ NOTE: Some functionality supported in BT2.6 is not yet supported in this version
 #include <pin.h>
 #include <PID_Beta6.h>
 
+//TODO: Split Steam vessel out into separate class (templated?)
 
 class Vessel
 {
@@ -35,17 +35,20 @@ private:
 	float deadspace; //Dead space
 	byte minTriggerPin; //Pin that triggers a low volume condition
 	
+	
 	SoftSwitch heatOverride = SOFTSWITCH_AUTO; // SOFTSWITCH_OFF, _ON, _AUTO 
 
 	//Temperature
 	//Note that we use doubles here for type compatibility with the PID library. On most Arduino systems, double and float use the same precision (and on the systems where they don't there is plenty of memory).
+	double minTemperature, maxTemperature; //Min and maximum temperatures to allow. Temperatures outside this range trigger 
 
 	pin heatPin;
 	double setpoint = 0; //The setpoint for this vessel
 	bool usePID; //TRUE = use PID mode, FALSE = on/off mode
 	PID* pid = NULL; //PID object for use with PID
 	byte feedforward = 0; //The ID of the feedforward sensor. Valid values are 1-3, corresponding to AUX1-3. Anything outside that range will be ignored
-
+	bool usesSteam; //Does this vessel use steam input for fine changes?
+	
 	float PIDcycle;
 	float hysteresis;
 	bool includeAux[3]; //Whether to average AUX1-3; stores their indices
@@ -56,8 +59,10 @@ private:
 	unsigned long volumeCalibrationVolume[10]; //The volumes used for calibration
 	float targetVolume = 0;
 	
-
-
+#ifdef USESTEAM
+	int steamPressureSensitivity;
+#endif
+	
 	//Valves require broader state awareness (e.g. MLT valve config might be different for mash vs. sparge) and are handled outside this class.
 
 	//Working statuses
@@ -74,13 +79,13 @@ private:
 	float volume = 0;
 	byte usesAuxInputs; //The count of aux inputs used for averaging
 
-	void updateTemperature(); //Fetch the latest temperature from the sensor
+	void updateTemperature(); //Fetch the latest temperature fro* SETPOINT_MULTm the sensor
 	
 public:
 	//All set functions also write the value to EEPROM
 
 	//No default constructor because we need to know which eeprom index to use
-	Vessel(byte initEepromIndex, bool initIncludeAux[], byte FFBias, float initMinVolume, byte initMinTriggerPin, byte initMaxPower);
+	Vessel(byte initEepromIndex, bool initIncludeAux[], byte FFBias, float initMinVolume, byte initMinTriggerPin, byte initMaxPower, double initMinTemperature, double initMaxTemperature);
 	~Vessel();
 
 	//Temperature control functions
@@ -117,11 +122,18 @@ public:
 
 	float getVolume(); //Return the volume, as calculated based on this vessel's pressure sensor
 	void takeVolumeReading(); //Take a sample of the volume
+	inline float getPressure() {return volume;} //Unlike the volume code, this doesn't multiply by a factor of 1000
+	
 	inline void setTargetVolume(float target) { targetVolume = target * 1000.0; };
 	inline float getTargetVolume() { return targetVolume / 1000.0; };
+	inline float getTargetPressure() {return targetVolume;} 
 	inline float getDeadspace() { return deadspace; }
 	void setDeadspace(float);
 	
+#ifdef USESTEAM
+	void setPressureSensitivity(int);
+	inline int getPressureSensitivity() {return steamPressureSensitivity; }
+#endif
 	inline float getCapacity() { return capacity; }
 	void setCapacity(float capacity);
 

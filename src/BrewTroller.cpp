@@ -121,8 +121,8 @@ It is entirely possible for some of the VS_to be identical. For example, in a BI
 
 TODO: Convert from HLT to VS_STRIKE and VS_SPARGE to allow more configuration of where strike and sparge water are heated.
 
-Note that steam and pump, while assigned a VS_STEAM and VS_PUMP identifier in some hardware configs, are not truly vessels and are not part of this array.
-Rather, steam is managed through the VS_MASH vessel, and VS_PUMP is managed through the valve profile code.
+Note that pump, while assigned VS_PUMP identifier in some hardware configs, is not truly a vessel is are not part of this array.
+Rather, VS_PUMP is managed through the valve profile code. Also, VS_STEAM has a ton of special-case management.
 */
 Vessel* vessels[NUM_VESSELS];
 pin alarmPin;
@@ -212,12 +212,7 @@ unsigned int cycleStart[4] = {0,0,0,0};
 unsigned long cycleStart[4] = {0,0,0,0};
 #endif
 boolean heatStatus, PIDEnabled;
-unsigned int steamPSens, steamZero;
 
-
-
-//Steam Pressure in thousandths
-unsigned long steamPressure;
 byte boilPwr;
 
 PID pid =

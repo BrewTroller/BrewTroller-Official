@@ -1,0 +1,199 @@
+The target system is: Generic -  - avr
+The host system is: Linux - 3.19.0-25-generic - x86_64
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler: /usr/bin/avr-gcc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
+
+The C compiler identification is GNU, found in "/home/david/Develop/BrewTroller-Official/CMakeFiles/2.8.12.2/CompilerIdC/a.out"
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /usr/bin/avr-g++ 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is GNU, found in "/home/david/Develop/BrewTroller-Official/CMakeFiles/2.8.12.2/CompilerIdCXX/a.out"
+
+Determining if the C compiler works passed with the following output:
+Change Dir: /home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec2308749911/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec2308749911.dir/build.make CMakeFiles/cmTryCompileExec2308749911.dir/build
+make[1]: Entering directory `/home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec2308749911.dir/testCCompiler.c.obj
+/usr/bin/avr-gcc    -o CMakeFiles/cmTryCompileExec2308749911.dir/testCCompiler.c.obj   -c /home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp/testCCompiler.c
+Linking C executable cmTryCompileExec2308749911
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec2308749911.dir/link.txt --verbose=1
+/usr/bin/avr-gcc       CMakeFiles/cmTryCompileExec2308749911.dir/testCCompiler.c.obj  -o cmTryCompileExec2308749911  
+make[1]: Leaving directory `/home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp'
+
+
+Detecting C compiler ABI info compiled with the following output:
+Change Dir: /home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec3099553674/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec3099553674.dir/build.make CMakeFiles/cmTryCompileExec3099553674.dir/build
+make[1]: Entering directory `/home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec3099553674.dir/CMakeCCompilerABI.c.obj
+/usr/bin/avr-gcc    -o CMakeFiles/cmTryCompileExec3099553674.dir/CMakeCCompilerABI.c.obj   -c /usr/share/cmake-2.8/Modules/CMakeCCompilerABI.c
+Linking C executable cmTryCompileExec3099553674
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec3099553674.dir/link.txt --verbose=1
+/usr/bin/avr-gcc     -v CMakeFiles/cmTryCompileExec3099553674.dir/CMakeCCompilerABI.c.obj  -o cmTryCompileExec3099553674   
+Using built-in specs.
+COLLECT_GCC=/usr/bin/avr-gcc
+COLLECT_LTO_WRAPPER=/usr/lib/gcc/avr/4.8.2/lto-wrapper
+Target: avr
+Configured with: ../src/configure -v --enable-languages=c,c++ --prefix=/usr/lib --infodir=/usr/share/info --mandir=/usr/share/man --bindir=/usr/bin --libexecdir=/usr/lib --libdir=/usr/lib --enable-shared --with-system-zlib --enable-long-long --enable-nls --without-included-gettext --disable-libssp --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=avr
+Thread model: single
+gcc version 4.8.2 (GCC) 
+COMPILER_PATH=/usr/lib/gcc/avr/4.8.2/:/usr/lib/gcc/avr/4.8.2/:/usr/lib/gcc/avr/:/usr/lib/gcc/avr/4.8.2/:/usr/lib/gcc/avr/:/usr/lib/gcc/avr/4.8.2/../../../avr/bin/
+LIBRARY_PATH=/usr/lib/gcc/avr/4.8.2/:/usr/lib/gcc/avr/4.8.2/../../../avr/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec3099553674'
+ /usr/lib/gcc/avr/4.8.2/collect2 -o cmTryCompileExec3099553674 -L/usr/lib/gcc/avr/4.8.2 -L/usr/lib/gcc/avr/4.8.2/../../../avr/lib CMakeFiles/cmTryCompileExec3099553674.dir/CMakeCCompilerABI.c.obj --start-group -lgcc -lm -lc --end-group
+make[1]: Leaving directory `/home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp'
+
+
+Parsed C implicit link information from above output:
+  link line regex: [^( *|.*[/\])(avr-ld|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command:/usr/bin/make "cmTryCompileExec3099553674/fast"]
+  ignore line: [/usr/bin/make -f CMakeFiles/cmTryCompileExec3099553674.dir/build.make CMakeFiles/cmTryCompileExec3099553674.dir/build]
+  ignore line: [make[1]: Entering directory `/home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp']
+  ignore line: [/usr/bin/cmake -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp/CMakeFiles 1]
+  ignore line: [Building C object CMakeFiles/cmTryCompileExec3099553674.dir/CMakeCCompilerABI.c.obj]
+  ignore line: [/usr/bin/avr-gcc    -o CMakeFiles/cmTryCompileExec3099553674.dir/CMakeCCompilerABI.c.obj   -c /usr/share/cmake-2.8/Modules/CMakeCCompilerABI.c]
+  ignore line: [Linking C executable cmTryCompileExec3099553674]
+  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec3099553674.dir/link.txt --verbose=1]
+  ignore line: [/usr/bin/avr-gcc     -v CMakeFiles/cmTryCompileExec3099553674.dir/CMakeCCompilerABI.c.obj  -o cmTryCompileExec3099553674   ]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/usr/bin/avr-gcc]
+  ignore line: [COLLECT_LTO_WRAPPER=/usr/lib/gcc/avr/4.8.2/lto-wrapper]
+  ignore line: [Target: avr]
+  ignore line: [Configured with: ../src/configure -v --enable-languages=c,c++ --prefix=/usr/lib --infodir=/usr/share/info --mandir=/usr/share/man --bindir=/usr/bin --libexecdir=/usr/lib --libdir=/usr/lib --enable-shared --with-system-zlib --enable-long-long --enable-nls --without-included-gettext --disable-libssp --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=avr]
+  ignore line: [Thread model: single]
+  ignore line: [gcc version 4.8.2 (GCC) ]
+  ignore line: [COMPILER_PATH=/usr/lib/gcc/avr/4.8.2/:/usr/lib/gcc/avr/4.8.2/:/usr/lib/gcc/avr/:/usr/lib/gcc/avr/4.8.2/:/usr/lib/gcc/avr/:/usr/lib/gcc/avr/4.8.2/../../../avr/bin/]
+  ignore line: [LIBRARY_PATH=/usr/lib/gcc/avr/4.8.2/:/usr/lib/gcc/avr/4.8.2/../../../avr/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec3099553674']
+  link line: [ /usr/lib/gcc/avr/4.8.2/collect2 -o cmTryCompileExec3099553674 -L/usr/lib/gcc/avr/4.8.2 -L/usr/lib/gcc/avr/4.8.2/../../../avr/lib CMakeFiles/cmTryCompileExec3099553674.dir/CMakeCCompilerABI.c.obj --start-group -lgcc -lm -lc --end-group]
+    arg [/usr/lib/gcc/avr/4.8.2/collect2] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTryCompileExec3099553674] ==> ignore
+    arg [-L/usr/lib/gcc/avr/4.8.2] ==> dir [/usr/lib/gcc/avr/4.8.2]
+    arg [-L/usr/lib/gcc/avr/4.8.2/../../../avr/lib] ==> dir [/usr/lib/gcc/avr/4.8.2/../../../avr/lib]
+    arg [CMakeFiles/cmTryCompileExec3099553674.dir/CMakeCCompilerABI.c.obj] ==> ignore
+    arg [--start-group] ==> ignore
+    arg [-lgcc] ==> lib [gcc]
+    arg [-lm] ==> lib [m]
+    arg [-lc] ==> lib [c]
+    arg [--end-group] ==> ignore
+  remove lib [gcc]
+  collapse library dir [/usr/lib/gcc/avr/4.8.2] ==> [/usr/lib/gcc/avr/4.8.2]
+  collapse library dir [/usr/lib/gcc/avr/4.8.2/../../../avr/lib] ==> [/usr/lib/avr/lib]
+  implicit libs: [m;c]
+  implicit dirs: [/usr/lib/gcc/avr/4.8.2;/usr/lib/avr/lib]
+  implicit fwks: []
+
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec1997320505/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec1997320505.dir/build.make CMakeFiles/cmTryCompileExec1997320505.dir/build
+make[1]: Entering directory `/home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec1997320505.dir/testCXXCompiler.cxx.obj
+/usr/bin/avr-g++     -o CMakeFiles/cmTryCompileExec1997320505.dir/testCXXCompiler.cxx.obj -c /home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTryCompileExec1997320505
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1997320505.dir/link.txt --verbose=1
+/usr/bin/avr-g++        CMakeFiles/cmTryCompileExec1997320505.dir/testCXXCompiler.cxx.obj  -o cmTryCompileExec1997320505  
+make[1]: Leaving directory `/home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec3621637207/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec3621637207.dir/build.make CMakeFiles/cmTryCompileExec3621637207.dir/build
+make[1]: Entering directory `/home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec3621637207.dir/CMakeCXXCompilerABI.cpp.obj
+/usr/bin/avr-g++     -o CMakeFiles/cmTryCompileExec3621637207.dir/CMakeCXXCompilerABI.cpp.obj -c /usr/share/cmake-2.8/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec3621637207
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec3621637207.dir/link.txt --verbose=1
+/usr/bin/avr-g++      -v CMakeFiles/cmTryCompileExec3621637207.dir/CMakeCXXCompilerABI.cpp.obj  -o cmTryCompileExec3621637207   
+Using built-in specs.
+COLLECT_GCC=/usr/bin/avr-g++
+COLLECT_LTO_WRAPPER=/usr/lib/gcc/avr/4.8.2/lto-wrapper
+Target: avr
+Configured with: ../src/configure -v --enable-languages=c,c++ --prefix=/usr/lib --infodir=/usr/share/info --mandir=/usr/share/man --bindir=/usr/bin --libexecdir=/usr/lib --libdir=/usr/lib --enable-shared --with-system-zlib --enable-long-long --enable-nls --without-included-gettext --disable-libssp --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=avr
+Thread model: single
+gcc version 4.8.2 (GCC) 
+COMPILER_PATH=/usr/lib/gcc/avr/4.8.2/:/usr/lib/gcc/avr/4.8.2/:/usr/lib/gcc/avr/:/usr/lib/gcc/avr/4.8.2/:/usr/lib/gcc/avr/:/usr/lib/gcc/avr/4.8.2/../../../avr/bin/
+LIBRARY_PATH=/usr/lib/gcc/avr/4.8.2/:/usr/lib/gcc/avr/4.8.2/../../../avr/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec3621637207'
+ /usr/lib/gcc/avr/4.8.2/collect2 -o cmTryCompileExec3621637207 -L/usr/lib/gcc/avr/4.8.2 -L/usr/lib/gcc/avr/4.8.2/../../../avr/lib CMakeFiles/cmTryCompileExec3621637207.dir/CMakeCXXCompilerABI.cpp.obj -lgcc -lm --start-group -lgcc -lm -lc --end-group
+make[1]: Leaving directory `/home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp'
+
+
+Parsed CXX implicit link information from above output:
+  link line regex: [^( *|.*[/\])(avr-ld|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command:/usr/bin/make "cmTryCompileExec3621637207/fast"]
+  ignore line: [/usr/bin/make -f CMakeFiles/cmTryCompileExec3621637207.dir/build.make CMakeFiles/cmTryCompileExec3621637207.dir/build]
+  ignore line: [make[1]: Entering directory `/home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp']
+  ignore line: [/usr/bin/cmake -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles/CMakeTmp/CMakeFiles 1]
+  ignore line: [Building CXX object CMakeFiles/cmTryCompileExec3621637207.dir/CMakeCXXCompilerABI.cpp.obj]
+  ignore line: [/usr/bin/avr-g++     -o CMakeFiles/cmTryCompileExec3621637207.dir/CMakeCXXCompilerABI.cpp.obj -c /usr/share/cmake-2.8/Modules/CMakeCXXCompilerABI.cpp]
+  ignore line: [Linking CXX executable cmTryCompileExec3621637207]
+  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec3621637207.dir/link.txt --verbose=1]
+  ignore line: [/usr/bin/avr-g++      -v CMakeFiles/cmTryCompileExec3621637207.dir/CMakeCXXCompilerABI.cpp.obj  -o cmTryCompileExec3621637207   ]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/usr/bin/avr-g++]
+  ignore line: [COLLECT_LTO_WRAPPER=/usr/lib/gcc/avr/4.8.2/lto-wrapper]
+  ignore line: [Target: avr]
+  ignore line: [Configured with: ../src/configure -v --enable-languages=c,c++ --prefix=/usr/lib --infodir=/usr/share/info --mandir=/usr/share/man --bindir=/usr/bin --libexecdir=/usr/lib --libdir=/usr/lib --enable-shared --with-system-zlib --enable-long-long --enable-nls --without-included-gettext --disable-libssp --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=avr]
+  ignore line: [Thread model: single]
+  ignore line: [gcc version 4.8.2 (GCC) ]
+  ignore line: [COMPILER_PATH=/usr/lib/gcc/avr/4.8.2/:/usr/lib/gcc/avr/4.8.2/:/usr/lib/gcc/avr/:/usr/lib/gcc/avr/4.8.2/:/usr/lib/gcc/avr/:/usr/lib/gcc/avr/4.8.2/../../../avr/bin/]
+  ignore line: [LIBRARY_PATH=/usr/lib/gcc/avr/4.8.2/:/usr/lib/gcc/avr/4.8.2/../../../avr/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec3621637207']
+  link line: [ /usr/lib/gcc/avr/4.8.2/collect2 -o cmTryCompileExec3621637207 -L/usr/lib/gcc/avr/4.8.2 -L/usr/lib/gcc/avr/4.8.2/../../../avr/lib CMakeFiles/cmTryCompileExec3621637207.dir/CMakeCXXCompilerABI.cpp.obj -lgcc -lm --start-group -lgcc -lm -lc --end-group]
+    arg [/usr/lib/gcc/avr/4.8.2/collect2] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTryCompileExec3621637207] ==> ignore
+    arg [-L/usr/lib/gcc/avr/4.8.2] ==> dir [/usr/lib/gcc/avr/4.8.2]
+    arg [-L/usr/lib/gcc/avr/4.8.2/../../../avr/lib] ==> dir [/usr/lib/gcc/avr/4.8.2/../../../avr/lib]
+    arg [CMakeFiles/cmTryCompileExec3621637207.dir/CMakeCXXCompilerABI.cpp.obj] ==> ignore
+    arg [-lgcc] ==> lib [gcc]
+    arg [-lm] ==> lib [m]
+    arg [--start-group] ==> ignore
+    arg [-lgcc] ==> lib [gcc]
+    arg [-lm] ==> lib [m]
+    arg [-lc] ==> lib [c]
+    arg [--end-group] ==> ignore
+  remove lib [gcc]
+  remove lib [gcc]
+  collapse library dir [/usr/lib/gcc/avr/4.8.2] ==> [/usr/lib/gcc/avr/4.8.2]
+  collapse library dir [/usr/lib/gcc/avr/4.8.2/../../../avr/lib] ==> [/usr/lib/avr/lib]
+  implicit libs: [m;m;c]
+  implicit dirs: [/usr/lib/gcc/avr/4.8.2;/usr/lib/avr/lib]
+  implicit fwks: []
+
+

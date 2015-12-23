@@ -38,11 +38,12 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 #include "Volume.h"
 #include "Outputs.h" //Needed only for minTriggerPin
 #include "BrewCore.h" //Needed for heartbeat
+#include "Timer.h" //Needed for setAlarm
 
-extern int temp[9];
+extern int temp[9]; //Needed to access aux sensors
 
 //Note that the includeAux numbers should be addresses e.g. TS_AUX1, not just a number (that's why they're bytes instead of booleans).
-	Vessel::Vessel(byte initEepromIndex, bool initIncludeAux[], byte FFBias, float initMinVolume = 0, byte initMinTriggerPin = 0, byte initMaxPower = 100)
+	Vessel::Vessel(byte initEepromIndex, bool initIncludeAux[], byte FFBias, float initMinVolume = 0, byte initMinTriggerPin = 0, byte initMaxPower = 100, double initMinTemperature = 30, double initMaxTemperature = 250)
 	{
 
 		for (int i = 0; i < VOLUME_READ_COUNT; i++)
@@ -53,7 +54,8 @@ extern int temp[9];
 
 		PIDoutput = 0;
 		volume = targetVolume = 0;
-
+		minTemperature = initMinTemperature;
+		maxTemperature = initMaxTemperature;
 		eepromIndex = initEepromIndex;
 		minVolume = initMinVolume;
 		maxPower = initMaxPower;
@@ -103,6 +105,23 @@ extern int temp[9];
 		pid->SetMode(PID::AUTO_MODE);
 		pid->SetSampleTime(PID_CYCLE_TIME);
 		
+#ifdef USESTEAM
+		//This references the pid object and thus must come after it is created in this function
+		usesSteam = (eepromIndex == VS_MASH); //The mash tun uses steam if it's present
+		if (eepromIndex == VS_STEAM)
+		{
+		  steamPressureSensitivity = EEPROMreadInt(117);
+		  
+		#ifdef USEMETRIC
+		  pid->SetInputLimits(0, 50000 / steamPressureSensitivity);
+		#else
+		  pid->SetInputLimits(0, 7250 / steamPressureSensitivity);
+		#endif
+		}
+#else
+		usesSteam = false;
+#endif
+		
 		hysteresis = ::getHysteresis(eepromIndex); 
 		capacity = EEPROMreadLong(93 + eepromIndex * 4);
 		deadspace = EEPROMreadInt(105 + eepromIndex * 2);
@@ -112,27 +131,37 @@ extern int temp[9];
 		//calibVols HLT (119-158), Mash (159-198), Kettle (199-238)
 		//calibVals HLT (239-258), Mash (259-278), Kettle (279-298)
 		//**********************************************************************************
-		eeprom_read_block(&volumeCalibrationVolume, (unsigned char *)119+40*eepromIndex, 40);
-		eeprom_read_block(&volumeCalibrationPressure, (unsigned char *)239+40*eepromIndex, 20);
-
+		if (eepromIndex != VS_STEAM)
+		{
+		  eeprom_read_block(&volumeCalibrationVolume, (unsigned char *)119+40*eepromIndex, 40);
+		  eeprom_read_block(&volumeCalibrationPressure, (unsigned char *)239+40*eepromIndex, 20);
+		}
+		else
+		  volumeCalibrationPressure[0] = EEPROMreadInt(114);  
 
 		//This is kind of a hack because the volume and heat pins are hardcoded
 		switch (eepromIndex)
 		{
-		case 0:
+		case VS_HLT:
 			volumePinID = HLTVOL_APIN;
 			heatPin.setup(HLTHEAT_PIN, OUTPUT);
 			break;
 #ifdef MLTVOL_APIN
-		case 1:
+		case VS_MASH:
 			volumePinID = MLTVOL_APIN;
 			heatPin.setup(MLTHEAT_PIN, OUTPUT);
 			break;
 #endif
 #ifdef KETTLEVOL_APIN
-		case 2:
+		case VS_KETTLE:
 			volumePinID = KETTLEVOL_APIN;
 			heatPin.setup(KETTLEHEAT_PIN, OUTPUT);
+			break;
+#endif
+#ifdef USESTEAM
+		case VS_STEAM:
+			volumePinID = STEAMPRESS_APIN;
+			heatPin.setup(STEAMHEAT_PIN, OUTPUT);
 			break;
 #endif
 		}
@@ -200,6 +229,16 @@ extern int temp[9];
 			if (temperature != BAD_TEMP)
 				temperature /= usesAuxInputs;
 		}
+		
+		
+		//If we are suffering a temperature excursion or malfunction, set the alarm, cut off the setpoint, and turn off the outputs
+		if (temperature == BAD_TEMP || temperature < minTemperature or temperature > maxTemperature)
+		{
+		  setAlarm(1);
+		  setSetpoint(0);
+		  return;
+		}
+		
 		if (feedforward)
 		{
 			feedforwardTemperature = read_temp(feedforwardAddress) / 100.0;
@@ -207,8 +246,10 @@ extern int temp[9];
 				feedforwardTemperature = temperature; //If we got a bad read on the feedforward, but have a good read on the mash itself, we can just use the mash temp as the feedforward to let us keep mashing
 	
 		}
+		
 		if (temperature > setpoint)
 			preheated = true;
+		
 	}
 
 	void Vessel::setTSAddress(byte newAddress[8]) 
@@ -247,6 +288,29 @@ extern int temp[9];
 			return true;
 		}
 		//Other possible value is SOFTSWITCH_AUTO and SOFTSWITCH_MANUAL
+#endif
+#ifdef USESTEAM
+//Note that the steam system and mash tun heat potentially operate off of different temperature sensors (though they can also use the same sensor).
+//In this case each one will activate/deactivate when it's within the right range.
+//This could potentially cause both outputs to be inactive at once when the temperature is not at setpoint, if the mash temp is close to the setpoint
+//but the steam sensor is reading a bigger divergence. This can be corrected by using a single sensor, or will fix itself over time.
+		if (temperature + STEAM_OFFSET * 100 > setpoint && temperature < setpoint)
+		{
+		  if (usesSteam)
+		  {
+		  //If we are using a secondary mash temperature control system and we are within the range of it,
+		  //turn this output off and let the steam output handle it.
+		  heatPin.set(LOW);
+		  return;
+		  }
+	
+		}
+		else if (eepromIndex == VS_STEAM)
+		  {
+		    //If the temperature is outside the small range around the setpoint where the steam system should be active, deactivate it
+		    heatPin.set(LOW);
+		    return;
+		  }
 #endif
 		if (usePID || heatOverride == SOFTSWITCH_MANUAL)
 		{
@@ -350,6 +414,20 @@ extern int temp[9];
 
 	void Vessel::updateVolumeCalibration(byte index, unsigned long vol, int pressure)
 	{
+#ifdef USESTEAM
+	  if (eepromIndex == VS_STEAM)
+	  {
+	    if (index == 0)
+	    {
+	      volumeCalibrationPressure[0] = pressure;
+	      EEPROMwriteInt(114, value);
+	      return;
+	    }
+	    else
+	      //Error!
+	      return;
+	  }
+#endif
 		volumeCalibrationVolume[index] = vol;
 		volumeCalibrationPressure[index] = pressure;
 
@@ -357,6 +435,21 @@ extern int temp[9];
 		EEPROMwriteLong(119 + eepromIndex * 40 + index * 4, vol);
 		EEPROMwriteInt(239 + eepromIndex * 20 + index * 2, pressure);
 	}
+
+#ifdef USESTEAM
+	void Vessel::setPressureSensitivity(int newSensitivity)
+	{
+	  steamPressureSensitivity = newSensitivity;
+	  
+	  #ifdef USEMETRIC
+	    pid.SetInputLimits(0, 50000 / newSensitivity);
+	  #else
+	    pid.SetInputLimits(0, 7250 / newSensitivity);
+	  #endif
+	  
+	  EEPROMwriteInt(117, value);  
+	}
+#endif
 
 	void Vessel::setCapacity(float newCapacity)
 	{

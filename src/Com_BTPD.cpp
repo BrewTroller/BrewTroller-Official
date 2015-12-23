@@ -126,7 +126,7 @@ void updateBTPD() {
 			sendVsTime(BTPD_TIMERS, TIMER_MASH, TIMER_BOIL);
 		#endif
 		#ifdef BTPD_STEAM_PRESS
-			sendFloatsBTPD(BTPD_STEAM_PRESS, steamTgt, steamPressure / 1000.0 );
+			sendFloatsBTPD(BTPD_STEAM_PRESS, vessels[VS_STEAM]->getTargetPressure(), vessels[VS_STEAM]->getPressure() );
 		#endif
 		lastBTPD = millis();
 		odd = !odd;

@@ -57,11 +57,10 @@ void loadSetup() {
   //**********************************************************************************
   //steamZero (114)
   //**********************************************************************************
-  steamZero = EEPROMreadInt(114);
+  //Loaded by vessels
   //**********************************************************************************
   //steamPSens (117-118)
   //**********************************************************************************
-  steamPSens = EEPROMreadInt(117);
 
   //**********************************************************************************
   //calibVols HLT (119-158), Mash (159-198), Kettle (199-238)
@@ -239,30 +238,27 @@ byte getEvapRate() { return EEPROM.read(113); }
 //steamZero (114-115)
 //**********************************************************************************
 void setSteamZero(unsigned int value) {
-  steamZero = value;
-  EEPROMwriteInt(114, value);
+#ifdef USESTEAM
+  vessels[VS_STEAM]->updateVolumeCalibration(0,0,value);
+#endif
 }
 
 //**********************************************************************************
 //steamTgt (116)
 //**********************************************************************************
-void setSteamTgt(byte value) { EEPROM.write(116, value); }
+void setSteamTgt(byte value) { 
+#ifdef USESTEAM
+  vessels[VS_STEAM]->setSetpoint(value);
+#else
+EEPROM.write(116, value); 
+#endif
+}
 byte getSteamTgt() { return EEPROM.read(116); }
 
 //**********************************************************************************
 //steamPSens (117-118)
 //**********************************************************************************
-void setSteamPSens(unsigned int value) {
-  steamPSens = value;
-  #ifndef PID_FLOW_CONTROL
-  #ifdef USEMETRIC
-    pid.SetInputLimits(0, 50000 / steamPSens);
-  #else
-    pid.SetInputLimits(0, 7250 / steamPSens);
-  #endif
-  #endif
-  EEPROMwriteInt(117, value);
-}
+//Handled in vessel class
 
 //**********************************************************************************
 //calibVols HLT (119-158), Mash (159-198), Kettle (199-238)
@@ -278,13 +274,8 @@ void setSteamPSens(unsigned int value) {
 //setpoints (299-301)
 //**********************************************************************************
 void setSetpoint(byte vessel, int value) {
-  #if defined PID_FLOW_CONTROL || defined USESTEAM
-    if (vessel == VS_STEAM) setpoint[vessel] = value;
-    else setpoint[vessel] = value * SETPOINT_MULT;
-  #else
-	vessels[vessel]->setSetpoint(value);
-  #endif
-  
+  vessels[vessel]->setSetpoint(value);
+    
   eventHandler(EVENT_SETPOINT, vessel);
 }
 
@@ -617,8 +608,8 @@ void initEEPROM() {
   EEPROM.write(2046, 252);
 
   //Default Output Settings: p: 3, i: 4, d: 2, cycle: 4s, Hysteresis 0.3C(0.5F)
-  for (byte vessel = VS_HLT; vessel <= VS_STEAM; vessel++) {
-	  if (vessel != VS_STEAM) {
+  for (byte vessel = VS_HLT; vessel <= NUM_VESSELS; vessel++) {
+	  
 #ifdef USEMETRIC
 		  vessels[vessel]->setHysteresis(3);
 #else
@@ -627,17 +618,7 @@ void initEEPROM() {
 		  vessels[vessel]->setTunings(3,4,2);
 		  vessels[vessel]->setPIDCycle(4);
 
-	  }
-	  else
-	  {
-#ifdef USEMETRIC
-		  hysteresis = 3;
-#else
-		  hysteresis = 5;
-#endif
-		  
-		  pid.SetTunings(3, 4, 2);
-	  }
+	  
   }
 
   //Default Grain Temp = 60F/16C
