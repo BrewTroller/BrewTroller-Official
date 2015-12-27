@@ -412,7 +412,7 @@ void screenInit() {
         if (screenLock) {
             Encoder.setMin(0);
             Encoder.setMax(vessels[VS_KETTLE]->getMaxPower());
-            Encoder.setCount(vessels[VS_KETTLE]->getOutput()/ vessels[VS_KETTLE]->getPIDCycle());
+            Encoder.setCount(vessels[VS_KETTLE]->getPercentOutput());
             //If Kettle is off keep it off until unlocked
             if (!vessels[VS_KETTLE]->getSetpoint()) boilControlState = CONTROLSTATE_OFF;
         }
@@ -865,8 +865,8 @@ void screenEnter() {
                 mashMenu.setItem_P(UIStrings::Generic::EXIT, 255);
                 
                 byte lastOption = scrollMenu("Mash Menu", &mashMenu);
-                if (lastOption == 0) setSetpoint(VS_HLT, getValue_P(UIStrings::Shared::HLT_SETPOINT, vessels[VS_HLT]->getSetpoint() , SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
-                else if (lastOption == 1) setSetpoint(VS_MASH, getValue_P(UIStrings::MashMenu::MASH_SETPOINT, vessels[VS_MASH]->getSetpoint() , SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
+                if (lastOption == 0) vessels[VS_HLT]->setSetpoint(getValue_P(UIStrings::Shared::HLT_SETPOINT, vessels[VS_HLT]->getSetpoint() , SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
+                else if (lastOption == 1) vessels[VS_MASH]->setSetpoint(getValue_P(UIStrings::MashMenu::MASH_SETPOINT, vessels[VS_MASH]->getSetpoint() , SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
                 else if (lastOption == 2) {
                     setTimer(TIMER_MASH, getTimerValue(UIStrings::MashMenu::MASH_TIMER, timerValue[TIMER_MASH] / 60000, 1));
                     //Force Preheated
@@ -923,11 +923,11 @@ void screenEnter() {
                 //Screen Enter: Sparge
                 int encValue = Encoder.getCount();
                 if (encValue == 0) continueClick();
-                else if (encValue == 1) { resetSpargeValves(); bitSet(actProfiles, VLV_SPARGEIN); }
-                else if (encValue == 2) { resetSpargeValves(); bitSet(actProfiles, VLV_SPARGEOUT); }
-                else if (encValue == 3) { resetSpargeValves(); bitSet(actProfiles, VLV_SPARGEIN); bitSet(actProfiles, VLV_SPARGEOUT); }
-                else if (encValue == 4) { resetSpargeValves(); bitSet(actProfiles, VLV_MASHHEAT); }
-                else if (encValue == 5) { resetSpargeValves(); bitSet(actProfiles, VLV_MASHIDLE); }
+                else if (encValue == 1) { resetSpargeValves(); flowController[0]->startOn(); } //Sparge in
+                else if (encValue == 2) { resetSpargeValves(); flowController[0]->startOn();} //Sparge out
+				else if (encValue == 3) { resetSpargeValves(); flowController[0]->startOn(); flowController[1]->startOn(); } //Fly (not auto)
+				else if (encValue == 4) { resetSpargeValves(); vessels[VS_HEAT]->setHeatOverride(SOFTSWITCH_ON); } //Mash heat
+                else if (encValue == 5) { resetSpargeValves(); vessels[VS_HEAT]->setHeatOverride(SOFTSWITCH_OFF);} //Mash idle
                 else if (encValue == 6) { resetSpargeValves(); }
                 else if (encValue == 7) {
                     menu spargeMenu(3, 8);
@@ -940,9 +940,9 @@ void screenEnter() {
                     spargeMenu.setItem_P(UIStrings::Generic::ABORT, 6);
                     spargeMenu.setItem_P(UIStrings::Generic::EXIT, 255);
                     byte lastOption = scrollMenu("Sparge Menu", &spargeMenu);
-                    if (lastOption == 0) { resetSpargeValves(); if(vessels[VS_HLT]->getTargetVolume()) autoValve[AV_SPARGEIN] = 1; }
-                    else if (lastOption == 1) { resetSpargeValves(); if(vessels[VS_KETTLE]->getTargetVolume()) autoValve[AV_SPARGEOUT] = 1; }
-                    else if (lastOption == 2) { resetSpargeValves(); if(vessels[VS_KETTLE]->getTargetVolume()) autoValve[AV_FLYSPARGE] = 1; }
+					if (lastOption == 0) { resetSpargeValves(); flowController[0]->startAuto(); }
+                    else if (lastOption == 1) { resetSpargeValves();  flowController[1]->startAuto();}
+                    else if (lastOption == 2) { resetSpargeValves();  flowController[0]->startAuto();  flowController[1]->startAuto();}
                     else if (lastOption == 3) vessels[VS_HLT]->setTargetVolume(getValue_P(UIStrings::Shared::HLT_TARGET_VOL, vessels[VS_HLT]->getTargetVolume(), 1000, 9999999, UIStrings::Units::VOLUNIT));
                     else if (lastOption == 4) vessels[VS_KETTLE]->setTargetVolume(getValue_P(UIStrings::SpargeMenu::KETTLE_TARGET_VOL, vessels[VS_KETTLE]->getTargetVolume(), 1000, 9999999, UIStrings::Units::VOLUNIT));
                     else if (lastOption == 5) continueClick();
@@ -964,7 +964,7 @@ void screenEnter() {
                 boilMenu.setItem_P(UIStrings::Generic::SET_TIMER, 0);
                 
                 if (timerStatus[TIMER_BOIL]) boilMenu.setItem_P(UIStrings::Generic::PAUSE_TIMER, 1);
-                else boilMenu.setItem_P(UIStrings::Generic::START_TIMER, 1);
+                else boilMenu.setItem_P(UIStrings::Generic::START_TIMER, 1);b
                 
                 boilMenu.setItem_P(UIStrings::BoilMenu::BOIL_CTRL, 2);
                 switch (boilControlState) {
@@ -1092,7 +1092,7 @@ void boilControlMenu() {
             vessels[VS_KETTLE]->setSetpoint(getBoilTemp());
             break;
         case CONTROLSTATE_ON:
-            vessels[VS_KETTLE]->manualOutput(100);
+            vessels[VS_KETTLE]->manualOutput(vessels[VS_KETTLE]->getMaxPower());
             break;
     }
 }
@@ -2763,6 +2763,12 @@ unsigned long cfgValveProfile (char sTitle[], unsigned long defValue) {
     }
 }
 #endif
+
+void resetSpargeValves()
+{
+	flowController[0]->stop();
+	flowController[1]->stop();
+}
 
 #if defined PVOUT && defined PVOUT_TYPE_MODBUS
 const uint8_t ku8MBSuccess                    = 0x00;

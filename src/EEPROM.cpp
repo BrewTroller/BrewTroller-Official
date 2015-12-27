@@ -223,6 +223,7 @@ void setBoilTemp(byte boilTemp) { EEPROM.write(111, boilTemp); }
 //**********************************************************************************
 void setBoilPwr(byte value) { 
   boilPwr = value;
+  vessels[VS_KETTLE]->setMaxPower(boilPwr);
   EEPROM.write(112, value); 
 }
 

@@ -212,6 +212,7 @@ extern int temp[9]; //Needed to access aux sensors
 	void Vessel::setMaxPower(byte newMaxPower)
 	{
 		maxPower = newMaxPower;
+		pid->setOutputLimit(0, pidCycle * maxPower);
 	}
 
 	void Vessel::setTunings(double p, double i, double d)
@@ -387,7 +388,7 @@ extern int temp[9]; //Needed to access aux sensors
 			{
 				//Turn output on
 				heatPin.set(HIGH);
-				PIDOutput = 100;
+				PIDOutput = maxPower;
 			}
 			else if (getTemperature() > getSetpoint()+hysteresis)
 			{
@@ -415,9 +416,9 @@ extern int temp[9]; //Needed to access aux sensors
 
 	void Vessel::manualOutput(int newOutput)
 	{
-		PIDoutput = newOutput;
+		PIDoutput = newOutput * PIDcycle;
 		heatOverride = SOFTSWITCH_MANUAL;
-		(void)updateOutput();
+		updateOutput();
 	}
 
 
@@ -457,7 +458,7 @@ extern int temp[9]; //Needed to access aux sensors
 	void Vessel::setHeatOverride(SoftSwitch oride)
 	{//Forces the element on or off, or sets it to auto. Used with RGBIO8 soft switches.
 		heatOverride = oride;
-		(void)updateOutput();
+		updateOutput();
 	}
 
 	SoftSwitch Vessel::getHeatOverride() {
