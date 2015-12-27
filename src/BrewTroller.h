@@ -11,12 +11,17 @@
 #include "PVOut.h"
 #include "UI_LCD.h"
 #include "Vessel.h"
+#include "FlowController.h"
 
 const extern void(* softReset) (void);
 
 //**********************************************************************************
 // Compile Time Logic
 //**********************************************************************************
+
+#if defined USEPWM_HLT || defined USEPWM_MASH || defined USEPWM_KETTLE || defined USEPWM_PUMP
+#define USEPWM
+#endif
 
 #ifdef USEMETRIC
   #define SETPOINT_MULT 50
@@ -75,19 +80,9 @@ extern byte vSensor[3];
 extern byte tSensor[9][8];
 extern int temp[9];
 
-#ifdef SPARGE_IN_PUMP_CONTROL
-extern unsigned long prevSpargeVol[2];
-#endif
-
 #ifdef HLT_MIN_REFILL
 extern unsigned long SpargeVol;
 #endif
-
-#ifdef FLOWRATE_CALCS
-//Flowrate in thousandths of gal/l per minute
-extern long flowRate[3];
-#endif
-
 
 //Create the appropriate 'LCD' object for the hardware configuration (4-Bit GPIO, I2C)
 #if defined UI_LCD_4BIT
@@ -128,25 +123,17 @@ extern char buf[20];
 
 //Output Globals
 extern Vessel* vessels[3];
-extern double PIDInput, PIDOutput, setpoint;
-extern byte PIDCycle, hysteresis;
-#ifdef PWM_BY_TIMER
-extern unsigned int cycleStart[4];
-#else
-extern unsigned long cycleStart[4];
-#endif
-extern boolean heatStatus, PIDEnabled;
+extern FlowController* flowController[2]; //Used to move between tuns
+extern FlowController* fillController; //Used to fill from outside
 
-extern byte pidLimits;
+#ifdef USEPWM
+extern unsigned int cycleStart[6];
+#else
+extern unsigned long cycleStart[6];
+#endif
 
 //Steam Pressure in thousandths
 extern byte boilPwr;
-
-extern PID pid;
-#if defined PID_FLOW_CONTROL && defined PID_CONTROL_MANUAL
-  extern unsigned long nextcompute;
-  extern byte additioncount[2];
-#endif
 
 #ifdef RIMS_MLT_SETPOINT_DELAY
   extern byte steptoset;
@@ -178,9 +165,8 @@ extern const char LOGCFG[];
 extern const char LOGDATA[];
 
 //PWM by timer globals
-#ifdef PWM_BY_TIMER
+#ifdef USEPWM
 extern unsigned int timer1_overflow_count = 0;
-extern unsigned int PIDOutputCountEquivalent[4][2] = {{0,0},{0,0},{0,0},{0,0}};
 #endif
 
 // set what the PID cycle time should be based on how fast the temp sensors will respond

@@ -45,9 +45,6 @@ enum schedulerTasks {
   SCHEDULETASK_TEMPS,
   SCHEDULETASK_BUZZER,
   SCHEDULETASK_VOLS,
-#ifdef FLOWRATE_CALCS
-  SCHEDULETASK_FLOWRATES,
-#endif
   SCHEDULETASK_PROGRAMS,
   SCHEDULETASK_COMS,
 #ifdef PVOUT
@@ -92,13 +89,7 @@ void brewCore() {
       //Volumes: Volume.pde
       updateVols();
       break;
-      
-#ifdef FLOWRATE_CALCS
-    case SCHEDULETASK_FLOWRATES:
-      updateFlowRates();
-      break;
-#endif      
-      
+            
     case SCHEDULETASK_PROGRAMS:
       //Step Logic: StepLogic.pde
       programThreadsUpdate();
@@ -111,10 +102,9 @@ void brewCore() {
       
 #ifdef PVOUT
     case SCHEDULETASK_OUTPUTPROFILES:
-      //Auto Valve Logic: Outputs.pde
-      processAutoValve();
-      
-      //Set Valve Outputs based on active valve profiles (if changed): Outputs.pde
+		flowController[0]->update();
+		flowController[1]->update();
+		//Set Valve Outputs based on active valve profiles (if changed): Outputs.pde
       updateValves();
       break;
 #endif 

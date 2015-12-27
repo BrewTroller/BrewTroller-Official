@@ -107,15 +107,15 @@ void eventHandler(byte eventID, int eventParam) {
   }
   
   void mashMinISR() {
-	vessels[VS_MASH]->updateOutput();
+	  bitClear(actProfiles, VLV_MASHHEAT);
+	  vessels[VS_MASH]->updateOutput();
 #ifdef USESTEAM
 	vessels[VS_STEAM]->updateOutput();
 #endif
-	bitClear(actProfiles, VLV_MASHHEAT);
   }
   
   void kettleMinISR() {
-    vessels[VS_KETTLE]->updateOutput();
-    bitClear(actProfiles, VLV_KETTLEHEAT);
+	  bitClear(actProfiles, VLV_KETTLEHEAT); 
+	  vessels[VS_KETTLE]->updateOutput();
   }
 #endif

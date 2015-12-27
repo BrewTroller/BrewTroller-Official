@@ -11,6 +11,5 @@ void vftoa(unsigned long val, char retStr[], unsigned int divisor, boolean decim
 unsigned long pow10(byte power);
 
 unsigned int tempConvertUnits(unsigned int);
-unsigned int volumeConvertUnits(unsigned int);
 
 #endif

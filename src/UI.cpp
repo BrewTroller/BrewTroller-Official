@@ -503,30 +503,32 @@ void screenRefresh() {
         
         // The DIRECT_FIRED_RIMS option uses a different screen layout, so the logic just
         // does not work.  So two blocks are required.
-#ifdef DIRECT_FIRED_RIMS
+#ifdef DIRECT_FIRED_RIMS 
         byte vesselNames[3] = {VS_HLT, VS_MASH, VS_MASH};
         byte temps[3] = {TS_HLT, TS_MASH, RIMS_TEMP_SENSOR};
         byte heatSources[3] = {VS_HLT, VS_MASH, VS_STEAM};
-        for (byte i = 0; i <= 2; i++) {
-            vftoa(setpoint[vesselNames[i]], buf, 100, 1);
+        for (byte i = 0; i <= NUM_VESSELS; i++) {
+			if (i == VS_KETTLE && NUM_VESSELS == 4) continue; //Skip the VS_KETTLE option
+			rowIndex = min(i, 3); //Because we're skipping it, the array index and row get off by one
+			vftoa(vessels[i]->getSetpoint(), buf, 100, 1);
             truncFloat(buf, 4);
-            LCD.lPad(i + 1, 15, buf, 4, ' ');
-            vftoa(temp[temps[i]], buf, 100, 1);
+            LCD.lPad(rowIndex + 1, 15, buf, 4, ' ');
+            vftoa(vessels[i]->getTemperature(), buf, 100, 1);
             truncFloat(buf, 4);
-            if (temp[temps[i]] == BAD_TEMP) {
-                LCD.print_P(i + 1, 1, UIStrings::MashStep::BADTEMP);
-                // LCD.print_P(i + 1, 9, PSTR("----"));
+            if (vessels[i]->getTemperature() == BAD_TEMP) {
+                LCD.print_P(rowIndex + 1, 1, UIStrings::MashStep::BADTEMP);
+                // LCD.print_P(rowIndex + 1, 9, PSTR("----"));
             } else {
-                LCD.lPad(i + 1, 9, buf, 4, ' ');
+                LCD.lPad(rowIndex + 1, 9, buf, 4, ' ');
             }
             if (PIDEnabled[vesselNames[i]]) {
                 // There is no good way to currently show this.
                 // Removing for now.
-                LCD.print_P(i + 1, 6, UIStrings::MashStep::OCTOTHORPE);
+                LCD.print_P(rowIndex + 1, 6, UIStrings::MashStep::OCTOTHORPE);
             } else if (heatStatus[heatSources[i]]) {
-                LCD.print_P(i + 1, 6, UIStrings::MashStep::ASTERISK);
+                LCD.print_P(rowIndex + 1, 6, UIStrings::MashStep::ASTERISK);
             } else {
-                LCD.print_P(i + 1, 6, UIStrings::MashStep::DASH);
+                LCD.print_P(rowIndex + 1, 6, UIStrings::MashStep::DASH);
             }
             // This over-writes the RIMS row, so commented out.
             //    printTimer(TIMER_MASH, 3, 0);
@@ -686,11 +688,7 @@ void screenRefresh() {
     }
     else if (activeScreen == SCREEN_AUX) {
         //Screen Refresh: AUX
-#ifndef DIRECT_FIRED_RIMS
         for (byte i = TS_AUX1; i <= TS_AUX3; i++)
-#else
-            for (byte i = TS_AUX1; i <= TS_AUX2; i++)
-#endif
             {
                 if (temp[i] == BAD_TEMP) {
                     LCD.print_P(i - 5, 5, UIStrings::Generic::TEMPBLANK);
@@ -806,26 +804,29 @@ void screenEnter() {
             } else if (activeScreen == SCREEN_FILL) {
                 //Sceeen Enter: Fill/Refill
                 int encValue = Encoder.getCount();
-                if (encValue == 0) continueClick();
-                else if (encValue == 1) { autoValve[AV_FILL] = 0; bitClear(actProfiles, VLV_FILLMASH); bitSet(actProfiles, VLV_FILLHLT);}
-                else if (encValue == 2) { autoValve[AV_FILL] = 0; bitClear(actProfiles, VLV_FILLHLT); bitSet(actProfiles, VLV_FILLMASH);}
-                else if (encValue == 3) { autoValve[AV_FILL] = 0; bitSet(actProfiles, VLV_FILLHLT); bitSet(actProfiles, VLV_FILLMASH);}
-                else if (encValue == 4) { autoValve[AV_FILL] = 0; bitClear(actProfiles, VLV_FILLHLT); bitClear(actProfiles, VLV_FILLMASH);}
-                else if (encValue == 5) {
-                    menu fillMenu(3, 6);
-                    fillMenu.setItem_P(UIStrings::FillMenu::AUTO_FILL, 0);
-                    fillMenu.setItem_P(UIStrings::Shared::HLT_TARGET, 1);
-                    fillMenu.setItem_P(UIStrings::FillMenu::MASH_TARGET, 2);
-                    fillMenu.setItem_P(UIStrings::Generic::CONTINUE, 3);
-                    fillMenu.setItem_P(UIStrings::Generic::ABORT, 4);
-                    fillMenu.setItem_P(UIStrings::Generic::EXIT, 255);
-                    
-                    byte lastOption = scrollMenu("Fill Menu", &fillMenu);
-                    if (lastOption == 0) { if(vessels[VS_HLT]->getTargetVolume() || vessels[VS_MASH]->getTargetVolume()) autoValve[AV_FILL] = 1; }
-                    else if (lastOption == 1) vessels[VS_HLT]->setTargetVolume(getValue_P(UIStrings::Shared::HLT_TARGET_VOL, vessels[VS_HLT]->getTargetVolume(), 1000, 9999999, UIStrings::Units::VOLUNIT));
-                    else if (lastOption == 2) vessels[VS_MASH]->setTargetVolume(getValue_P(UIStrings::FillMenu::MASH_TARGET_VOL, vessels[VS_MASH]->getTargetVolume(), 1000, 9999999, UIStrings::Units::VOLUNIT));
-                    else if (lastOption == 3) continueClick();
-                    else if (lastOption == 4) {
+                if (encValue == 0) continueClick(); //Continue
+				else if (encValue == 1) { vessels[VS_HLT]->fill(); vessels[VS_MASH]->stopFilling(); } //Fill HLT
+                else if (encValue == 2) { vessels[VS_HLT]->stopFilling(); vessels[VS_MASH]->fill(); } //Fill Mash
+                else if (encValue == 3) { vessels[VS_HLT]->fill(); vessels[VS_MASH]->fill(); } //Fill Both
+                else if (encValue == 4) { vessels[VS_HLT]->stopFilling(); vessels[VS_MASH]->stopFilling(); } //All off
+				else if (encValue == 5) { //Menue
+					menu fillMenu(3, 6);
+					fillMenu.setItem_P(UIStrings::FillMenu::AUTO_FILL, 0);
+					fillMenu.setItem_P(UIStrings::Shared::HLT_TARGET, 1);
+					fillMenu.setItem_P(UIStrings::FillMenu::MASH_TARGET, 2);
+					fillMenu.setItem_P(UIStrings::Generic::CONTINUE, 3);
+					fillMenu.setItem_P(UIStrings::Generic::ABORT, 4);
+					fillMenu.setItem_P(UIStrings::Generic::EXIT, 255);
+
+					byte lastOption = scrollMenu("Fill Menu", &fillMenu);
+					if (lastOption == 0) { //AutoFill
+						fillController[0]->startAuto();
+						fillController[1]->startAuto();
+					}
+                    else if (lastOption == 1) vessels[VS_HLT]->setTargetVolume(getValue_P(UIStrings::Shared::HLT_TARGET_VOL, vessels[VS_HLT]->getTargetVolume(), 1000, 9999999, UIStrings::Units::VOLUNIT)); //Set HLT target
+                    else if (lastOption == 2) vessels[VS_MASH]->setTargetVolume(getValue_P(UIStrings::FillMenu::MASH_TARGET_VOL, vessels[VS_MASH]->getTargetVolume(), 1000, 9999999, UIStrings::Units::VOLUNIT)); //Set Mash target
+                    else if (lastOption == 3) continueClick(); //Continue
+                    else if (lastOption == 4) { //Abort
                         if (confirmAbort()) {
                             if (brewStepIsActive(BREWSTEP_FILL))
                                 brewStepSignal(BREWSTEP_FILL, STEPSIGNAL_ABORT);
@@ -2286,20 +2287,22 @@ void cfgOutputs() {
         outputMenu.appendItem(itoa(boilPwr, buf, 10), OPT_BOILPWR);
         outputMenu.appendItem("%", OPT_BOILPWR);
         
-#ifdef PID_FLOW_CONTROL
-        outputMenu.setItem_P(UIStrings::SystemSetup::OutputConfig::SPARGE_PUMP_MODE, VS_PUMP<<4 | OPT_MODE);
-        if (PIDEnabled) {
-            outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::PID_MODE, VS_PUMP<<4 | OPT_MODE);
-        }
-        else {
-            outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::ON_OFF_MODE, VS_PUMP<<4 | OPT_MODE);
-        }
-        outputMenu.setItem_P(UIStrings::Vessel::TITLE_VS_PUMP, VS_PUMP<<4 | OPT_GAIN);
-        outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::PIDGAIN, VS_PUMP<<4 | OPT_GAIN);
-        outputMenu.setItem_P(UIStrings::SystemSetup::OutputConfig::PUMPFLOW, VS_PUMP<<4 | OPT_PRESS);
+#if defined PID_PUMP1 || defined PID_PUMP2
+			//TODO: Let the user configure both PID pumps in the UI. Right now it only allows configuring one of them
+			outputMenu.setItem_P(UIStrings::SystemSetup::OutputConfig::SPARGE_PUMP_MODE, VS_PUMP << 4 | OPT_MODE);
+			if (flowController[0]->isPID()) {
+				outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::PID_MODE, VS_PUMP << 4 | OPT_MODE);
+			}
+			else {
+				outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::ON_OFF_MODE, VS_PUMP << 4 | OPT_MODE);
+			}
+			outputMenu.setItem_P(UIStrings::Vessel::TITLE_VS_PUMP, VS_PUMP << 4 | OPT_GAIN);
+			outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::PIDGAIN, VS_PUMP << 4 | OPT_GAIN);
+			outputMenu.setItem_P(UIStrings::SystemSetup::OutputConfig::PUMPFLOW, VS_PUMP << 4 | OPT_PRESS);
+		
 #elif defined USESTEAM
         outputMenu.setItem_P(UIStrings::SystemSetup::OutputConfig::STEAM_MODE, VS_STEAM<<4 | OPT_MODE);
-        if (PIDEnabled) {
+        if (vessels[VS_STEAM]->isPID()) {
             outputMenu.appendItem_P(UIStrings::SystemSetup::OutputConfig::PID_MODE, VS_STEAM<<4 | OPT_MODE);
         }
         else {
@@ -2318,31 +2321,54 @@ void cfgOutputs() {
         byte lastOption = scrollMenu("Output Settings", &outputMenu);
         byte vessel = lastOption>>4;
         char title[20];
-#ifdef PID_FLOW_CONTROL
-        if (vessel >= VS_HLT && vessel <= VS_PUMP)
-#elif defined USESTEAM
+#if defined USESTEAM
             if (vessel >= VS_HLT && vessel <= VS_STEAM)
+#elif defined PID_PUMP1 || defined PID_PUMP2
+		//TODO: The UI won't let you configure both steam and a PID pump. Steam takes precedence. Fix this.
+		if (vessel >= VS_HLT && vessel <= VS_PUMP)
 #else
                 if (vessel >= VS_HLT && vessel <= VS_KETTLE)
 #endif
                     strcpy_P(title, (char*)pgm_read_word(&(UIStrings::SystemSetup::TITLE_VS[vessel])));
         
-        if ((lastOption & B00001111) == OPT_MODE) {
+				if ((lastOption & B00001111) == OPT_MODE) {
+#if defined PID_PUMP1 || PID_PUMP2
+					if (vessel == VS_PUMP) {
+						flowController[0]->usePID(!flowController[0]->isPID());	
+				} else
+#endif
             if (vessels[vessel]->isPID()) vessels[vessel]->setPID(false);
             else vessels[vessel]->setPID(true);
-        } else if ((lastOption & B00001111) == OPT_CYCLE) {
-            strcat_P(title, UIStrings::SystemSetup::OutputConfig::PIDCYCLE);
-			vessels[vessel]->setPIDCycle(getValue(title, vessels[vessel]->getPIDCycle(), 10, 255, UIStrings::Shared::SEC));
-        } else if ((lastOption & B00001111) == OPT_HYSTERESIS) {
-            strcat_P(title, UIStrings::SystemSetup::OutputConfig::HYSTERESIS);
+				}
+				else if ((lastOption & B00001111) == OPT_CYCLE) {
+					strcat_P(title, UIStrings::SystemSetup::OutputConfig::PIDCYCLE);
+#if defined PID_PUMP1 || PID_PUMP2
+					if (vessel == VS_PUMP)
+					{
+						flowController[0]->setCycle(getValue(title, flowController[0]->getCycle(), 10, 255, UIStrings::Shared::SEC));
+						flowController[1]->setCycle(getValue(title, flowController[1]->getCycle(), 10, 255, UIStrings::Shared::SEC));
+				}
+			else
+#endif
+			vessels[vessel]->setPIDCycle(getValue(title, pumpPID->GetPIDCycle(), 10, 255, UIStrings::Shared::SEC));
+				}
+				else if ((lastOption & B00001111) == OPT_HYSTERESIS) {
+					strcat_P(title, UIStrings::SystemSetup::OutputConfig::HYSTERESIS);
+#if defined PID_PUMP1 || PID_PUMP2
+					if (vessel == VS_PUMP)
+					{
+						flowController[0]->setHysteresis(getValue(title, flowController[0]->getHysteresis(), 10, 255, UIStrings::Shared::SEC));
+						flowController[1]->setHysteresis(getValue(title, flowController[1]->getHysteresis(), 10, 255, UIStrings::Shared::SEC));
+					}
+			else
+#endif
 			vessels[vessel]->setHysteresis(getValue(title, vessels[vessel]->getHysteresis(), 10, 255, UIStrings::Units::TUNIT));
-#if defined USESTEAM || defined PID_FLOW_CONTROL
+#if defined USESTEAM || defined PID_PUMP1 || defined PID_PUMP2
         } else if ((lastOption & B00001111) == OPT_PRESS) {
-#ifdef PID_FLOW_CONTROL
-            setSteamTgt(getValue_P(UIStrings::SystemSetup::OutputConfig::PUMPFLOW, getSteamTgt(), 1, 255, UIStrings::Units::PUNIT));
+#if !defined USESTEAM
+            setPumpTgt(getValue_P(UIStrings::SystemSetup::OutputConfig::PUMPFLOW, getPumpTgt(), 1, 255, UIStrings::Units::PUNIT));
 #else
             setSteamTgt(getValue_P(UIStrings::SystemSetup::OutputConfig::STEAMPRESS, getSteamTgt(), 1, 255, UIStrings::Units::PUNIT));
-#endif
 #endif
 #ifdef USESTEAM
         } else if ((lastOption & B00001111) == OPT_SENSOR) {
@@ -2476,9 +2502,7 @@ void cfgVolumes() {
         byte vessel = lastOption>>4;
         
         char title[20];
-#ifdef PID_FLOW_CONTROL
-        if (vessel >= VS_HLT && vessel <= VS_PUMP)
-#elif defined USESTEAM
+#ifdef USESTEAM
             if (vessel >= VS_HLT && vessel <= VS_STEAM)
 #else
                 if (vessel >= VS_HLT && vessel <= NUM_VESSELS)
@@ -2634,7 +2658,7 @@ unsigned long cfgValveProfile (char sTitle[], unsigned long defValue) {
     //firstBit: The left most bit being displayed
     byte firstBit, encMax;
     
-    encMax = PVOUT_COUNT + 1;
+    encMax = PVOUT_COUNT + 1 - NUM_PID_PUMPS;
 #ifdef PVOUT_TYPE_MODBUS
     for (byte i = 0; i < PVOUT_MODBUS_MAXBOARDS; i++) {
         if (ValvesMB[i])
@@ -2670,7 +2694,7 @@ unsigned long cfgValveProfile (char sTitle[], unsigned long defValue) {
                     firstBit = encValue - 17;
                 }
                 for (byte i = firstBit; i < min(encMax - 1, firstBit + 18); i++) {
-                    if (retValue & ((unsigned long)1<<i)) {
+                    if (retValue & ((unsigned long)1<<(i+NUM_PID_PUMPS))) { //Note that, as best I can tell, retValue is stored little-endian, i.e. a valve config that would display as 0101 is stored as 1010.
                         LCD.print_P(1, i - firstBit + 1, UIStrings::SystemSetup::ValveProfileConfig::ONE);
                     }
                     else {
@@ -2724,7 +2748,7 @@ unsigned long cfgValveProfile (char sTitle[], unsigned long defValue) {
                 setValves(computeValveBits());
                 redraw = 1;
             } else {
-                retValue = retValue ^ ((unsigned long)1<<encValue);
+                retValue = retValue ^ ((unsigned long)1<<(encValue+NUM_PID_PUMPS));
                 for (byte i = firstBit; i < min(encMax - 1, firstBit + 18); i++) {
                     if (retValue & ((unsigned long)1<<i)){
                         LCD.print_P(1, i - firstBit + 1, UIStrings::SystemSetup::ValveProfileConfig::ONE);

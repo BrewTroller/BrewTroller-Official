@@ -94,6 +94,14 @@ option(MASH_AVG_A3 "Average Aux3 into Mash Temperature" OFF)
 set(FF_OPT 0)
 add_definitions("-DFF_OPT=${FF_OPT}")
 
+#PWM
+option(USEPWM_HLT, "Use PWM for the HLT output" OFF)
+option(USEPWM_MASH, "Use PWM for the Mash output" OFF)
+option(USEPWM_KETTLE, "Use PWM for the Kettle output" OFF)
+option(USEPWM_STEAM, "Use PWM for the Steam output" OFF)
+option(USEPWM_PUMP, "Use PWM for the Pump1 output" OFF)
+option(USEPWM_PUMP, "Use PWM for the Pump2 output" OFF)
+
 #####
 # Volume Options
 #####

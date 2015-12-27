@@ -249,11 +249,22 @@ void setSteamZero(unsigned int value) {
 void setSteamTgt(byte value) { 
 #ifdef USESTEAM
   vessels[VS_STEAM]->setSetpoint(value);
-#else
+
+	#endif
 EEPROM.write(116, value); 
 #endif
 }
 byte getSteamTgt() { return EEPROM.read(116); }
+
+inline void setPumpTgt(byte value) { 
+
+	flowController[0]->setSetpoint(value);
+	setSteamTgt(value); 
+}
+
+inline byte getPumpTgt() {
+	return getSteamTgt();
+}
 
 //**********************************************************************************
 //steamPSens (117-118)

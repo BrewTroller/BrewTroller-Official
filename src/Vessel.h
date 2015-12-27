@@ -24,9 +24,10 @@ class Vessel
 {
 private:
 	//Config
-	byte eepromIndex; //The index in the eeprom to look up settings for this vessel
+	byte role; //The index in the eeprom to look up settings for this vessel
 	byte sensorAddress[8]; //The address of the temperature sensor assigned to this vessel. To-do: replace with class
 	byte feedforwardAddress[8]; //The address of the feedforward sensor if one is used.
+	Stage stage; //Fill, mash, sparge, boil
 
 	float minVolume; //Minimum volume at which to run the element
 	byte maxPower; //Maximum power at which to run the associated element
@@ -35,6 +36,7 @@ private:
 	float deadspace; //Dead space
 	byte minTriggerPin; //Pin that triggers a low volume condition
 	
+	byte heatConfig, idleConfig, fillConfig; //Note that "liquid out" is implemented by "fill" of the next vessel
 	
 	SoftSwitch heatOverride = SOFTSWITCH_AUTO; // SOFTSWITCH_OFF, _ON, _AUTO 
 
@@ -47,8 +49,14 @@ private:
 	bool usePID; //TRUE = use PID mode, FALSE = on/off mode
 	PID* pid = NULL; //PID object for use with PID
 	byte feedforward = 0; //The ID of the feedforward sensor. Valid values are 1-3, corresponding to AUX1-3. Anything outside that range will be ignored
+#ifdef USESTEAM
 	bool usesSteam; //Does this vessel use steam input for fine changes?
+#endif
+#ifdef USEPWM
+	bool usesPWM; //Does this vessel's heat output use PWM?
+#endif
 	
+	  
 	float PIDcycle;
 	float hysteresis;
 	bool includeAux[3]; //Whether to average AUX1-3; stores their indices
@@ -58,11 +66,18 @@ private:
 	unsigned int volumeCalibrationPressure[10]; //The pressures used for calibration
 	unsigned long volumeCalibrationVolume[10]; //The volumes used for calibration
 	float targetVolume = 0;
+	//Flowrate in thousandths of gal/l per minute
+	long flowRate = 0;
+	long flowRateHistory[10] = { 0,0,0,0,0,0,0,0,0,0 };
+	byte flowIndex = 0;
 	
 #ifdef USESTEAM
 	int steamPressureSensitivity;
 #endif
-	
+#ifdef USEPWM
+	inline bool isPWM() { return usesPWM; }
+	inline void setPWM(bool newPWM) { usesPWM = newPWM; }
+#endif
 	//Valves require broader state awareness (e.g. MLT valve config might be different for mash vs. sparge) and are handled outside this class.
 
 	//Working statuses
@@ -80,12 +95,15 @@ private:
 	byte usesAuxInputs; //The count of aux inputs used for averaging
 
 	void updateTemperature(); //Fetch the latest temperature fro* SETPOINT_MULTm the sensor
-	
+	void updateFlowrateCalcs(); //Update the flow rate calculations
+
+	void updateValveConfigs(); //Sets up valve configs based on stage
+	void updateHeatValves(); //Actually turn heat valves on or off based on current output
 public:
 	//All set functions also write the value to EEPROM
 
 	//No default constructor because we need to know which eeprom index to use
-	Vessel(byte initEepromIndex, bool initIncludeAux[], byte FFBias, float initMinVolume, byte initMinTriggerPin, byte initMaxPower, double initMinTemperature, double initMaxTemperature);
+	Vessel(byte initrole, bool initIncludeAux[], byte FFBias, float initMinVolume, byte initMinTriggerPin, byte initMaxPower, double initMinTemperature, double initMaxTemperature, bool initUsePWM);
 	~Vessel();
 
 	//Temperature control functions
@@ -123,7 +141,8 @@ public:
 	float getVolume(); //Return the volume, as calculated based on this vessel's pressure sensor
 	void takeVolumeReading(); //Take a sample of the volume
 	inline float getPressure() {return volume;} //Unlike the volume code, this doesn't multiply by a factor of 1000
-	
+	float getFlowRate() { return flowRate; }
+
 	inline void setTargetVolume(float target) { targetVolume = target * 1000.0; };
 	inline float getTargetVolume() { return targetVolume / 1000.0; };
 	inline float getTargetPressure() {return targetVolume;} 
@@ -134,15 +153,25 @@ public:
 	void setPressureSensitivity(int);
 	inline int getPressureSensitivity() {return steamPressureSensitivity; }
 #endif
+#ifdef USEPWM
+	void updatePWMOutput(); //This needs a separate function for speed reasons, because the full heat update function would run too much code in an interrupt handler
+#endif
 	inline float getCapacity() { return capacity; }
 	void setCapacity(float capacity);
+	inline void fill() { bitSet(actProfiles, fillConfig); }
+	inline void stopFilling() { bitClr(actProfiles, fillConfig); }
 
 	inline unsigned long getCalibrationVolume(byte index) { return volumeCalibrationVolume[index]; }
 	inline unsigned int getCalibrationPressure(byte index) { return volumeCalibrationVolume[index]; }
-	
+	s
 	 bool isOn(); //Returns whether the heating element is on at this very moment (cycles on and off with PID). Use getOutput() to see the exact level.
 	void setHeatOverride(SoftSwitch); //Forces the element on or off, or sets it to auto. Used with RGBIO8 soft switches.
 	 SoftSwitch getHeatOverride(); 
+
+	 inline void setStage(Stage s) { stage = s; updateValveConfigs(); }
+	 enum Stage {
+		 FILL, MASH, SPARGE, BOIL
+	 };
 };
 
 //Subroutine to initialize the system's vessels

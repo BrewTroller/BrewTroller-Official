@@ -125,14 +125,13 @@
 // temperaure sensor to read for that vessels setpoint.
 // The secondary purpose is to provide a safe way to enumerate the heat outputs,
 // safely decoupling the #defines values from loop-control.
-#if defined PID_FLOW_CONTROL
-static const int HEAT_OUTPUTS_COUNT = 4;
-static const uint8_t HEAT_OUTPUTS[HEAT_OUTPUTS_COUNT][2] = {{VS_HLT, TS_HLT}, {VS_MASH, TS_MASH}, {VS_KETTLE, TS_KETTLE}, {VS_PUMP, TS_MASH}};
+#if defined USESTEAM
+constexpr int HEAT_OUTPUTS_COUNT = 4;
 #else
-static const int HEAT_OUTPUTS_COUNT = 3;
-static const uint8_t HEAT_OUTPUTS[HEAT_OUTPUTS_COUNT][2] = {{VS_HLT, TS_HLT}, {VS_MASH, TS_MASH}, {VS_KETTLE, TS_KETTLE}};
+constexpr int HEAT_OUTPUTS_COUNT = 3;
 #endif
-constexpr uint8_t NUM_VESSELS (HEAT_OUTPUTS_COUNT < 3 ? HEAT_OUTPUTS_COUNT : 3);
+
+constexpr uint8_t NUM_VESSELS HEAT_OUTPUTS_COUNT;
 
 // These two should be used as the array index when operating on a HEAT_OUTPUT array.
 // They need to be variables instead of #defines because of use as index subscripts.
@@ -148,7 +147,8 @@ static const uint8_t TS = 1;
 #define PIDLIMIT_HLT 100
 #define PIDLIMIT_MASH 100
 #define PIDLIMIT_KETTLE 100
-#define PIDLIMIT_STEAM 100 // note this is also the PID limit for the pump PWM output if PID_FLOW_CONTROL is enabled
+#define PIDLIMIT_STEAM 100 
+#define PIDLIMIT_PUMP 100
 
 //**********************************************************************************
 // PID Feed Forward control
@@ -163,51 +163,44 @@ static const uint8_t TS = 1;
 //**********************************************************************************
 // PWM ouputs controled by timer rather than brew core loop
 //**********************************************************************************
-// This #define enables the PWM outputs to be controled by timer rather than the brew core loop.
-// This means that we can have a higher frequency output, and that the timings of the PWM signal are more
-// accurate. This is required if you are goign to attempt to control a pump with a PWM output.
+// This enables PID outputs to be pulsed rather than on/off according to the PID cycle. In other words,
+// if PWM is on, an output running at 50% will be toggled on and off with every clock tick (fractions of a second), whereas with PWM off,
+// it will be toggled on and off at half each PID cycle. Do not run a PWM output through a mechanical relay - mechanical relays are not designed for such rapid switching and will fail very quickly. Other
+// types of output that are not appropriate for PWM output include gas outputs, ball valves and some solenoids. PWM works well with pumps and electric heating elements through a SSR.
 // NOTE: The counter/timer is set to work with a 16mhz input frequency and is set to run at 8khz PWM output
-// frequency as the fastest possible frequency, (also note that the period cannot exceed 8.19 seconds). Also
-// only two PWM outputs can run at 8khz, all the rest must run at a lower frequency as defiend above. The
-// two PWM outputs which will be 8khz can be defined below, comment them both out if none are that high.
-// Also, the reported period for the 8khz outputs is going to look like 1 seconds in both the UI and the log.
-// You will not however be able to set the the PWM frequency from the UI because it is set at 8khz, the value
-// given in +the UI will be ignored. The % output however will be reported properly through the UI and log.
-//          #define PWM_BY_TIMER
+// frequency as the fastest possible frequency, (also note that the period cannot exceed 8.19 seconds). 
+// Note also that STEAM and PUMP are currently mutually exclusive - no hardware config allows both of them. There is no technical reason this needs to be the case..
+
+			#cmakedefine USEPWM_HLT
+			#cmakedefine USEPWM_MASH
+			#cmakedefine USEPWM_KETTLE
+			#cmakedefine USEPWM_STEAM
+			#cmakedefine USEPWM_PUMP1
+			#cmakedefine USEPWM_PUMP2
+
 //**********************************************************************************
 
 //**********************************************************************************
 // Flow rate calcs fed into PID controller for auto fly sparge
 //**********************************************************************************
-// This #define enables the feeding of the flow rate calcs based on the pressure sensors to be fed into the
-// PID code to control a pump for fly sparge to get a desired flow rate. Note that the PWM output used to
-// control the pump takes over the steam output, and thus the steam output cannot be used for steam.
-// Note: This code is designed to work with PWM_BY_TIMER
 // Note2: Given our current 10 bit adc and the average pressure sensor resolution for volume you only get about
-//*/ 7 ADC clicks per quart, thus if you have your flow rate calcs set to happen to fast you'll always show a 0 flow
+//*/ 7 ADC clicks per quart, thus if you have your flow rate calcs set to happen too fast you'll always show a 0 flow
 // rate. You'll need at least 20 seconds between flow rate calcs to be able to measure this slow of a flow rate.
 // Note3: the Pump output must be set to PID for this to work as well.
 // Note4: In the UI when you enter the Pump flow rate it's entered in 10ths of a quart per minute, so 1 quart per
 // minute would be 10.
-//#define PID_FLOW_CONTROL
+
 //#define PID_CONTROL_MANUAL  // modified manual control (still has to be set to PID in settings menu) in case you
 //just cant get PID to work
+
+#define PID_PUMP1			//This determines whether 0, 1 or 2 outputs will be used for PID-controlled pumps, and if 1, 
+#define PID_PUMP2			//which flow it controls: HLT->MASH or MASH->KETTLE. These outputs take over the first 1 or 2 valve outputs.
+
 #define PID_FLOW_MIN 30     // this is the minimum PID output duty cycle % to be used when the setpoint is non zero
 // this is used because under a certain duty cycle a pump wont even spin or just
 // make foam, etc so we need the pump to at least move liquid before we try to
 // control it or your process + intregral variables can just run away while you're trying
 // to spin up.
-//**********************************************************************************
-
-//**********************************************************************************
-// Fly sparge pump control to turn the sparge in pump on/off based on a hysteresis from volume of sparge out
-//**********************************************************************************
-// This #define will turn the fly sparge in valve config on when the hysteresis amount of fluid has been pumped
-// into the kettle from the MLT. It will then shut off the pump when that equal amount of sparge water has been
-// pumped out of the HLT.
-// Note: SPARGE_IN_HYSTERSIS is in 1000ths of a gallon or liter.
-//#define SPARGE_IN_PUMP_CONTROL
-#define SPARGE_IN_HYSTERESIS 250
 //**********************************************************************************
 
 //**********************************************************************************
@@ -476,18 +469,6 @@ static const uint8_t TS = 1;
 #define VOLUME_READ_INTERVAL 200
 #define VOLUME_READ_COUNT 5
 //**********************************************************************************
-
-//**********************************************************************************
-// Flow Rate Calculation
-//**********************************************************************************
-// FLOWRATE_CALCS: Enables calculation of flow rates for each vessel based on
-// volume changes over a specified interval
-// FLOWRATE_READ_INTERVAL: Time in ms between flowrate calculation updates
-//
-//#define FLOWRATE_CALCS
-#define FLOWRATE_READ_INTERVAL 1000
-//**********************************************************************************
-
 
 //**********************************************************************************
 // RS485/Modbus Configuration

@@ -91,6 +91,11 @@ void setSteamZero(unsigned int value);
 void setSteamTgt(byte value);
 byte getSteamTgt();
 
+//Aliases
+void setPumpTgt(byte value);
+byte getPumpTgt();
+
+
 //**********************************************************************************
 //steamPSens (117-118)
 //**********************************************************************************

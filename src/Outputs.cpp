@@ -33,9 +33,6 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 #include "Events.h"
 #include "Vessel.h"
 
-#ifdef PID_FLOW_CONTROL 
-  #define LAST_HEAT_OUTPUT VS_PUMP // not this is mostly done for code readability as VS_PUMP = VS_STEAM
-#else
   #ifdef USESTEAM
     #define LAST_HEAT_OUTPUT VS_STEAM
   #elif defined DIRECT_FIRED_RIMS
@@ -43,9 +40,8 @@ Documentation, Forums and more information available at http://www.brewtroller.c
   #else
     #define LAST_HEAT_OUTPUT VS_KETTLE
   #endif
-#endif
 
-#ifdef PWM_BY_TIMER
+#ifdef USEPWM
 // note there are some assumptions here, we assume that the COM1A1, COM1B1, COM1A0, and COM1B0 
 // bits are all 0 (as they should be on power up)
 void pwmInit( void )
@@ -59,7 +55,7 @@ void pwmInit( void )
     cbi(TCCR1A, WGM10);
     //set timer 1 into 16 bit phase and frequency correct PWM mode with ICR1 as TOP
     sbi(TCCR1B, WGM13);
-    //set TOP as 1000, which makes the overflow on return to bottom for this mode happen ever 
+    //set TOP as 1000, which makes the overflow on return to bottom for this mode happen every 
     // 125uS given a 16mhz input clock, aka 8khz PWM frequency, the overflow ISR will handle 
     // the PWM outputs that are slower than 8khz, and the OCR1A/B ISR will handle the 8khz PWM outputs
     ICR1 = 1000; 
@@ -80,29 +76,42 @@ void pwmInit( void )
 // Also the below ISR is set to nonblock so that interrupts are enabled as we enter the function
 // this is done to make sure that we can run low counts in the compare registers, for example, 
 // a count of 1 could cause an interrupts 1 processor clock cycle after this interrupt is called 
-// sense it's called at bottom, and sense this has a fair amount of code in it, it's good to let the 
+// sinse it's called at bottom, and sinse this has a fair amount of code in it, it's good to let the 
 // compare interrupts interrupt this interrupt (same with the UART and timer0 interrupts)
 ISR(TIMER1_OVF_vect, ISR_NOBLOCK )
 {
+#if defined  PWM_HLT  || defined PWM_MASH || defined PWM_KETTLE || defined PWM_STEAM || defined PWM_PUMP1 || defined PWM_PUMP2
     //count the number of times this has been called 
     timer1_overflow_count++;
-    for(byte i = 0; i <= LAST_HEAT_OUTPUT; i++)
-    {
-        // if PID is enabled, and NOT one of the 8khz PWM outputs then we can use this
-        if(PIDEnabled[i])
-        {
-            //init the cyclestart counter if needed
-            if(cycleStart[i] == 0 ) cycleStart[i] = timer1_overflow_count; 
-            //if our period just ended, update to when the next period ends
-            if((timer1_overflow_count - cycleStart[i]) > PIDOutputCountEquivalent[i][0]) 
-                cycleStart[i] += PIDOutputCountEquivalent[i][0];
-            //check to see if the pin should be high or low (note when our 16 bit integer wraps we will have 1 period where 
-            // the PWM % if cut short, because from the time of wrap until the next period 
-            if ((!estop) && PIDOutputCountEquivalent[i][1] >= timer1_overflow_count - cycleStart[i] 
-                  && timer1_overflow_count != cycleStart[i]) 
-                heatPin[i].set(HIGH); else heatPin[i].set(LOW);
-        }
+	for (byte i = 0; i <= LAST_HEAT_OUTPUT + NUM_PWM_PUMPS; i++)
+	{
+		if (cycleStartPump[i] == 0) cycleStart[i] = timer1_overflow_count;
+		//if our period just ended, update to when the next period ends
+	}
+
+	byte cachedOutput;
+#if defined PWM_HLT  || defined PWM_MASH || defined PWM_KETTLE || defined PWM_STEAM
+	for (byte i = 0; i <= LAST_HEAT_OUTPUT; i++)
+	{
+		cachedOutput = vessels[i]->getOutput();
+		if ((timer1_overflow_count - cycleStart[i]) > cachedOutput)
+			cycleStart[cycleStartIndex] += cachedOutput;
+
+        vessels[i]->updatePWMOutput(cachedOutput >= timer1_overflow_count - cycleStart[i])
+			&& timer1_overflow_count != cycleStart[i])));
     }
+#endif
+#if defined PWM_PUMP1 || defined PWM_PUMP2
+	for (byte i = 0; i <= NUM_PWM_PUMPS; i++)
+	{
+		cachedOutput = flowController[i]->getOutput();
+		if ((timer1_overflow_count - cycleStart[i+LAST_HEAT_OUTPUT]) > cachedOutput)
+			cycleStart[i] += cachedOutput;
+
+		flowController[i]->updatePWMOutput(cachedOutput >= timer1_overflow_count - cycleStart[i+LAST_HEAT_OUTPUT])
+			&& timer1_overflow_count != cycleStart[i+LAST_HEAT_OUTPUT])));
+	}
+#endif
 }
 
 #endif //PWM_BY_TIMER
@@ -113,12 +122,7 @@ void pinInit() {
     alarmPin.setup(ALARM_PIN, OUTPUT);
   #endif
   
-  #ifdef PID_FLOW_CONTROL
-    #ifdef PWMPUMP_PIN
-      heatPin[VS_PUMP].setup(PWMPUMP_PIN, OUTPUT);
-    #endif
-  #endif
-
+ 
   #ifdef HEARTBEAT
     hbPin.setup(HEARTBEAT_PIN, OUTPUT);
   #endif
@@ -149,33 +153,11 @@ void pidInit() {
   //note that the PIDCycle for the 8khz outputs is set to 10 because the TOP of the counter/timer is set to 1000
   // this means that after it is multiplied by the PIDLIMIT it will be the proper value to give you the desired % output
   // it also makes the % calculations work properly in the log, UI, and other area's. 
-  #ifdef PID_FLOW_CONTROL
-    PIDCycle = 1; // for PID pump flow the STEAM heat output is set to a fixed 10hz signal with 100 step outputs. 
-  #endif
   
-  #ifdef PID_FLOW_CONTROL
-    #ifdef USEMETRIC
-      pid.SetInputLimits(0, 255000); // equivalent of 25.5 LPM (255 * 100)
-    #else
-      pid.SetInputLimits(0, 6375); // equivalent of 6.375 GPM (255 * 25)
-    #endif
-    pid.SetOutputLimits(PID_FLOW_MIN, PIDCycle * PIDLIMIT_STEAM);
-    pid.SetTunings(pid.GetP_Param(), pid.GetI_Param(), pid.GetD_Param());
-    #ifdef PID_CONTROL_MANUAL
-      pid.SetMode(MANUAL);
-    #else
-      pid.SetMode(AUTO);
-    #endif
-    pid.SetSampleTime(FLOWRATE_READ_INTERVAL);
-    #ifdef PID_CONTROL_MANUAL
-      nextcompute = millis() + FLOWRATE_READ_INTERVAL;
-    #endif
   
-    #endif
-
   #ifdef DEBUG_PID_GAIN
     for (byte vessel = VS_HLT; vessel <= NUM_VESSELS; vessel++) logDebugPIDGain(vessel);
-  #endif
+  #endi
 }
 
 void resetOutputs() {
@@ -183,81 +165,17 @@ void resetOutputs() {
   
   for (byte i = VS_HLT; i <= LAST_HEAT_OUTPUT; i++)
 	  vessels[i]->setSetpoint(0);
-
+#if defined PID_PUMP1 || defined PID_PUMP2
+  flowController[0]->setTargetOutput(0);
+  flowController[1]->setTargetOutput(0);
+#endif
   updateValves();
 }
 
 void resetHeatOutput(byte vessel) {
-  #ifdef PWM_BY_TIMER
-    uint8_t oldSREG;
-  #endif
   vessels[vessel]->setSetpoint(0);
-  
-  #ifdef PWM_BY_TIMER
-    // need to disable interrupts so a write into here can finish before an interrupt can come in and read it
-    oldSREG = SREG;
-    cli();
-    //if we are not a 8K output then we can set it to 0, but if we are we need to set it to 1000 to make the duty cycle 0
-    PIDOutputCountEquivalent[vessel][1] = 0;
-    SREG = oldSREG; // restore interrupts
-  #endif
+  updateValves();
 }  
-
-//TODO: Make the below section work with new vessel definitions
-#if defined PID_FLOW_CONTROL && defined PID_CONTROL_MANUAL
-void processPID_FLOW_CONTROL(byte vessel) {
-  if(vessel == VS_PUMP){ //manual control if PID isnt working due to long sample times or other reasons
-    millistemp = millis();
-    if(millistemp >= nextcompute){
-      nextcompute += FLOWRATE_READ_INTERVAL;
-      if(setpoint[vessel] == 0) PIDOutput[vessel] = 0;
-      else{
-        if((long)setpoint[vessel] - flowRate[VS_KETTLE] > 100){
-          additioncount[0]++;
-          additioncount[1] = 0;
-          if(additioncount[0] > 5){    // this is here to break a case where adding 10 causes a change of 100 but lowering 10 causes a change of 100 off the setpoint and we just oscilate. 
-            additioncount[0] = 0;
-            PIDOutput[vessel] += 5;
-          }
-          else PIDOutput[vessel] += 10;
-        }
-        else if((long)setpoint[vessel] - flowRate[VS_KETTLE] < -100){
-          additioncount[0]++;
-          additioncount[1] = 0;
-          if(additioncount[0] > 5){    // this is here to break a case where adding 10 causes a change of 100 but lowering 10 causes a change of 100 off the setpoint and we just oscilate. 
-           additioncount[0] = 0;
-           PIDOutput[vessel] -= 5;
-         }
-         else PIDOutput[vessel] -= 10;
-        }
-        else if((long)setpoint[vessel] - flowRate[VS_KETTLE] > 50){ 
-          additioncount[0] = 0;
-          additioncount[1]++;
-          if(additioncount[0] > 5){    // this is here to break a case where adding 5 causes a change of 50 but lowering 5 causes a change of 50 off the setpoint and we just oscilate. 
-            additioncount[1] = 0;
-            PIDOutput[vessel] += 1;
-          }
-          else PIDOutput[vessel] += 5;
-        }
-        else if((long)setpoint[vessel] - flowRate[VS_KETTLE] < -50){ 
-          additioncount[0] = 0;
-          additioncount[1]++;
-          if(additioncount[0] > 5){    // this is here to break a case where adding 5 causes a change of 50 but lowering 5 causes a change of 50 off the setpoint and we just oscilate. 
-            additioncount[1] = 0;
-            PIDOutput[vessel] -= 1;
-          }
-          else PIDOutput[vessel] -= 5;
-        }
-        else if((long)setpoint[vessel] - flowRate[VS_KETTLE] > 10) PIDOutput[vessel] += 1;
-        else if((long)setpoint[vessel] - flowRate[VS_KETTLE] < -10) PIDOutput[vessel] -= 1;
-        
-        if(PIDOutput[vessel] > pid[vessel].GetOUTMax()) PIDOutput[vessel] = pid[vessel].GetOUTMax();
-        else if(PIDOutput[vessel] < pid[vessel].GetOUTMin()) PIDOutput[vessel] = pid[vessel].GetOUTMin();
-      }
-    }
-  }
-}
-#endif // defined PID_FLOW_CONTROL && defined PID_CONTROL_MANUAL
 
 /*
  * Things get a little complex here, so let's break it down.
@@ -281,24 +199,21 @@ void processHeatOutputs() {
   #endif
 	unsigned int timestamp = millis();
   for (int vesselIndex = 0; vesselIndex < HEAT_OUTPUTS_COUNT; vesselIndex++) {
-    #ifndef PWM_BY_TIMER
-  
-      if (cycleStart[vesselIndex] == 0) cycleStart[vesselIndex] = timestamp;
-      
+    #ifdef USEPWM  
+	  if (cycleStart[vesselIndex] == 0 && !vessel[vesselIndex]->isPWM()) cycleStart[vesselIndex] = timestamp;
+	#else
+	   if (cycleStart[vesselIndex] == 0) cycleStart[vesselIndex] = timestamp;
     #endif
     
 	  vessels[vesselIndex]->updateOutput();
-	#ifdef RGBIO8_ENABLE
-    if (softSwitchHeat[vesselIndex] == SOFTSWITCH_AUTO) {
-      // Auto
-    #endif
-    
     }
 }
 
-#ifdef PVOUT
+
   void updateValves() {
-    setValves(computeValveBits());
+#ifdef PVOUT
+	  setValves(computeValveBits());
+#endif
   }
   
   void setValves(unsigned long vlvBits) {
@@ -316,74 +231,6 @@ void processHeatOutputs() {
   }
 
   void processAutoValve() {
-    #ifdef HLT_MIN_REFILL
-      unsigned long HLTStopVol;
-    #endif
-    //Do Valves
-    if (autoValve[AV_FILL]) {
-      if (vessels[VS_HLT]->getVolume() < vessels[VS_HLT]->getTargetVolume()) bitSet(actProfiles, VLV_FILLHLT);
-        else bitClear(actProfiles, VLV_FILLHLT);
-        
-      if (vessels[VS_MASH]->getVolume() < vessels[VS_MASH]->getTargetVolume()) bitSet(actProfiles, VLV_FILLMASH);
-        else bitClear(actProfiles, VLV_FILLMASH);
-    }
-    
-    //HLT/MASH/KETTLE AV Logic
-    for (byte i = VS_HLT; i <= VS_KETTLE; i++) {
-      byte vlvHeat = vesselVLVHeat(i);
-      byte vlvIdle = vesselVLVIdle(i);
-      if (autoValve[vesselAV(i)]) {
-		  if (vessels[i]->getOutput()) {
-          if (vlvConfigIsActive(vlvIdle)) bitClear(actProfiles, vlvIdle);
-          if (!vlvConfigIsActive(vlvHeat)) bitSet(actProfiles, vlvHeat);
-        } else {
-          if (vlvConfigIsActive(vlvHeat)) bitClear(actProfiles, vlvHeat);
-          if (!vlvConfigIsActive(vlvIdle)) bitSet(actProfiles, vlvIdle); 
-        }
-      }
-    }
-    
-    if (autoValve[AV_SPARGEIN]) {
-      if (vessels[VS_HLT]->getVolume() > vessels[VS_HLT]->getTargetVolume()) bitSet(actProfiles, VLV_SPARGEIN);
-        else bitClear(actProfiles, VLV_SPARGEIN);
-    }
-    if (autoValve[AV_SPARGEOUT]) {
-      if (vessels[VS_KETTLE]->getVolume() < vessels[VS_KETTLE]->getTargetVolume()) bitSet(actProfiles, VLV_SPARGEOUT);
-      else bitClear(actProfiles, VLV_SPARGEOUT);
-    }
-    if (autoValve[AV_FLYSPARGE]) {
-		if (vessels[VS_KETTLE]->getVolume() < vessels[VS_KETTLE]->getTargetVolume()) {
-#ifdef SPARGE_IN_PUMP_CONTROL
-			long hltVol = vessels[VS_HLT]->getVolume();
-			if ((long)vessels[VS_KETTLE]->getVolume() - (long)prevSpargeVol[0] >= SPARGE_IN_HYSTERESIS)
-			{
-#ifdef HLT_MIN_REFILL
-				HLTStopVol = (SpargeVol > HLT_MIN_REFILL_VOL ? getVolLoss(VS_HLT) : (HLT_MIN_REFILL_VOL - SpargeVol));
-				if (hltVol > HLTStopVol + 20) //I have no idea where this random 20 came from here... Some sort of safety factor in min vols?
-#else
-				if (hltVol > vessels[VS_HLT]->getDeadspace() + 20)
-#endif
-					bitSet(actProfiles, VLV_SPARGEIN);
-				prevSpargeVol[0] = hltVol
-			}
-#ifdef HLT_FLY_SPARGE_STOP
-			else if ((long)prevSpargeVol[1] - (long)hltVol >= SPARGE_IN_HYSTERESIS || hltVol < HLT_FLY_SPARGE_STOP_VOLUME + 20)
-#else
-			else if ((long)prevSpargeVol[1] - (long)hltVol >= SPARGE_IN_HYSTERESIS || hltVol < vessels[VS_HLT]->getDeadspace() + 20)
-#endif
-          {
-             bitClear(actProfiles, VLV_SPARGEIN);
-			 prevSpargeVol[1] = vessels[VS_HLT]->getVolume();
-          }
-        #else
-          bitSet(actProfiles, VLV_SPARGEIN);
-        #endif
-        bitSet(actProfiles, VLV_SPARGEOUT);
-      } else {
-        bitClear(actProfiles, VLV_SPARGEIN);
-        bitClear(actProfiles, VLV_SPARGEOUT);
-      }
-    }
     if (autoValve[AV_CHILL]) {
       //Needs work
       /*
@@ -432,7 +279,8 @@ unsigned long computeValveBits() {
   unsigned long offMask = 0;
   // Any bits set to 1 on onMask will force the corresponding valve on.
   unsigned long onMask = 0;
-  for (int i = 0; i < PVOUT_COUNT; i++) {
+  //Start at NUM_PID_PUMPS so we don't affect the PID-controlled pumps
+  for (int i = NUM_PID_PUMPS; i < PVOUT_COUNT; i++) {
     if (softSwitchPv[i] == SOFTSWITCH_OFF) {
       offMask |= (1 << i);
     }

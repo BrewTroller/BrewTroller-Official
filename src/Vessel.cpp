@@ -43,7 +43,7 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 extern int temp[9]; //Needed to access aux sensors
 
 //Note that the includeAux numbers should be addresses e.g. TS_AUX1, not just a number (that's why they're bytes instead of booleans).
-	Vessel::Vessel(byte initEepromIndex, bool initIncludeAux[], byte FFBias, float initMinVolume = 0, byte initMinTriggerPin = 0, byte initMaxPower = 100, double initMinTemperature = 30, double initMaxTemperature = 250)
+	Vessel::Vessel(byte initrole, bool initIncludeAux[], byte FFBias, float initMinVolume = 0, byte initMinTriggerPin = 0, byte initMaxPower = 100, double initMinTemperature = 30, double initMaxTemperature = 250, bool initUsePWM = false)
 	{
 
 		for (int i = 0; i < VOLUME_READ_COUNT; i++)
@@ -56,7 +56,7 @@ extern int temp[9]; //Needed to access aux sensors
 		volume = targetVolume = 0;
 		minTemperature = initMinTemperature;
 		maxTemperature = initMaxTemperature;
-		eepromIndex = initEepromIndex;
+		role = initrole;
 		minVolume = initMinVolume;
 		maxPower = initMaxPower;
 		minTriggerPin = initMinTriggerPin;
@@ -73,22 +73,22 @@ extern int temp[9]; //Needed to access aux sensors
 		//Temperature Sensors: HLT (0-7), MASH (8-15), KETTLE (16-23), H2OIN (24-31), H2OOUT (32-39),
 		//          BEEROUT (40-47), AUX1 (48-55), AUX2 (56-63), AUX3 (64-71)
 		//**********************************************************************************
-		EEPROMreadBytes(8 * eepromIndex, sensorAddress, 8);
-		setpoint = EEPROM.read(299 + eepromIndex) * SETPOINT_MULT;
+		EEPROMreadBytes(8 * role, sensorAddress, 8);
+		setpoint = EEPROM.read(299 + role) * SETPOINT_MULT;
 		if (FFBias)
 		{
 			feedforward = FFBias;
-			EEPROMreadBytes(8 * eepromIndex, feedforwardAddress, 8);
+			EEPROMreadBytes(8 * role, feedforwardAddress, 8);
 		}
 
-		usePID = getPIDEnabled(eepromIndex);
+		usePID = getPIDEnabled(role);
 		//Always load PID values even if the setting is not currently set to PID, because otherwise they won't be available for the config UI
 		float PID_P, PID_I, PID_D; //P, I and D values for PID
 
-		PIDcycle = ::getPIDCycle(eepromIndex);
-		PID_P = ::getPIDp(eepromIndex);
-		PID_I = ::getPIDi(eepromIndex);
-		PID_D = ::getPIDd(eepromIndex);
+		PIDcycle = ::getPIDCycle(role);
+		PID_P = ::getPIDp(role);
+		PID_I = ::getPIDi(role);
+		PID_D = ::getPIDd(role);
 
 		//Feedforward version included but commented out for later reference
 		if (feedforward)
@@ -107,8 +107,8 @@ extern int temp[9]; //Needed to access aux sensors
 		
 #ifdef USESTEAM
 		//This references the pid object and thus must come after it is created in this function
-		usesSteam = (eepromIndex == VS_MASH); //The mash tun uses steam if it's present
-		if (eepromIndex == VS_STEAM)
+		usesSteam = (role == VS_MASH); //The mash tun uses steam if it's present
+		if (role == VS_STEAM)
 		{
 		  steamPressureSensitivity = EEPROMreadInt(117);
 		  
@@ -122,46 +122,60 @@ extern int temp[9]; //Needed to access aux sensors
 		usesSteam = false;
 #endif
 		
-		hysteresis = ::getHysteresis(eepromIndex); 
-		capacity = EEPROMreadLong(93 + eepromIndex * 4);
-		deadspace = EEPROMreadInt(105 + eepromIndex * 2);
+		usesPWM = initUsePWM;
+
+		hysteresis = ::getHysteresis(role); 
+		capacity = EEPROMreadLong(93 + role * 4);
+		deadspace = EEPROMreadInt(105 + role * 2);
 
 		//Load volume calibration ettings
 		//**********************************************************************************
 		//calibVols HLT (119-158), Mash (159-198), Kettle (199-238)
 		//calibVals HLT (239-258), Mash (259-278), Kettle (279-298)
 		//**********************************************************************************
-		if (eepromIndex != VS_STEAM)
+		if (role != VS_STEAM)
 		{
-		  eeprom_read_block(&volumeCalibrationVolume, (unsigned char *)119+40*eepromIndex, 40);
-		  eeprom_read_block(&volumeCalibrationPressure, (unsigned char *)239+40*eepromIndex, 20);
+		  eeprom_read_block(&volumeCalibrationVolume, (unsigned char *)119+40*role, 40);
+		  eeprom_read_block(&volumeCalibrationPressure, (unsigned char *)239+40*role, 20);
 		}
 		else
 		  volumeCalibrationPressure[0] = EEPROMreadInt(114);  
 
 		//This is kind of a hack because the volume and heat pins are hardcoded
-		switch (eepromIndex)
+		switch (role)
 		{
 		case VS_HLT:
 			volumePinID = HLTVOL_APIN;
 			heatPin.setup(HLTHEAT_PIN, OUTPUT);
+#ifdef USEPWM_HLT
+			usesPWM = true;
+#endif
 			break;
 #ifdef MLTVOL_APIN
 		case VS_MASH:
 			volumePinID = MLTVOL_APIN;
 			heatPin.setup(MLTHEAT_PIN, OUTPUT);
+#ifdef USEPWM_MASH
+			usesPWM = true;
+#endif
 			break;
 #endif
 #ifdef KETTLEVOL_APIN
 		case VS_KETTLE:
 			volumePinID = KETTLEVOL_APIN;
 			heatPin.setup(KETTLEHEAT_PIN, OUTPUT);
+#ifdef USEPWM_KETTLE
+			usesPWM = true;
+#endif
 			break;
 #endif
 #ifdef USESTEAM
 		case VS_STEAM:
 			volumePinID = STEAMPRESS_APIN;
 			heatPin.setup(STEAMHEAT_PIN, OUTPUT);
+#ifdef USEPWM_STEAM
+			usesPWM = true;
+#endif
 			break;
 #endif
 		}
@@ -176,9 +190,12 @@ extern int temp[9]; //Needed to access aux sensors
 		if (newSetPoint * SETPOINT_MULT > setpoint)
 			preheated = false;
 		setpoint = newSetPoint * SETPOINT_MULT;
-		EEPROM.write(299 + eepromIndex, newSetPoint);
+		EEPROM.write(299 + role, newSetPoint);
 		if (setpoint == 0)
+		{
 			feedforwardTemperature = 0;
+			PIDOutput = 0;
+		}
 		updateOutput();
 	}
 
@@ -200,9 +217,9 @@ extern int temp[9]; //Needed to access aux sensors
 	void Vessel::setTunings(double p, double i, double d)
 	{
 		//These EEPROM.cpp functions write the PID value to EEPROM and do nothing else
-		EEPROM.write(73 + eepromIndex * 5, p);
-		EEPROM.write(74 + eepromIndex * 5, i);
-		EEPROM.write(75 + eepromIndex * 5, d);
+		EEPROM.write(73 + role * 5, p);
+		EEPROM.write(74 + role * 5, i);
+		EEPROM.write(75 + role * 5, d);
 		if (!pid) return; //This check is redundant - the PID loading code bails out if the PID isn't loaded - until someone changes it so that it doesn't :).
 		pid->SetTunings(p, i, d);
 	}
@@ -255,14 +272,26 @@ extern int temp[9]; //Needed to access aux sensors
 	void Vessel::setTSAddress(byte newAddress[8]) 
 	{
 		memcpy(sensorAddress, newAddress, 8 * sizeof(byte));
-		EEPROMwriteBytes(eepromIndex * 8, sensorAddress, 8); 
+		EEPROMwriteBytes(role * 8, sensorAddress, 8); 
 	}
+	
+#ifdef USEPWM
+	//IMPORTANT: this function is called from an ISR, and therefore needs to be very fast. 
+	void Vessel::updatePWMOutput(bool newOutput)
+	{
+		if (usesPWM && isPID()) 
+		{
+				heatPin[role].set(newOutput); else heatPin[role].set(newOutput);
+		}
+	}
+
+#endif
+
 	//Turn output on or off based on temperature, returning whether the output is on
-	bool Vessel::updateOutput()
+	void Vessel::updateOutput()
 	{
 		//Update temperature for use in all later calculations
 		updateTemperature();
-
 
 		if (estop || getVolume() < minVolume || (temperature == BAD_TEMP && heatOverride != SOFTSWITCH_MANUAL && heatOverride != SOFTSWITCH_ON) || //Allow manual control of heat even when temp sensor is broken
 			(vesselMinTrigger(minTriggerPin) && !vesselMinTrigger(minTriggerPin)->get()))
@@ -272,6 +301,7 @@ extern int temp[9]; //Needed to access aux sensors
 			//Turn output off due to error condition
 			heatPin.set(LOW);
 			PIDoutput = 0;
+			if (estop) bitClear(actValves, valveConfig); //Keep the valves and pumps working unless we have an estop condition. The volume triggers only affect the heating output
 			return false;
 		}
 
@@ -280,12 +310,14 @@ extern int temp[9]; //Needed to access aux sensors
 		if (heatOverride == SOFTSWITCH_OFF)
 		{
 			heatPin.set(LOW);
-			return false;
+			updateHeatValves();
+			return;
 		}
 		else if (heatOverride == SOFTSWITCH_ON)
 		{
 			heatPin.set(HIGH);
-			return true;
+			updateHeatValves();
+			return;
 		}
 		//Other possible value is SOFTSWITCH_AUTO and SOFTSWITCH_MANUAL
 #endif
@@ -301,38 +333,52 @@ extern int temp[9]; //Needed to access aux sensors
 		  //If we are using a secondary mash temperature control system and we are within the range of it,
 		  //turn this output off and let the steam output handle it.
 		  heatPin.set(LOW);
+		  bitClear(actProfiles, idleConfig);
+		  bitSet(actProfiles, heatConfig); //We are below the setpoint as noted above, so we have to turn the mash heat valves on
 		  return;
 		  }
-	
 		}
-		else if (eepromIndex == VS_STEAM)
+		else if (role == VS_STEAM)
 		  {
 		    //If the temperature is outside the small range around the setpoint where the steam system should be active, deactivate it
 		    heatPin.set(LOW);
+			if (!vessels[VS_MASH]->getOutput())  //Both steam and mash are inactive, so deactivate valves
+			{
+				bitClear(actProfiles, activeConfig);
+				bitSet(actProfiles, idleConfig);
+			}
 		    return;
 		  }
+		//Note that if the mash itself is fully active, the mash code controls the heat and valve outputs
 #endif
 		if (usePID || heatOverride == SOFTSWITCH_MANUAL)
 		{
 			//Note that this uses pointers to the temperature, output and feedforward variables
-			if (!heatOverride == SOFTSWITCH_MANUAL)
-				pid->Compute(); //If it's manual, preserve the manual value
-
+			if (heatOverride != SOFTSWITCH_MANUAL)
+				pid->Compute(); //If it's manual, preserve the manual value, which is directly set by the manual input code
+			
+#ifdef USEPWM
+			//If using PWM, the output is updated by a separate timer-driven ISR, so we should exit here.
+			//It's important that we call updateTemperature and pid->Compute() above, though, because it's not recalculated in the ISR.
+			if (usesPWM)
+			{
+				updateHeatValves();
+				return;
+			}
+#endif
 			//only 1 call to millis needed here, and if we get hit with an interrupt we still want to calculate based on the first read value of it
 			unsigned long timestamp = millis();
-			if (timestamp - cycleStart[eepromIndex] > PIDcycle * 100) cycleStart[eepromIndex] += PIDcycle * 100;
+			if (timestamp - cycleStart[role] > PIDcycle * 100) cycleStart[role] += PIDcycle * 100;
 
 			//cycleStart is the millisecond value when the current PID cycle started.
 			//We compare the 
-			if (PIDoutput >= timestamp - cycleStart[eepromIndex] && timestamp != cycleStart[eepromIndex])
+			if (PIDoutput >= timestamp - cycleStart[role] && timestamp != cycleStart[role])
 			{
 				heatPin.set(HIGH);
-				return true;
 			}
 			else
 			{
 				heatPin.set(LOW);
-				return false;
 			}
 		}
 		else
@@ -342,19 +388,30 @@ extern int temp[9]; //Needed to access aux sensors
 				//Turn output on
 				heatPin.set(HIGH);
 				PIDOutput = 100;
-				return true;
 			}
 			else if (getTemperature() > getSetpoint()+hysteresis)
 			{
 				//Turn output off
 				heatPin.set(LOW);
 				PIDOutput = 0;
-				return false;
 			}
 		}
+		updateHeatValves();
 	}
 	
-
+	void Vessel::updateHeatValves()
+	{
+		if (pidOutput)
+		{
+			bitClear(actProfiles, idleConfig);
+			bitSet(actProfiles, activeConfig);
+		}
+		else
+		{
+			bitClear(actProfiles, activeConfig);
+			bitSet(actProfiles, idleConfig);
+		}
+	}
 
 	void Vessel::manualOutput(int newOutput)
 	{
@@ -381,19 +438,19 @@ extern int temp[9]; //Needed to access aux sensors
 	{
 		usePID = newPID;
 		byte options = EEPROM.read(72);
-		bitWrite(options, eepromIndex, newPID);
+		bitWrite(options, role, newPID);
 		EEPROM.write(72, options);
 	}
 
 	void Vessel::setHysteresis(float newHysteresis)
 	{
-		EEPROM.write(77 + eepromIndex * 5, newHysteresis); 
+		EEPROM.write(77 + role * 5, newHysteresis); 
 		hysteresis = newHysteresis;
 	}
 
 	void Vessel::setPIDCycle(float newPIDCycle)
 	{
-		EEPROM.write(76 + eepromIndex * 5, newPIDCycle);
+		EEPROM.write(76 + role * 5, newPIDCycle);
 		PIDcycle = newPIDCycle;
 	}
 
@@ -415,7 +472,7 @@ extern int temp[9]; //Needed to access aux sensors
 	void Vessel::updateVolumeCalibration(byte index, unsigned long vol, int pressure)
 	{
 #ifdef USESTEAM
-	  if (eepromIndex == VS_STEAM)
+	  if (role == VS_STEAM)
 	  {
 	    if (index == 0)
 	    {
@@ -432,8 +489,8 @@ extern int temp[9]; //Needed to access aux sensors
 		volumeCalibrationPressure[index] = pressure;
 
 		//Write to eeprom
-		EEPROMwriteLong(119 + eepromIndex * 40 + index * 4, vol);
-		EEPROMwriteInt(239 + eepromIndex * 20 + index * 2, pressure);
+		EEPROMwriteLong(119 + role * 40 + index * 4, vol);
+		EEPROMwriteInt(239 + role * 20 + index * 2, pressure);
 	}
 
 #ifdef USESTEAM
@@ -454,14 +511,14 @@ extern int temp[9]; //Needed to access aux sensors
 	void Vessel::setCapacity(float newCapacity)
 	{
 		capacity = newCapacity;
-		EEPROMwriteLong(93 + eepromIndex * 4, newCapacity);
+		EEPROMwriteLong(93 + role * 4, newCapacity);
 	}
 
 
 	void Vessel::setDeadspace(float newDeadspace)
 	{
 		deadspace = newDeadspace;
-		EEPROMwriteInt(105 + eepromIndex * 2, newDeadspace); 
+		EEPROMwriteInt(105 + role * 2, newDeadspace); 
 	}
 
 	float Vessel::getVolume() 
@@ -469,7 +526,7 @@ extern int temp[9]; //Needed to access aux sensors
 		return volume / 1000.0;
 	} 
 	
-	//Take a sample of the volume
+	//Take a sample of the volume. Note that all volume pins are assigned in all HW configs. If no sensor is attached and no calibration present, the value read is zero.
 	void Vessel::takeVolumeReading()
 	{
 		byte reading;
@@ -479,6 +536,8 @@ extern int temp[9]; //Needed to access aux sensors
 		volume = volume + (reading - volumeReadings[oldestVolumeReading]) / VOLUME_READ_COUNT;
 		volumeReadings[oldestVolumeReading] = reading;
 		oldestVolumeReading = (oldestVolumeReading + 1) % VOLUME_READ_COUNT; //This could be made faster by using a power of 2 as the read count and using a bitmask
+
+		updateFlowrateCalcs();
 	}
 
 	unsigned int Vessel::getCalibrationValue() {
@@ -495,6 +554,15 @@ extern int temp[9]; //Needed to access aux sensors
 		}
 
 		return (newSensorValueAverage / VOLUME_READ_COUNT);
+	}f
+
+	void Vessel::fill()
+	{
+		bitSet(actProfiles, fillConfig);
+	}
+	void Vessel::stopFilling()
+	{
+		bitClear(actProfiles, fillConfig);
 	}
 
 	void initVessels()
@@ -502,10 +570,34 @@ extern int temp[9]; //Needed to access aux sensors
 		byte pidLimits[4] = { PIDLIMIT_HLT, PIDLIMIT_MASH, PIDLIMIT_KETTLE, PIDLIMIT_STEAM };
 		bool initIncludeAux[3] = { false, false, false };
 		bool mashIncludeAux[3] = { MASH_AVG_AUX1, MASH_AVG_AUX2, MASH_AVG_AUX3 };
+
 		byte triggerPin;
+		
+#ifdef SINGLE_VESSEL_SUPPORT
+		if (vessels[0]) delete vessels[0];
+		if (FEEDFORWARD)
+			vessels[0] = vessels[1] = vessels[2] = new Vessel(0, mashIncludeAux, FEEDFORWARD, 0, 0, TRIGGER_HLTMIN, pidLimits[0]);
+		else
+			vessels[0] = vessels[1] = vessels[2] = new Vessel(0, mashIncludeAux, 0, 0, TRIGGER_HLTMIN, pidLimits[0]);
+#else
+
+		stage = FILL;
 
 		for (byte i = 0; i < NUM_VESSELS; i++)
 		{
+#ifdef KETTLE_AS_MASH
+			if (i == VS_MASH)
+			{
+				continue;
+			}
+#endif
+#ifdef HLT_AS_KETTLE
+			if (i == VS_KETTLE)
+			{
+				vessels[i] = vessels[VS_HLT];
+				continue;
+			}
+#endif
 			if (vessels[i]) delete vessels[i];
 
 			switch (i)
@@ -526,7 +618,115 @@ extern int temp[9]; //Needed to access aux sensors
 				vessels[i] = new Vessel(i, mashIncludeAux, FEEDFORWARD, 0, triggerPin, pidLimits[i]); //That random 0 is minVolume which is not currently implemented due to lack of UI
 			else
 				vessels[i] = new Vessel(i, initIncludeAux, 0, 0, triggerPin, pidLimits[i]);
+		
+		}
+#endif 
+#ifdef KETTLE_AS_MASH
+			vessels`[VS_MASH] = vessels[VS_KETTLE];
+#endif
+	}
+
+	//TODO: Replace magic number 10 (number of volume samples to average over) with a defined constant
+	//TODO: Running this calculation on every volume measurement could slow the system. If so, it could be sped up simply by calculating it less often - it shouldn't change much.
+	void Vessel::updateFlowrateCalcs()
+	{
+		unsigned long tempmill = millis();
+		unsigned long MiliToMin = 60000;
+		//Check flowrate periodically (FLOWRATE_READ_INTERVAL)
+		if (tempmill - lastFlowChk >= FLOWRATE_READ_INTERVAL) {
+				
+				// note that the * 60000 is from converting thousands of a gallon / miliseconds to thousands of a gallon / minutes 
+				double newVol = getVolume()R;
+				flowrate = flowrate + newVol / 10;
+				flowrateHistory[flowrateIndex] = newVol;			
+				
+#ifdef DEBUG_VOL_READ
+				logStart_P(LOGDEBUG);
+				logField_P(PSTR("VOL_Calc"));
+				logFieldI(i);
+				logFieldI(flowRate);
+#endif
+				flowrateIndex++;
+				if (flowrateIndex > 9) flowRateIndex = 0;
+			}
+			lastFlowChk = tempmill;
 		}
 	}
 
+	//This function updates the valve profiles to the right stage for this vessel and program stage.
+	//Note: there are no valves for steam in any stage. These are purely handled by the mash valve config and single steam output. This could be changed
+	//if there is demand; it would only require new UI for this stage and some minor global variable cleanup.
+	void Vessel::updateValveConfigs()
+	{
+		//Note: there are no valves for steam in any stage. These are purely handled by the mash valve config and single steam output.
 
+		//Zero out the valve configs
+		bitClear(actProfiles, heatConfig);
+		bitClear(actProfiles, idleConfig);
+		bitClear(actProfiles, fillConfig);
+		
+		heatConfig = idleConfig = fillConfig = 0;
+
+		//Note: a vessel may hold multiple roles. This code assigns all relevant valve configs to that vessel. This is why we do |= instead of just =
+		select(stage)
+		{
+			case FILL:
+					if (role == VS_HLT)
+					{
+						fillConfig |= VLV_FILLHLT;
+						heatConfig |= VLV_HLTHEAT;
+						idleConfig |= VLV_HLTIDLE;
+					}
+					if (role == VS_MASH)
+					{
+						fillConfig |= VLV_FILLMASH;
+						heatConfig |= VLV_MASHHEAT;
+						idleConfig |= VLV_MASHIDLE;
+					}
+					//No valves for kettle in fill stage
+					break;
+				}
+			case MASH:
+				if (role == VS_HLT)
+				{
+					heatConfig |= VLV_HLTHEAT;
+					idleConfig |= VLV_HLTIDLE;
+				}
+				if (role == VS_MASH)
+				{
+					heatConfig |= VLV_MASHHEAT;
+					idleConfig |= VLV_MASHIDLE;
+				}
+				//No valves for kettle in mash stage
+				break;
+			case SPARGE:
+				if (role == VS_HLT)
+				{
+					heatConfig |= VLV_HLTHEAT; //These are only used if the HLT is set to heat during sparge
+					idleConfig |= VLV_HLTIDLE;
+					//Shouldn't need to use a fill profile for HLT during sparge, because all filling should happen during the fill and refill stages
+				}
+				if (role == VS_MASH)
+				{
+					heatConfig |= VLV_MASHHEAT;
+					idleConfig |= VLV_MASHIDLE;
+					fillConfig |= VLV_SPARGEIN;
+				}
+				if (role == VS_KETTLE)
+				{
+					heatConfig |= VLV_KETTLEHEAT; //These aren't used yet because there is no kettle setpoint during sparging, but could be enabled to speed the brew day by starting kettle heating during the sparge
+					idleConfig |= VLV_KETTLEIDLE;
+					fillConfig |= VLV_SPARGEOUT;
+				}
+				break;
+			case BOIL:
+				//HLT and MLT do nothing during boiling
+				if (role == VS_KETTLE)
+				{
+					heatConfig |= VLV_KETTLEHEAT; //These aren't used yet because there is no kettle setpoint during sparging, but could be enabled to speed the brew day by starting kettle heating during the sparge
+					idleConfig |= VLV_KETTLEIDLE;
+					//Shouldn't be moving any liquid into the kettle during boiling
+				}
+				break;
+		}
+	}

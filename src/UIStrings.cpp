@@ -297,10 +297,10 @@ namespace UIStrings {
         const char TITLE_VS_HLT[] PROGMEM = "HLT";
         const char TITLE_VS_MASH[] PROGMEM = "Mash";
         const char TITLE_VS_KETTLE[] PROGMEM = "Kettle";
-#ifdef PID_FLOW_CONTROL
-        const char TITLE_VS_PUMP[] PROGMEM = "Pump";
-#elif defined USESTEAM
+#if defined USESTEAM
         const char TITLE_VS_STEAM[] PROGMEM = "Steam";
+#elif  defined PID_PUMP1 || defined PID_PUMP2
+        const char TITLE_VS_PUMP[] PROGMEM = "Pump";
 #endif
     }
     
@@ -368,10 +368,10 @@ namespace UIStrings {
             Vessel::TITLE_VS_MASH,
             Vessel::TITLE_VS_KETTLE
             
-#ifdef PID_FLOW_CONTROL
-            , TITLE_VS_PUMP
-#elif defined USESTEAM
+#ifdef USESTEAM
             , TITLE_VS_STEAM
+#elif defined PID_PUMP1 || defined PID_PUMP2
+            , TITLE_VS_PUMP
 #endif
         };
         
@@ -400,24 +400,24 @@ namespace UIStrings {
             const char HLT_MODE[] PROGMEM = "HLT Mode: ";
             const char MASH_MODE[] PROGMEM = "Mash Mode: ";
             const char KETTLE_MODE[] PROGMEM = "Kettle Mode: ";
-#ifdef PID_FLOW_CONTROL
-            const char SPARGE_PUMP_MODE[] PROGMEM = "Sparge Pump: ";
-#elif defined USESTEAM
-            const char STEAM_MODE[] PROGMEM = "Steam Mode: ";
-            const char PRES_UNIT[] PROGMEM = "mV/kPa";
-            const char CALIB_ZERO[] PROGMEM = "Calibrate Zero?";
+#if  defined USESTEAM
+			const char STEAM_MODE[] PROGMEM = "Steam Mode: ";
+			const char PRES_UNIT[] PROGMEM = "mV/kPa";
+			const char CALIB_ZERO[] PROGMEM = "Calibrate Zero?";
+#elif defined PID_PUMP1 || defined PID_PUMP1
+			const char SPARGE_PUMP_MODE[] PROGMEM = "Sparge Pump: ";
 #endif
             const char PID_MODE[] PROGMEM = "PID";
             const char ON_OFF_MODE[] PROGMEM = "On/Off";
             const char PIDCYCLE[] PROGMEM = " PID Cycle";
             const char PIDGAIN[] PROGMEM = " PID Gain";
             const char HYSTERESIS[] PROGMEM = " Hysteresis";
-#ifdef PID_FLOW_CONTROL
-            const char PUMPFLOW[] PROGMEM = "Pump Flow Rate";
-#elif defined USESTEAM
-            const char STEAMPRESS[] PROGMEM = "Steam Target";
-            const char STEAMSENSOR[] PROGMEM = "Steam Sensor Sens";
-            const char STEAMZERO[] PROGMEM = "Steam Zero Calib";
+#if  defined USESTEAM
+			const char STEAMPRESS[] PROGMEM = "Steam Target";
+			const char STEAMSENSOR[] PROGMEM = "Steam Sensor Sens";
+			const char STEAMZERO[] PROGMEM = "Steam Zero Calib";
+#elif defined PID_PUMP1 || defined PID_PUMP1
+			const char PUMPFLOW[] PROGMEM = "Pump Flow Rate";
 #endif
         }
         
@@ -544,19 +544,19 @@ namespace UIStrings {
         const char VOLUNIT[] PROGMEM = "l";
         const char WTUNIT[] PROGMEM = "kg";
         const char TUNIT[] PROGMEM = "C";
-#ifdef PID_FLOW_CONTROL
-        const char PUNIT[] PROGMEM = "0.1*l/m";
+#ifdef USESTEAM
+		const char PUNIT[] PROGMEM = "kPa";
 #else
-        const char PUNIT[] PROGMEM = "kPa";
+		const char PUNIT[] PROGMEM = "0.1*l/m";
 #endif
 #else
         const char VOLUNIT[] PROGMEM = "gal";
         const char WTUNIT[] PROGMEM = "lb";
         const char TUNIT[] PROGMEM = "F";
-#ifdef PID_FLOW_CONTROL
-        const char PUNIT[] PROGMEM = "0.1*q/m";
+#ifdef USESTEAM
+		const char PUNIT[] PROGMEM = "psi";
 #else
-        const char PUNIT[] PROGMEM = "psi";
+		const char PUNIT[] PROGMEM = "0.1*q/m";
 #endif
 #endif //USEMETRIC
     }

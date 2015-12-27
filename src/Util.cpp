@@ -67,5 +67,5 @@ unsigned int tempConvertUnits(unsigned int temp)
 	return temp * 9.0 / 5 + 32;
 #else
 	return temp;
-#endif
+#endif 
 }

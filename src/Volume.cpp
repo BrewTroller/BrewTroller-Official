@@ -45,28 +45,6 @@ void updateVols() {
   }
 }
 
-#ifdef FLOWRATE_CALCS
-void updateFlowRates() {
-   unsigned long tempmill = millis();
-   unsigned long MiliToMin = 60000;
-  //Check flowrate periodically (FLOWRATE_READ_INTERVAL)
-  if (tempmill - lastFlowChk >= FLOWRATE_READ_INTERVAL) {
-    for (byte i = VS_HLT; i <= NUM_VESSELS; i++) {
-      // note that the * 60000 is from converting thousands of a gallon / miliseconds to thousands of a gallon / minutes 
-      flowRate[i] = round((float)((float)(((float)vessels[i]->getVolume() - (float)prevFlowVol[i])) / (float)((float)tempmill - (float)lastFlowChk)) * (float)MiliToMin);
-      #ifdef DEBUG_VOL_READ
-      logStart_P(LOGDEBUG);
-      logField_P(PSTR("VOL_Calc"));
-      logFieldI(i);
-      logFieldI(flowRate[i]);
-      #endif
-      prevFlowVol[i] = volAvg[i];
-    }
-    lastFlowChk = tempmill;
-  }
-}
-#endif
-
 unsigned long readVolume( byte pin, unsigned long calibrationVols[10], unsigned int calibrationValues[10] ) {
   unsigned int aValue = analogRead(pin);
   unsigned long retValue;

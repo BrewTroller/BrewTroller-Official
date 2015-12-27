@@ -6,9 +6,9 @@
 #include <pin.h>
 
 
-#ifdef PWM_BY_TIMER
+#ifdef USEPWM
 void pwmInit( void );
-#endif //PWM_BY_TIMER
+#endif //USEPWM
 
 
 void pinInit();
@@ -18,10 +18,6 @@ void pidInit();
 void resetOutputs();
 
 void resetHeatOutput(byte vessel);
-
-#if defined PID_FLOW_CONTROL && defined PID_CONTROL_MANUAL
-void processPID_FLOW_CONTROL(byte vessel);
-#endif // defined PID_FLOW_CONTROL && defined PID_CONTROL_MANUAL
 
 void processHeatOutputsPIDEnabled(const byte vessel[]);
 

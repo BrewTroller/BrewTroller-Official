@@ -106,6 +106,28 @@ const void(* softReset) (void) = 0;
 #include <Wire.h>
 #endif
 
+#ifdef PWM_PUMP1
+#ifdef PWM_PUMP2
+#define NUM_PWM_PUMPS 2
+#else
+#define NUM_PWM_PUMPS 1
+#elif defined PWM_PUMP2
+#define NUM_PWM_PUMPS 1
+#else
+#define NUM_PWM_PUMPS 0
+#endif
+
+#ifdef PID_PUMP1
+#ifdef PID_PUMP2
+#define NUM_PID_PUMPS 2
+#else
+#define NUM_PID_PUMPS 1
+#elif defined PID_PUMP2
+#define NUM_PID_PUMPS 1
+#else
+#define NUM_PID_PUMPS 0
+#endif
+
 //**********************************************************************************
 // Globals
 //**********************************************************************************
@@ -125,6 +147,11 @@ Note that pump, while assigned VS_PUMP identifier in some hardware configs, is n
 Rather, VS_PUMP is managed through the valve profile code. Also, VS_STEAM has a ton of special-case management.
 */
 Vessel* vessels[NUM_VESSELS];
+
+//The flow controllers manage the flow between two vessels
+FlowController* flowController[2];
+FlowController* fillController[2]; //Tracks filling HLT and MLT
+PID* pumpPID = NULL;
 pin alarmPin;
 
 #ifdef DIGITAL_INPUTS
@@ -142,21 +169,11 @@ pin hbPin;
 byte tSensor[9][8];
 int temp[9];
 
-//Volume in (thousandths of gal/l)
-unsigned long tgtVol[NUM_VESSELS];
-
-#ifdef SPARGE_IN_PUMP_CONTROL
-unsigned long prevSpargeVol[2] = {0,0};
-#endif
-
 #ifdef HLT_MIN_REFILL
 unsigned long SpargeVol = 0;
 #endif
 
-#ifdef FLOWRATE_CALCS
-//Flowrate in thousandths of gal/l per minute
-long flowRate[3] = {0,0,0};
-#endif
+
 
 
 //Create the appropriate 'LCD' object for the hardware configuration (4-Bit GPIO, I2C)
@@ -206,26 +223,15 @@ double PIDInput, PIDOutput, setpoint;
 double FFBias;
 #endif
 byte PIDCycle, hysteresis;
-#ifdef PWM_BY_TIMER
-unsigned int cycleStart[4] = {0,0,0,0};
+#ifdef USEPWM
+unsigned int cycleStart[6] = {0,0,0,0};
 #else
-unsigned long cycleStart[4] = {0,0,0,0};
+unsigned long cycleStart[6] = {0,0,0,0};
 #endif
 boolean heatStatus, PIDEnabled;
 
 byte boilPwr;
 
-PID pid =
-#ifdef PID_FLOW_CONTROL
-PID(&PIDInput, &PIDOutput &setpoint, 3, 4, 1);
-#else
-PID(&PIDInput, &PIDOutput, &setpoint, 3, 4, 1);
-#endif
-
-#if defined PID_FLOW_CONTROL && defined PID_CONTROL_MANUAL
-  unsigned long nextcompute;
-  byte additioncount[2];
-#endif
 
 #ifdef RIMS_MLT_SETPOINT_DELAY
   byte steptoset = 0;
@@ -256,9 +262,8 @@ const char LOGCFG[] PROGMEM = "CFG";
 const char LOGDATA[] PROGMEM = "DATA";
 
 //PWM by timer globals
-#ifdef PWM_BY_TIMER
+#ifdef USEPWM
 unsigned int timer1_overflow_count = 0;
-unsigned int PIDOutputCountEquivalent[4][2] = {{0,0},{0,0},{0,0},{0,0}};
 #endif
 
 //**********************************************************************************
@@ -284,6 +289,7 @@ void setup() {
 
 #ifdef PVOUT
 #if defined PVOUT_TYPE_GPIO
+	
 #if PVOUT_COUNT >= 1
     Valves.setup(0, VALVE1_PIN);
 #endif
@@ -331,7 +337,7 @@ void setup() {
     #endif
 #if PVOUT_COUNT >= 16
       Valves.setup(15, VALVEG_PIN);
-    #endif
+#endif
 #endif
     Valves.init();
 #endif
@@ -353,7 +359,7 @@ void setup() {
     //PID Initialization (Outputs.pde)
     pidInit();
 
-#ifdef PWM_BY_TIMER
+#ifdef USEPWM
     pwmInit();
   #endif
 
@@ -363,8 +369,10 @@ void setup() {
     uiInit();
 #endif
 
-	//Initialize vessels
+	//Initialize vessels and flow controllers. 
 	initVessels();
+
+	initFlowControllers();
 
     //Init of program threads will call event handler to set active screen and must be called after uiInit()
     programThreadsInit();
@@ -399,5 +407,10 @@ int main(void)
 	//Probably unnecessary given the single-process nature of Arduino, but good housekeeping nonetheless
 	for (byte i = 0; i < NUM_VESSELS; i++)
 		if (vessels[i]) delete vessels[i];
+	if (flowController[0]) delete flowController[0];
+	if (flowController[1]) delete flowController[1];
+	if (fillController[0]) delete fillController[0];
+	if (fillController[1]) delete fillController[1];
+
     return 0;
 }

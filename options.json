@@ -81,7 +81,44 @@
 		],
 		"default": "None"
 	},
-	
+	 {
+    "type": "switch",
+    "id": "PWM",
+    "title": "Pulse Width Modulation (PWM)",
+    "description": "Use PWM to pulse outputs rapidly. Suitable for electric elements using SSRs and some pumps. Do not use with mechanical relays.",
+    "options": [
+      {
+        "name": "Use PWM for the HLT output",
+        "optName": "USEPWM_HLT",
+        "on": false
+      },
+      {
+        "name": "Use PWM for the Mash output",
+        "optName": "USEPWM_MASH",
+        "on": false
+      },
+      {
+        "name": "Use PWM for the Kettle output",
+        "optName": "USEPWM_KETTLE",
+        "on": false
+      },
+      {
+        "name": "Use PWM for the Steam output",
+        "optName": "USEPWM_STEAM",
+        "on": false
+      },
+      {
+        "name": "Use PWM for the Pump1 output",
+        "optName": "USEPWM_PUMP1",
+        "on": false
+      },
+      {
+        "name": "Use PWM for the Pump2 output",
+        "optName": "USEPWM_PUMP2",
+              "on": false
+      }
+    ]
+  },
 	{
 		"type": "switch",
 		"id": "VOLUME_SENSORS",

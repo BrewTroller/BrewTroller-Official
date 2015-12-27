@@ -297,10 +297,11 @@ namespace UIStrings {
         extern const char TITLE_VS_HLT[];
         extern const char TITLE_VS_MASH[];
         extern const char TITLE_VS_KETTLE[];
-#ifdef PID_FLOW_CONTROL
-        extern const char TITLE_VS_PUMP[];
-#elif defined USESTEAM
-        extern const char TITLE_VS_STEAM[];
+
+#if defined USESTEAM
+		extern const char TITLE_VS_STEAM[];
+#elif defined PID_FLOW_CONTROL
+		extern const char TITLE_VS_PUMP[];
 #endif
     }
     
@@ -389,24 +390,24 @@ namespace UIStrings {
             extern const char HLT_MODE[];
             extern const char MASH_MODE[];
             extern const char KETTLE_MODE[];
-#ifdef PID_FLOW_CONTROL
+#if defined USESTEAM
+		extern const char STEAM_MODE[];
+		extern const char PRES_UNIT[];
+		extern const char CALIB_ZERO[];
+#elif defined PID_FLOW_CONTROL
             extern const char SPARGE_PUMP_MODE[];
-#elif defined USESTEAM
-            extern const char STEAM_MODE[];
-            extern const char PRES_UNIT[];
-            extern const char CALIB_ZERO[];
 #endif
             extern const char PID_MODE[];
             extern const char ON_OFF_MODE[];
             extern const char PIDCYCLE[];
             extern const char PIDGAIN[];
             extern const char HYSTERESIS[];
-#ifdef PID_FLOW_CONTROL
-            extern const char PUMPFLOW[];
-#elif defined USESTEAM
-            extern const char STEAMPRESS[];
-            extern const char STEAMSENSOR[];
-            extern const char STEAMZERO[];
+#ifdef USESTEAM 
+			extern const char STEAMPRESS[];
+			extern const char STEAMSENSOR[];
+			extern const char STEAMZERO[];
+#elif defined PID_FLOW_CONTROL
+			extern const char PUMPFLOW[];
 #endif
         }
         

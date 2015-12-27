@@ -508,12 +508,8 @@ void getLog() {
     logStart_P(LOGDATA);
     logField_P(PSTR("VOL"));
     logFieldI(i);
-    logFieldI(volAvg[i]);
-    #ifdef FLOWRATE_CALCS
-      logFieldI(flowRate[i]);
-    #else
-      logFieldI(0);
-    #endif
+    logFieldI(vessels[i]->getVolume();
+	logFieldI(vessels[i]->getFlowRate());
     #if COMSCHEMA == 0
       #ifdef USEMETRIC
         logFieldI(0);
@@ -538,12 +534,12 @@ void getLog() {
     logEnd();
   } else if (logCount == 14) {
     logStart_P(LOGDATA);
-    #ifdef PID_FLOW_CONTROL
+    #ifdef PID_PUMP1
     logField_P(PSTR("PUMP"));
-    logFieldI(flowRate[VS_KETTLE]);
+    logFieldI(flowController[0]->getFlowRate());
     #else
     logField_P(PSTR("STEAM"));
-    logFieldI(steamPressure);
+    logFieldI(vessels[VS_STEAM]->getPressure());
     #endif
     #if COMSCHEMA == 0
       #ifdef USEMETRIC
@@ -569,11 +565,7 @@ void getLog() {
     logStart_P(LOGDATA);
     logField_P(PSTR("SETPOINT"));
     logFieldI(i);
-    unsigned long tempval = setpoint[i];
-    #ifdef PID_FLOW_CONTROL
-      if(i != VS_PUMP)
-    #endif
-    tempval = tempval / SETPOINT_MULT;
+    unsigned long tempval = vessels[i]->getSetpoint();
     logFieldI(tempval);
     #if COMSCHEMA == 0
       #ifdef USEMETRIC
@@ -625,10 +617,8 @@ void logOSet(byte vessel) {
   #else
     if (vessel == VS_STEAM) {
       logFieldI(getSteamTgt());
-    #ifndef PID_FLOW_CONTROL
       logFieldI(steamZero);
       logFieldI(steamPSens);
-    #endif
     } else {
       logFieldI(hysteresis[vessel]);
       logFieldI(0);

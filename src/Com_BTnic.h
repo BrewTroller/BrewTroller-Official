@@ -370,12 +370,8 @@ void BTnic::execCmd(void) {
         logFieldI(getHeatPower(vessel)); 
         logFieldI(vessels[vessel]->getTargetVolume());
         logFieldI(vessels[vessel]->getVolume());
-        #ifdef FLOWRATE_CALCS
-          logFieldI(flowRate[vessel]);
-        #else
-          logFieldI(0);
-        #endif
-      }
+        logFieldI(vessels[vessel]->getFlowRate());
+       }
       //Include remaining Temp Sensors.
       for (byte sensor = TS_H2OIN; sensor<NUM_TS; sensor++)
           logFieldI(temp[sensor]);
@@ -751,11 +747,7 @@ void BTnic::execCmd(void) {
     case CMD_VOL:  //p
       logFieldCmd(CMD_VOL, cmdIndex);
       logFieldI(vessels[cmdIndex]->getVolume());
-      #ifdef FLOWRATE_CALCS
-        logFieldI(flowRate[cmdIndex]);
-      #else
-        logFieldI(0);
-      #endif
+      logFieldI(vessels[cmdIndex]->getFlowRate());
       break;
       
       
@@ -767,8 +759,8 @@ void BTnic::execCmd(void) {
       
     case CMD_STEAM:  //r
       logFieldCmd(CMD_STEAM, NO_CMDINDEX);
-      #ifdef PID_FLOW_CONTROL
-        logFieldI(flowRate[VS_MASH]);
+      #ifdef PID_PUMP1
+        logFieldI(flowController[0]->getFlowRate());
       #elseif defined VS_STEAM
         logFieldI(vessels[VS_STEAM]->getPressure());  
       #endif
