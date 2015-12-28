@@ -332,6 +332,13 @@ byte autoValveBitmask(void) {
   byte modeMask = 0;
   for (byte i = AV_FILL; i < NUM_AV; i++)
     if (autoValve[i]) modeMask |= 1<<i;
+  if (flowController[0]->getSwitch() == SOFTSWITCH_AUTO) modeMask |= 1 << AV_SPARGE_IN;
+  if (flowController[1]->getSwitch() == SOFTSWITCH_AUTO) modeMask |= 1 << AV_SPARGE_OUT;
+  if (flowController[0]->getSwitch() == SOFTSWITCH_AUTO && flowController[1]->getSwitch() == SOFTSWITCH_AUTO) modeMask |= 1 << AV_FLYSPARGE;
+  if (fillController[0]->getSwitch() == SOFTSWITCH_AUTO || fillController[1]->getSwitch() == SOFTSWITCH_AUTO) modeMask |= 1 << AV_FILL;
+  if (vessels[VS_HLT]->getSwitch() == SOFTSWITCH_AUTO) modeMask |= 1 << AV_HLT;
+  if (vessels[VS_MASH]->getSwitch() == SOFTSWITCH_AUTO) modeMask |= 1 << AV_MASH;
+  if (vessels[VS_KETTLE]->getSwitch() == SOFTSWITCH_AUTO) modeMask |= 1 << AV_KETTLE;
   return modeMask;
 }
 

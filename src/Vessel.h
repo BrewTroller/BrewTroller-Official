@@ -163,7 +163,7 @@ public:
 
 	inline unsigned long getCalibrationVolume(byte index) { return volumeCalibrationVolume[index]; }
 	inline unsigned int getCalibrationPressure(byte index) { return volumeCalibrationVolume[index]; }
-	s
+	
 	 bool isOn(); //Returns whether the heating element is on at this very moment (cycles on and off with PID). Use getOutput() to see the exact level.
 	void setHeatOverride(SoftSwitch); //Forces the element on or off, or sets it to auto. Used with RGBIO8 soft switches.
 	 SoftSwitch getHeatOverride(); 

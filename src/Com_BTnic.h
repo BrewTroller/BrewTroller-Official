@@ -1,4 +1,4 @@
- /*  
+/*  
    Copyright (C) 2009, 2010 Matt Reba, Jeremiah Dillingham
 
     This file is part of BrewTroller.
@@ -358,349 +358,427 @@ void BTnic::execCmd(void) {
   if(cmdIndex == NO_CMDINDEX) return rejectCmd(CMD_REJECT_INDEX);
 
   switch (_bufData[0]) {
-    case CMD_GET_STATUS: //a
-      logFieldCmd(CMD_GET_STATUS, NO_CMDINDEX);
-      logFieldI(alarmStatus);
-      logFieldI(autoValveBitmask());
-      logFieldI(actProfiles);
-      logFieldI(computeValveBits());
-      for (byte vessel = VS_HLT; vessel <= NUM_VESSELS; vessel++) {
-        logFieldI(vessels[vessel]->getSetpoint());
-        logFieldI(vessels[vessel]->getTemperature());
-        logFieldI(getHeatPower(vessel)); 
-        logFieldI(vessels[vessel]->getTargetVolume());
-        logFieldI(vessels[vessel]->getVolume());
-        logFieldI(vessels[vessel]->getFlowRate());
-       }
-      //Include remaining Temp Sensors.
-      for (byte sensor = TS_H2OIN; sensor<NUM_TS; sensor++)
-          logFieldI(temp[sensor]);
+  case CMD_GET_STATUS: //a
+	  logFieldCmd(CMD_GET_STATUS, NO_CMDINDEX);
+	  logFieldI(alarmStatus);
+	  logFieldI(autoValveBitmask());
+	  logFieldI(actProfiles);
+	  logFieldI(computeValveBits());
+	  for (byte vessel = VS_HLT; vessel <= VS_KETTLE; vessel++) {
+		  logFieldI(setpoint[vessel]);
+		  logFieldI(temp[vessel]);
+		  logFieldI(getHeatPower(vessel));
+		  logFieldI(tgtVol[vessel]);
+		  logFieldI(volAvg[vessel]);
+#ifdef FLOWRATE_CALCS
+		  logFieldI(flowRate[vessel]);
+#else
+		  logFieldI(0);
+#endif
+	  }
+	  //Include remaining Temp Sensors.
+	  for (byte sensor = TS_H2OIN; sensor < NUM_TS; sensor++)
+		  logFieldI(temp[sensor]);
 
-      for (byte timer = TIMER_MASH; timer <= TIMER_BOIL; timer++) {
-        logFieldI(timerValue[timer]);
-        logFieldI(timerStatus[timer]);
-      }
-      logFieldI(boilControlState);      
-      logStepPrg();
-      break;
-    
-    case CMD_SET_BOIL:  //K
-      setBoilTemp(getCmdParamNum(1));
-    case CMD_GET_BOIL:  //A
-      logFieldCmd(CMD_GET_BOIL, NO_CMDINDEX);
-      logFieldI(getBoilTemp());
-      break;
+	  for (byte timer = TIMER_MASH; timer <= TIMER_BOIL; timer++) {
+		  logFieldI(timerValue[timer]);
+		  logFieldI(timerStatus[timer]);
+	  }
+	  logFieldI(boilControlState);
+	  logStepPrg();
+	  break;
 
-
-    case CMD_SET_CAL:  //L
-      {
-        byte vessel = cmdIndex / 10;
-        byte calIndex = cmdIndex - vessel * 10;
-        vessels[vessel]->updateVolumeCalibration(calIndex, getCmdParamNum(2), getCmdParamNum(1));
-      }
-    case CMD_GET_CAL: //B
-      {
-        logFieldCmd(CMD_GET_CAL, cmdIndex);
-        byte vessel = cmdIndex / 10;
-        byte calIndex = cmdIndex - vessel * 10;      
-        logFieldI(vessels[vessel]->getCalibrationVolume(calIndex));
-        logFieldI(vessels[vessel]->getCalibrationPressure(calIndex));
-      }
-      break;
-      
-      
-    case CMD_SET_EVAP:  //M
-      setEvapRate(min(getCmdParamNum(1), 100));
-    case CMD_GET_EVAP:  //C
-      logFieldCmd(CMD_GET_EVAP, NO_CMDINDEX);
-      logFieldI(getEvapRate());
-      break;
-      
-      
-    case CMD_SET_OSET:  //N
-      vessels[cmdIndex]->setPID(getCmdParamNum(1));
-	  vessels[cmdIndex]->setPIDCycle(getCmdParamNum(2));
-	  vessels[cmdIndex]->setTunings(getCmdParamNum(3), getCmdParamNum(4), getCmdParamNum(5));
-#ifdef USESTEAM
-	     if (cmdIndex == VS_STEAM) {
-        vessels[VS_STEAM]->updateVolumeCalibration(0,0,getCmdParamNum(6));
-        vessels[VS_STEAM]->setSetpoint(getCmdParamNum(7));
-        vessels[VS_STEAM]->setPressureSensitivity(getCmdParamNum(8)); 
-    } else
- #endif
-      
-       vessels[cmdIndex]->setHysteresis(getCmdParamNum(6));
-    case CMD_GET_OSET:  //D
-      logFieldCmd(CMD_GET_OSET, cmdIndex);
-      logFieldI(vessels[cmdIndex]->isPID());
-      logFieldI(vessels[cmdIndex]->getPIDCycle());
-      logFieldI(vessels[cmdIndex]->getP());
-      logFieldI(vessels[cmdIndex]->getI());
-      logFieldI(vessels[cmdIndex]->getD());
-#ifdef USESTEAM
-      if (cmdIndex == VS_STEAM) {
-        logFieldI(vessels[VS_STEAM]->getSetpoint());
-        } 
-      else 
-#endif 
-      {
-        logFieldI(vessels[cmdIndex]->getHysteresis());
-        logFieldI(0);
-        logFieldI(0);
-      }
-      break;
-
-  
-    case CMD_SET_PROGNAME:  //'['
-      {
-        char pName[20];
-        getCmdParam(1, pName, 19);
-        setProgName(cmdIndex, pName);
-      }
-    case CMD_GET_PROGNAME:  //'\'
-      logFieldCmd(CMD_GET_PROGNAME, cmdIndex);
-      {
-        char pName[20];
-        getProgName(cmdIndex, pName);
-        logField(pName);
-      }
-      break;
-
-    case CMD_GET_PROGNAMES:  //%3E (All Program Names)
-      logFieldCmd(CMD_GET_PROGNAMES, NO_CMDINDEX);
-      for (byte i = 0; i < RECIPE_MAX; i++) {
-        char pName[20];
-        getProgName(i, pName);
-        logField(pName);
-      }
-      break;
-      
-    case CMD_SET_PROGTEMPS:  //']'
-      for (byte i = 0; i < MASHSTEP_COUNT; i++) {
-        setProgMashTemp(cmdIndex, i, getCmdParamNum(i + 1) * SETPOINT_DIV);
-      }
-    case CMD_GET_PROGTEMPS:  //'^'
-      logFieldCmd(CMD_GET_PROGTEMPS, cmdIndex);
-      for (byte i = 0; i < MASHSTEP_COUNT; i++) {
-        logFieldI(getProgMashTemp(cmdIndex, i) / SETPOINT_DIV);
-      }
-      break;
-
-    case CMD_SET_PROGMINS:  //'_'
-      for (byte i = 0; i < MASHSTEP_COUNT; i++) {
-        setProgMashMins(cmdIndex, i, getCmdParamNum(i + 1));
-      }
-    case CMD_GET_PROGMINS:  //'`'
-      logFieldCmd(CMD_GET_PROGMINS, cmdIndex);
-      for (byte i = 0; i < MASHSTEP_COUNT; i++) {
-        logFieldI(getProgMashMins(cmdIndex, i));
-      }
-      break;
-
-    case CMD_SET_PROGVOLS:  //x
-      setProgBatchVol(cmdIndex, getCmdParamNum(1));
-      setProgGrain(cmdIndex, getCmdParamNum(2));
-      setProgRatio(cmdIndex, getCmdParamNum(3));
-    case CMD_GET_PROGVOLS:  //y
-      logFieldCmd(CMD_GET_PROGVOLS, cmdIndex);
-      logFieldI(getProgBatchVol(cmdIndex));
-      logFieldI(getProgGrain(cmdIndex));
-      logFieldI(getProgRatio(cmdIndex));
-      break;
-      
-    case CMD_SET_PROG:  //O (Partial program data)
-      setProgSparge(cmdIndex, getCmdParamNum(1) * SETPOINT_DIV);
-      setProgHLT(cmdIndex, getCmdParamNum(2) * SETPOINT_DIV);
-      setProgBoil(cmdIndex, getCmdParamNum(3));
-      setProgPitch(cmdIndex, getCmdParamNum(4) * SETPOINT_DIV);
-      setProgAdds(cmdIndex, getCmdParamNum(5));
-      setProgMLHeatSrc(cmdIndex, getCmdParamNum(6));
-    case CMD_GET_PROG:  //E (partial program data)
-      logFieldCmd(CMD_GET_PROG, cmdIndex);
-      logFieldI(getProgSparge(cmdIndex) / SETPOINT_DIV);
-      logFieldI(getProgHLT(cmdIndex) / SETPOINT_DIV);
-      logFieldI(getProgBoil(cmdIndex));
-      logFieldI(getProgPitch(cmdIndex) / SETPOINT_DIV);
-      logFieldI(getProgAdds(cmdIndex));
-      logFieldI(getProgMLHeatSrc(cmdIndex));
-      break;
-      
-    case CMD_SET_PROGRAM:
-      {
-        char pName[20];
-        getCmdParam(1, pName, 19);
-        setProgName(cmdIndex, pName);
-      }
-      setProgBatchVol(cmdIndex, getCmdParamNum(2));
-      setProgGrain(cmdIndex, getCmdParamNum(3));
-      setProgRatio(cmdIndex, getCmdParamNum(4));
-      for (byte i = 0; i < MASHSTEP_COUNT; i++) {
-        setProgMashTemp(cmdIndex, i, getCmdParamNum(i * 2 + 5) * SETPOINT_DIV);
-        setProgMashMins(cmdIndex, i, getCmdParamNum(i * 2 + 6));
-      }
-      setProgSparge(cmdIndex, getCmdParamNum(17) * SETPOINT_DIV);
-      setProgHLT(cmdIndex, getCmdParamNum(18) * SETPOINT_DIV);
-      setProgBoil(cmdIndex, getCmdParamNum(19));
-      setProgPitch(cmdIndex, getCmdParamNum(20) * SETPOINT_DIV);
-      setProgAdds(cmdIndex, getCmdParamNum(21));
-      setProgMLHeatSrc(cmdIndex, getCmdParamNum(22));
-    case CMD_GET_PROGRAM:
-      logFieldCmd(CMD_GET_PROGRAM, cmdIndex);
-      {
-        char pName[20];
-        getProgName(cmdIndex, pName);
-        logField(pName);
-      }
-      logFieldI(getProgBatchVol(cmdIndex));
-      logFieldI(getProgGrain(cmdIndex));
-      logFieldI(getProgRatio(cmdIndex));
-      for (byte i = 0; i < MASHSTEP_COUNT; i++) {
-        logFieldI(getProgMashTemp(cmdIndex, i) / SETPOINT_DIV);
-        logFieldI(getProgMashMins(cmdIndex, i));
-      }
-      logFieldI(getProgSparge(cmdIndex) / SETPOINT_DIV);
-      logFieldI(getProgHLT(cmdIndex) / SETPOINT_DIV);
-      logFieldI(getProgBoil(cmdIndex));
-      logFieldI(getProgPitch(cmdIndex) / SETPOINT_DIV);
-      logFieldI(getProgAdds(cmdIndex));
-      logFieldI(getProgMLHeatSrc(cmdIndex));
-      logFieldI(calcStrikeTemp(cmdIndex) / SETPOINT_DIV);
-      logFieldI(getFirstStepTemp(cmdIndex) / SETPOINT_DIV);
-      logFieldI(calcPreboilVol(cmdIndex));
-      logFieldI(calcStrikeVol(cmdIndex));
-      logFieldI(calcSpargeVol(cmdIndex));
-      logFieldI(calcGrainVolume(cmdIndex));
-      logFieldI(calcGrainLoss(cmdIndex));      
-      break;
-      
-    case CMD_SET_TS:  //P
-      {
-        byte addr[8];
-        for (byte i=0; i<8; i++) addr[i] = (byte)getCmdParamNum(i+1);
-        setTSAddr(cmdIndex, addr);
-      }
-    case CMD_GET_TS:  //F
-      logFieldCmd(CMD_GET_TS, cmdIndex);
-      for (byte i=0; i<8; i++) logFieldI(tSensor[cmdIndex][i]);
-      break;
-      
-      
-    case CMD_GET_VER:  //G
-      logFieldCmd(CMD_GET_VER, NO_CMDINDEX);
-      logField_P(UIStrings::Generic::BTVER);
-      logFieldI(BUILDNUM);
-      logFieldI(BTNIC);
-      logFieldI(COMSCHEMA);
-      #ifdef USEMETRIC
-        logFieldI(0);
-      #else
-        logFieldI(1);
-      #endif
-      break;
+  case CMD_SET_BOIL:  //K
+	  setBoilTemp(getCmdParamNum(1));
+  case CMD_GET_BOIL:  //A
+	  logFieldCmd(CMD_GET_BOIL, NO_CMDINDEX);
+	  logFieldI(getBoilTemp());
+	  break;
 
 
-    case CMD_SET_VSET:  //R
-      vessels[cmdIndex]->setCapacity(getCmdParamNum(1));
-      vessels[cmdIndex]->setDeadspace(getCmdParamNum(2));
-    case CMD_GET_VSET:  //H
-      logFieldCmd(CMD_GET_VSET, cmdIndex);
-      logFieldI(vessels[cmdIndex]->getCapacity());
-      logFieldI(vessels[cmdIndex]->getDeadspace());  
-      break;
+  case CMD_SET_CAL:  //L
+  {
+	  byte vessel = cmdIndex / 10;
+	  byte calIndex = cmdIndex - vessel * 10;
+	  setVolCalib(vessel, calIndex, getCmdParamNum(2), getCmdParamNum(1));
+  }
+  case CMD_GET_CAL: //B
+  {
+	  logFieldCmd(CMD_GET_CAL, cmdIndex);
+	  byte vessel = cmdIndex / 10;
+	  byte calIndex = cmdIndex - vessel * 10;
+	  logFieldI(calibVols[vessel][calIndex]);
+	  logFieldI(calibVals[vessel][calIndex]);
+  }
+  break;
 
 
-    case CMD_INIT_EEPROM:  //I
-      if (getCmdParamNum(1) != 210) return rejectCmd(CMD_REJECT_PARAM);
-      logFieldCmd(CMD_INIT_EEPROM, NO_CMDINDEX);
-      initEEPROM();
-      break;
-      
-
-    case CMD_SCAN_TS:  //J
-      {
-        logFieldCmd(CMD_SCAN_TS, NO_CMDINDEX);
-        byte tsAddr[8];
-        getDSAddr(tsAddr);
-        for (byte i=0; i<8; i++) logFieldI(tsAddr[i]);
-      }
-      break;
-      
-      
-    case CMD_SET_VLVCFG:  //Q
-      setValveCfg(cmdIndex, getCmdParamNum(1));
-    case CMD_GET_VLVCFG:  //d
-      logFieldCmd(CMD_GET_VLVCFG, cmdIndex);
-      logFieldI(vlvConfig[cmdIndex]);  
-      break; 
+  case CMD_SET_EVAP:  //M
+	  setEvapRate(min(getCmdParamNum(1), 100));
+  case CMD_GET_EVAP:  //C
+	  logFieldCmd(CMD_GET_EVAP, NO_CMDINDEX);
+	  logFieldI(getEvapRate());
+	  break;
 
 
-    case CMD_INIT_STEP:  //U
-    case CMD_ADV_STEP:  //S
-    case CMD_EXIT_STEP:  //T
-      if (_bufData[0] == CMD_INIT_STEP) {
-        byte progNum = getCmdParamNum(1);
-        if (progNum >= 20) return rejectCmd(CMD_REJECT_PARAM);
-        programThreadInit(progNum, cmdIndex);
-      }
-      else if (_bufData[0] == CMD_ADV_STEP) brewStepSignal(cmdIndex, STEPSIGNAL_ADVANCE);
-      else if (_bufData[0] == CMD_EXIT_STEP) brewStepSignal(cmdIndex, STEPSIGNAL_ABORT);
-    case CMD_STEPPRG:  //n
-        logFieldCmd(CMD_STEPPRG, NO_CMDINDEX);
-        logStepPrg();
-      break;
+  case CMD_SET_OSET:  //N
+	  setPIDEnabled(cmdIndex, getCmdParamNum(1));
+	  setPIDCycle(cmdIndex, getCmdParamNum(2));
+	  setPIDp(cmdIndex, getCmdParamNum(3));
+	  setPIDi(cmdIndex, getCmdParamNum(4));
+	  setPIDd(cmdIndex, getCmdParamNum(5));
+	  if (cmdIndex == VS_STEAM) {
+		  setSteamZero(getCmdParamNum(6));
+		  setSteamTgt(getCmdParamNum(7));
+		  setSteamPSens(getCmdParamNum(8));
+	  }
+	  else setHysteresis(cmdIndex, getCmdParamNum(6));
+  case CMD_GET_OSET:  //D
+	  logFieldCmd(CMD_GET_OSET, cmdIndex);
+	  logFieldI(PIDEnabled[cmdIndex]);
+	  logFieldI(PIDCycle[cmdIndex]);
+	  logFieldI(getPIDp(cmdIndex));
+	  logFieldI(getPIDi(cmdIndex));
+	  logFieldI(getPIDd(cmdIndex));
+	  if (cmdIndex == VS_STEAM) {
+		  logFieldI(getSteamTgt());
+#ifndef PID_FLOW_CONTROL
+		  logFieldI(steamZero);
+		  logFieldI(steamPSens);
+#endif
+	  }
+	  else {
+		  logFieldI(hysteresis[cmdIndex]);
+		  logFieldI(0);
+		  logFieldI(0);
+	  }
+	  break;
+
+
+  case CMD_SET_PROGNAME:  //'['
+  {
+	  char pName[20];
+	  getCmdParam(1, pName, 19);
+	  setProgName(cmdIndex, pName);
+  }
+  case CMD_GET_PROGNAME:  //'\'
+	  logFieldCmd(CMD_GET_PROGNAME, cmdIndex);
+	  {
+		  char pName[20];
+		  getProgName(cmdIndex, pName);
+		  logField(pName);
+	  }
+	  break;
+
+  case CMD_GET_PROGNAMES:  //%3E (All Program Names)
+	  logFieldCmd(CMD_GET_PROGNAMES, NO_CMDINDEX);
+	  for (byte i = 0; i < RECIPE_MAX; i++) {
+		  char pName[20];
+		  getProgName(i, pName);
+		  logField(pName);
+	  }
+	  break;
+
+  case CMD_SET_PROGTEMPS:  //']'
+	  for (byte i = 0; i < MASHSTEP_COUNT; i++) {
+		  setProgMashTemp(cmdIndex, i, getCmdParamNum(i + 1) * SETPOINT_DIV);
+	  }
+  case CMD_GET_PROGTEMPS:  //'^'
+	  logFieldCmd(CMD_GET_PROGTEMPS, cmdIndex);
+	  for (byte i = 0; i < MASHSTEP_COUNT; i++) {
+		  logFieldI(getProgMashTemp(cmdIndex, i) / SETPOINT_DIV);
+	  }
+	  break;
+
+  case CMD_SET_PROGMINS:  //'_'
+	  for (byte i = 0; i < MASHSTEP_COUNT; i++) {
+		  setProgMashMins(cmdIndex, i, getCmdParamNum(i + 1));
+	  }
+  case CMD_GET_PROGMINS:  //'`'
+	  logFieldCmd(CMD_GET_PROGMINS, cmdIndex);
+	  for (byte i = 0; i < MASHSTEP_COUNT; i++) {
+		  logFieldI(getProgMashMins(cmdIndex, i));
+	  }
+	  break;
+
+  case CMD_SET_PROGVOLS:  //x
+	  setProgBatchVol(cmdIndex, getCmdParamNum(1));
+	  setProgGrain(cmdIndex, getCmdParamNum(2));
+	  setProgRatio(cmdIndex, getCmdParamNum(3));
+  case CMD_GET_PROGVOLS:  //y
+	  logFieldCmd(CMD_GET_PROGVOLS, cmdIndex);
+	  logFieldI(getProgBatchVol(cmdIndex));
+	  logFieldI(getProgGrain(cmdIndex));
+	  logFieldI(getProgRatio(cmdIndex));
+	  break;
+
+  case CMD_SET_PROG:  //O (Partial program data)
+	  setProgSparge(cmdIndex, getCmdParamNum(1) * SETPOINT_DIV);
+	  setProgHLT(cmdIndex, getCmdParamNum(2) * SETPOINT_DIV);
+	  setProgBoil(cmdIndex, getCmdParamNum(3));
+	  setProgPitch(cmdIndex, getCmdParamNum(4) * SETPOINT_DIV);
+	  setProgAdds(cmdIndex, getCmdParamNum(5));
+	  setProgMLHeatSrc(cmdIndex, getCmdParamNum(6));
+  case CMD_GET_PROG:  //E (partial program data)
+	  logFieldCmd(CMD_GET_PROG, cmdIndex);
+	  logFieldI(getProgSparge(cmdIndex) / SETPOINT_DIV);
+	  logFieldI(getProgHLT(cmdIndex) / SETPOINT_DIV);
+	  logFieldI(getProgBoil(cmdIndex));
+	  logFieldI(getProgPitch(cmdIndex) / SETPOINT_DIV);
+	  logFieldI(getProgAdds(cmdIndex));
+	  logFieldI(getProgMLHeatSrc(cmdIndex));
+	  break;
+
+  case CMD_SET_PROGRAM:
+  {
+	  char pName[20];
+	  getCmdParam(1, pName, 19);
+	  setProgName(cmdIndex, pName);
+  }
+  setProgBatchVol(cmdIndex, getCmdParamNum(2));
+  setProgGrain(cmdIndex, getCmdParamNum(3));
+  setProgRatio(cmdIndex, getCmdParamNum(4));
+  for (byte i = 0; i < MASHSTEP_COUNT; i++) {
+	  setProgMashTemp(cmdIndex, i, getCmdParamNum(i * 2 + 5) * SETPOINT_DIV);
+	  setProgMashMins(cmdIndex, i, getCmdParamNum(i * 2 + 6));
+  }
+  setProgSparge(cmdIndex, getCmdParamNum(17) * SETPOINT_DIV);
+  setProgHLT(cmdIndex, getCmdParamNum(18) * SETPOINT_DIV);
+  setProgBoil(cmdIndex, getCmdParamNum(19));
+  setProgPitch(cmdIndex, getCmdParamNum(20) * SETPOINT_DIV);
+  setProgAdds(cmdIndex, getCmdParamNum(21));
+  setProgMLHeatSrc(cmdIndex, getCmdParamNum(22));
+  case CMD_GET_PROGRAM:
+	  logFieldCmd(CMD_GET_PROGRAM, cmdIndex);
+	  {
+		  char pName[20];
+		  getProgName(cmdIndex, pName);
+		  logField(pName);
+	  }
+	  logFieldI(getProgBatchVol(cmdIndex));
+	  logFieldI(getProgGrain(cmdIndex));
+	  logFieldI(getProgRatio(cmdIndex));
+	  for (byte i = 0; i < MASHSTEP_COUNT; i++) {
+		  logFieldI(getProgMashTemp(cmdIndex, i) / SETPOINT_DIV);
+		  logFieldI(getProgMashMins(cmdIndex, i));
+	  }
+	  logFieldI(getProgSparge(cmdIndex) / SETPOINT_DIV);
+	  logFieldI(getProgHLT(cmdIndex) / SETPOINT_DIV);
+	  logFieldI(getProgBoil(cmdIndex));
+	  logFieldI(getProgPitch(cmdIndex) / SETPOINT_DIV);
+	  logFieldI(getProgAdds(cmdIndex));
+	  logFieldI(getProgMLHeatSrc(cmdIndex));
+	  logFieldI(calcStrikeTemp(cmdIndex) / SETPOINT_DIV);
+	  logFieldI(getFirstStepTemp(cmdIndex) / SETPOINT_DIV);
+	  logFieldI(calcPreboilVol(cmdIndex));
+	  logFieldI(calcStrikeVol(cmdIndex));
+	  logFieldI(calcSpargeVol(cmdIndex));
+	  logFieldI(calcGrainVolume(cmdIndex));
+	  logFieldI(calcGrainLoss(cmdIndex));
+	  break;
+
+  case CMD_SET_TS:  //P
+  {
+	  byte addr[8];
+	  for (byte i = 0; i < 8; i++) addr[i] = (byte)getCmdParamNum(i + 1);
+	  setTSAddr(cmdIndex, addr);
+  }
+  case CMD_GET_TS:  //F
+	  logFieldCmd(CMD_GET_TS, cmdIndex);
+	  for (byte i = 0; i < 8; i++) logFieldI(tSensor[cmdIndex][i]);
+	  break;
+
+
+  case CMD_GET_VER:  //G
+	  logFieldCmd(CMD_GET_VER, NO_CMDINDEX);
+	  logField_P(UIStrings::Generic::BTVER);
+	  logFieldI(BUILDNUM);
+	  logFieldI(BTNIC);
+	  logFieldI(COMSCHEMA);
+#ifdef USEMETRIC
+	  logFieldI(0);
+#else
+	  logFieldI(1);
+#endif
+	  break;
+
+
+  case CMD_SET_VSET:  //R
+	  setCapacity(cmdIndex, getCmdParamNum(1));
+	  setVolLoss(cmdIndex, getCmdParamNum(2));
+  case CMD_GET_VSET:  //H
+	  logFieldCmd(CMD_GET_VSET, cmdIndex);
+	  logFieldI(getCapacity(cmdIndex));
+	  logFieldI(getVolLoss(cmdIndex));
+	  break;
+
+
+  case CMD_INIT_EEPROM:  //I
+	  if (getCmdParamNum(1) != 210) return rejectCmd(CMD_REJECT_PARAM);
+	  logFieldCmd(CMD_INIT_EEPROM, NO_CMDINDEX);
+	  initEEPROM();
+	  break;
+
+
+  case CMD_SCAN_TS:  //J
+  {
+	  logFieldCmd(CMD_SCAN_TS, NO_CMDINDEX);
+	  byte tsAddr[8];
+	  getDSAddr(tsAddr);
+	  for (byte i = 0; i < 8; i++) logFieldI(tsAddr[i]);
+  }
+  break;
+
+
+  case CMD_SET_VLVCFG:  //Q
+	  setValveCfg(cmdIndex, getCmdParamNum(1));
+  case CMD_GET_VLVCFG:  //d
+	  logFieldCmd(CMD_GET_VLVCFG, cmdIndex);
+	  logFieldI(vlvConfig[cmdIndex]);
+	  break;
+
+
+  case CMD_INIT_STEP:  //U
+  case CMD_ADV_STEP:  //S
+  case CMD_EXIT_STEP:  //T
+	  if (_bufData[0] == CMD_INIT_STEP) {
+		  byte progNum = getCmdParamNum(1);
+		  if (progNum >= 20) return rejectCmd(CMD_REJECT_PARAM);
+		  programThreadInit(progNum, cmdIndex);
+	  }
+	  else if (_bufData[0] == CMD_ADV_STEP) brewStepSignal(cmdIndex, STEPSIGNAL_ADVANCE);
+	  else if (_bufData[0] == CMD_EXIT_STEP) brewStepSignal(cmdIndex, STEPSIGNAL_ABORT);
+  case CMD_STEPPRG:  //n
+	  logFieldCmd(CMD_STEPPRG, NO_CMDINDEX);
+	  logStepPrg();
+	  break;
 
 
 
-    case CMD_SET_ALARM:  //V
-      setAlarm(getCmdParamNum(1));
-    case CMD_GET_ALARM:  //e
-      logFieldCmd(CMD_GET_ALARM, NO_CMDINDEX);
-      logFieldI(alarmStatus);
-      break;
-      
-      
-    case CMD_SET_AUTOVLV:  //W
-      {
-        byte actModes = getCmdParamNum(1);
-        for (byte i = AV_FILL; i <= AV_HLT; i++) 
-          autoValve[i] = (actModes & (1<<i));
-      }
-    case CMD_AUTOVLV:  //u
-      {
-        logFieldCmd(CMD_AUTOVLV, NO_CMDINDEX);
-        logFieldI(autoValveBitmask());
-      }
-      break;
-      
-      
-    case CMD_SET_SETPOINT:  //X
-      vessels[cmdIndex]->setSetpoint(getCmdParamNum(1));
-    case CMD_SETPOINT:  //t
-      logFieldCmd(CMD_SETPOINT, cmdIndex);
-      logFieldI(vessels[cmdIndex]->getSetpoint());
-      break;
-      
+  case CMD_SET_ALARM:  //V
+	  setAlarm(getCmdParamNum(1));
+  case CMD_GET_ALARM:  //e
+	  logFieldCmd(CMD_GET_ALARM, NO_CMDINDEX);
+	  logFieldI(alarmStatus);
+	  break;
 
-    case CMD_SET_TIMERSTATUS:  //Y
-    case CMD_SET_TIMERVALUE:  //Z
-      if (_bufData[0] == CMD_SET_TIMERSTATUS) {
-        if (getCmdParamNum(1) != timerStatus[cmdIndex])
-          pauseTimer(cmdIndex);
-      } else {
-        timerValue[cmdIndex] = getCmdParamNum(1);
-        lastTime[cmdIndex] = millis();
-      }
-    case CMD_TIMER:  //o
-      logFieldCmd(CMD_TIMER, cmdIndex);
-      logFieldI(timerValue[cmdIndex]);
-      logFieldI(timerStatus[cmdIndex]);
-      break; 
 
-      
-    case CMD_SET_VLVPRF:  //b
-      //Check param 2 (value) and set/unset specified active profiles
-      if (getCmdParamNum(2)) actProfiles |= getCmdParamNum(1);
-      else actProfiles &= ~getCmdParamNum(1);
+  case CMD_SET_AUTOVLV:  //W
+  {
+	  byte actModes = getCmdParamNum(1);
+	  for (byte i = AV_FILL; i <= AV_HLT; i++)
+		  if (actModes & (1 << i))
+			  select(i)
+		  {
+  case AV_FILL:
+	  fillController[0]->startAuto();
+	  fillController[1]->startAuto();
+	  break;
+  case AV_HLT:
+	  vessels[VS_HLT]->setHeatOverride(SOFTSWITCH_AUTO);
+	  break;
+  case AV_MASH:
+	  vessels[VS_MASH]->setHeatOverride(SOFTSWITCH_AUTO);
+	  break;
+  case AV_KETTLE:
+	  vessels[VS_KETTLE]->setHeatOverride(SOFTSWITCH_AUTO);
+	  break;
+  case AV_SPARGEIN:
+	  flowController[0]->startAuto();
+	  break;
+  case AV_SPARGEOUT:
+	  flowController[1]->startAuto();
+	  break;
+
+  case AV_FLYSPARGE:
+	  flowController[0]->startAuto();
+	  flowController[1]->startAuto();
+	  break;
+
+		  }
+  }
+  case CMD_AUTOVLV:  //u
+  {
+	  logFieldCmd(CMD_AUTOVLV, NO_CMDINDEX);
+	  logFieldI(autoValveBitmask());
+  }
+  break;
+
+
+  case CMD_SET_SETPOINT:  //X
+	  setSetpoint(cmdIndex, getCmdParamNum(1) * SETPOINT_DIV);
+  case CMD_SETPOINT:  //t
+	  logFieldCmd(CMD_SETPOINT, cmdIndex);
+	  logFieldI(vessels[cmdIndex]->getSetpoint());
+	  break;
+
+
+  case CMD_SET_TIMERSTATUS:  //Y
+  case CMD_SET_TIMERVALUE:  //Z
+	  if (_bufData[0] == CMD_SET_TIMERSTATUS) {
+		  if (getCmdParamNum(1) != timerStatus[cmdIndex])
+			  pauseTimer(cmdIndex);
+	  }
+	  else {
+		  timerValue[cmdIndex] = getCmdParamNum(1);
+		  lastTime[cmdIndex] = millis();
+	  }
+  case CMD_TIMER:  //o
+	  logFieldCmd(CMD_TIMER, cmdIndex);
+	  logFieldI(timerValue[cmdIndex]);
+	  logFieldI(timerStatus[cmdIndex]);
+	  break;
+
+
+  case CMD_SET_VLVPRF:  //b
+	//Note: this code has to do some kind of funky stuff to mate manual valve control from BTNic with the more programmatic
+	//approach of the vessel and flowcontroller object model. 
+	//Check param 2 (value) and set/unset specified active profiles
+	  if (getCmdParamNum(2))
+	  {
+		  actProfiles |= getCmdParamNum(1);
+	  }
+	  else
+	  {
+		  //if param 2 == TRUE, we should turn off all valves except the specified one.
+		  actProfiles &= ~getCmdParamNum(1);
+		  flowController[0]->stop();
+		  flowController[1]->stop();
+		  fillController[0]->stop();
+		  fillController[1]->stop();
+		  vessels[VS_HLT]->setHeatOverride(SOFTSWITCH_OFF);
+		  vessels[VS_MASH]->setHeatOverride(SOFTSWITCH_OFF);
+		  vessels[VS_MASH]->setHeatOverride(SOFTSWITCH_OFF);
+	  }
+	  select(getCmdParamNum(1))
+	  {
+	case VLV_FILLHLT:
+		flowController[0]->startOn();
+		break;
+	case VLV_FILLMASH:
+		flowController[1]->startOn();
+		break;
+	case VLV_MASHHEAT:
+		vessels[VS_MASH]->setHeatOverride(SOFTSWITCH_ON);
+		break;
+	case VLV_MASHIDLE:
+		vessels[VS_MASH]->manualOutput(0); //Turn the output on, but to 0, to force idle
+		break;
+	case VLV_SPARGEIN:
+		flowController[0]->startOn();
+		break;
+	case VLV_SPARGEOUT:
+		flowController[1]->startOn();
+		break;
+	case VLV_HLTHEAT:
+		vessels[VS_HEAT]->setHeatOverride(SOFTSWITCH_ON);
+		break;
+	case VLV_HLTIDLE:
+		vessels[VS_HLT]->manualOutput(0); //Turn the output on, but to 0, to force idle
+		break;
+		
+	  }
+	  break;
     case CMD_VLVPRF:  //w
       logFieldCmd(CMD_VLVPRF, NO_CMDINDEX);
       logFieldI(actProfiles);
@@ -746,26 +824,40 @@ void BTnic::execCmd(void) {
     
     case CMD_VOL:  //p
       logFieldCmd(CMD_VOL, cmdIndex);
-      logFieldI(vessels[cmdIndex]->getVolume());
-      logFieldI(vessels[cmdIndex]->getFlowRate());
+      logFieldI(volAvg[cmdIndex]);
+      #ifdef FLOWRATE_CALCS
+        logFieldI(flowRate[cmdIndex]);
+      #else
+        logFieldI(0);
+      #endif
       break;
       
       
     case CMD_TEMP:  //q
       logFieldCmd(CMD_TEMP, cmdIndex);
-      logFieldI(temp[cmdIndex]);
+	  if (cmdIndex >= VS_HLT && cmdIndex <=
+#ifdef USESTEAM
+		  VS_STEAM
+#else
+		  VS_KETTLE
+#endif
+		  )
+		  logFieldI(vessels[cmdIndex]->getTemperature())
+	  else
+	      logFieldI(temp[cmdIndex]);
       break;
       
+#if defined USESTEAM || defined PID_PUMP1
       
     case CMD_STEAM:  //r
       logFieldCmd(CMD_STEAM, NO_CMDINDEX);
       #ifdef PID_PUMP1
         logFieldI(flowController[0]->getFlowRate());
-      #elseif defined VS_STEAM
+      #else
         logFieldI(vessels[VS_STEAM]->getPressure());  
       #endif
       break;
-
+#endif
 
     case CMD_HEATPWR:  //s
       logFieldCmd(CMD_HEATPWR, cmdIndex);
@@ -779,7 +871,7 @@ void BTnic::execCmd(void) {
       break;
       
     case CMD_SET_TGTVOL:  //{
-      vessels[cmdIndex]->setTargetVolume(min(getCmdParamNum(1), vessels[cmdIndex]->getCapacity()));
+      vessels[cmdIndex]->setTargetVolume(min(getCmdParamNum(1), vessels[cmdIndex]->getCapacity());
     case CMD_GET_TGTVOL:  //|
       logFieldCmd(CMD_GET_TGTVOL, cmdIndex);
       logFieldI(vessels[cmdIndex]->getTargetVolume());
@@ -789,10 +881,11 @@ void BTnic::execCmd(void) {
       boilControlState = (ControlState)getCmdParamNum(1);
       switch (boilControlState) {
         case CONTROLSTATE_OFF:
-			vessels[VS_KETTLE]->setHeatOverride(SOFTSWITCH_OFF);
+		  vessels[VS_KETTLE]->setHeatOverride(SOFTSWITCH_OFF);
           break;
         case CONTROLSTATE_AUTO:
-			vessels[VS_KETTLE]->setHeatOverride(SOFTSWITCH_AUTO);
+          vessels[VS_KETTLE]->setSetpoint(getBoilTemp());
+		  vessels[VS_KETTLE]->setHeatOverride(SOFTSWITCH_AUTO;
           break;
         case CONTROLSTATE_ON:
 			vessels[VS_KETTLE]->setHeatOverride(SOFTSWITCH_ON);
@@ -801,7 +894,7 @@ void BTnic::execCmd(void) {
     case CMD_GET_BOILCTL: //~
       logFieldCmd(CMD_GET_BOILCTL, NO_CMDINDEX);
       logFieldI(boilControlState);
-      logFieldI(vessels[VS_KETTLE]->getOutput());
+	  logFieldI(vessels[VS_KETTLE]->getPercentOutput());
       break;
       
     default: 

@@ -13,19 +13,23 @@ private:
 
 	FlowController* partner = NULL; //Another flow controller with which to try to equalize rates
 
-	PID* pid = NULL;
 	pin* flowControlPin;
 	bool usePWM;
+	
 	bool pidValves; //Should we apply the PID pulsing to the valves, or should they be on/off?
 	byte valveConfig; //The valve config to apply for transfers
+	
+	PID* pid = NULL;
 	double pidInput, pidOutput, pidSetpoint;
+	double hysteresis; 
 	SoftSwitch sSwitch = SOFTSWITCH_AUTO;
-	double hysteresis;
+	
 
 #ifdef PID_CONTROL_MANUAL
 	unsigned long nextcompute = 0;
 	byte additioncount[2] = { 0,0 };
 #endif
+	
 	void initPID();
 	void updateValves();
 
