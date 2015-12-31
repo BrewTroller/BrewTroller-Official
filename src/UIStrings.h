@@ -140,12 +140,10 @@ namespace UIStrings {
         extern const char SACCH2[];
         extern const char MASHOUT[];
         extern const char ENDMASH[];
-#ifdef DIRECT_FIRED_RIMS
         extern const char BADTEMP[];
         extern const char OCTOTHORPE[];
         extern const char ASTERISK[];
         extern const char DASH[];
-#endif
     }
     
     //Sparge step strings
@@ -177,9 +175,7 @@ namespace UIStrings {
         extern const char AUX[];
         extern const char AUX_ONE[];
         extern const char AUX_TWO[];
-#ifndef DIRECT_FIRED_RIMS
         extern const char AUX_THREE[];
-#endif
     }
     
     //Main Menu Strings
@@ -299,9 +295,9 @@ namespace UIStrings {
         extern const char TITLE_VS_KETTLE[];
 
 #if defined USESTEAM
-		extern const char TITLE_VS_STEAM[];
-#elif defined PID_FLOW_CONTROL
-		extern const char TITLE_VS_PUMP[];
+	extern const char TITLE_VS_STEAM[];
+#elif defined PID_PUMP1 || defined PID_PUMP2
+	extern const char TITLE_VS_PUMP[];
 #endif
     }
     
@@ -394,7 +390,7 @@ namespace UIStrings {
 		extern const char STEAM_MODE[];
 		extern const char PRES_UNIT[];
 		extern const char CALIB_ZERO[];
-#elif defined PID_FLOW_CONTROL
+#elif defined PID_PUMP1 || defined PID_PUMP2
             extern const char SPARGE_PUMP_MODE[];
 #endif
             extern const char PID_MODE[];
@@ -406,7 +402,7 @@ namespace UIStrings {
 			extern const char STEAMPRESS[];
 			extern const char STEAMSENSOR[];
 			extern const char STEAMZERO[];
-#elif defined PID_FLOW_CONTROL
+#elif defined PID_PUMP1 || defined PID_PUMP2
 			extern const char PUMPFLOW[];
 #endif
         }

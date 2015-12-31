@@ -926,8 +926,8 @@ void screenEnter() {
                 else if (encValue == 1) { resetSpargeValves(); flowController[0]->startOn(); } //Sparge in
                 else if (encValue == 2) { resetSpargeValves(); flowController[0]->startOn();} //Sparge out
 				else if (encValue == 3) { resetSpargeValves(); flowController[0]->startOn(); flowController[1]->startOn(); } //Fly (not auto)
-				else if (encValue == 4) { resetSpargeValves(); vessels[VS_HEAT]->setHeatOverride(SOFTSWITCH_ON); } //Mash heat
-                else if (encValue == 5) { resetSpargeValves(); vessels[VS_HEAT]->setHeatOverride(SOFTSWITCH_OFF);} //Mash idle
+				else if (encValue == 4) { resetSpargeValves(); vessels[VS_HLT]->setHeatOverride(SOFTSWITCH_ON); } //Mash heat
+                else if (encValue == 5) { resetSpargeValves(); vessels[VS_HLT]->setHeatOverride(SOFTSWITCH_OFF);} //Mash idle
                 else if (encValue == 6) { resetSpargeValves(); }
                 else if (encValue == 7) {
                     menu spargeMenu(3, 8);
@@ -964,7 +964,7 @@ void screenEnter() {
                 boilMenu.setItem_P(UIStrings::Generic::SET_TIMER, 0);
                 
                 if (timerStatus[TIMER_BOIL]) boilMenu.setItem_P(UIStrings::Generic::PAUSE_TIMER, 1);
-                else boilMenu.setItem_P(UIStrings::Generic::START_TIMER, 1);b
+                else boilMenu.setItem_P(UIStrings::Generic::START_TIMER, 1);
                 
                 boilMenu.setItem_P(UIStrings::BoilMenu::BOIL_CTRL, 2);
                 switch (boilControlState) {
@@ -2287,7 +2287,7 @@ void cfgOutputs() {
         outputMenu.appendItem(itoa(boilPwr, buf, 10), OPT_BOILPWR);
         outputMenu.appendItem("%", OPT_BOILPWR);
         
-#if defined PID_PUMP1 || defined PID_PUMP2
+#if !defined USESTEAM && (defined PID_PUMP1 || defined PID_PUMP2)
 			//TODO: Let the user configure both PID pumps in the UI. Right now it only allows configuring one of them
 			outputMenu.setItem_P(UIStrings::SystemSetup::OutputConfig::SPARGE_PUMP_MODE, VS_PUMP << 4 | OPT_MODE);
 			if (flowController[0]->isPID()) {
@@ -2332,9 +2332,10 @@ void cfgOutputs() {
                     strcpy_P(title, (char*)pgm_read_word(&(UIStrings::SystemSetup::TITLE_VS[vessel])));
         
 				if ((lastOption & B00001111) == OPT_MODE) {
-#if defined PID_PUMP1 || PID_PUMP2
+#if defined PID_PUMP1 || defined PID_PUMP2
 					if (vessel == VS_PUMP) {
 						flowController[0]->usePID(!flowController[0]->isPID());	
+						if (flowController[1] != flowController[0]) flowController[1]->usePID(!flowController[1]->isPID());	
 				} else
 #endif
             if (vessels[vessel]->isPID()) vessels[vessel]->setPID(false);
@@ -2342,7 +2343,7 @@ void cfgOutputs() {
 				}
 				else if ((lastOption & B00001111) == OPT_CYCLE) {
 					strcat_P(title, UIStrings::SystemSetup::OutputConfig::PIDCYCLE);
-#if defined PID_PUMP1 || PID_PUMP2
+#if defined PID_PUMP1 || defined PID_PUMP2
 					if (vessel == VS_PUMP)
 					{
 						flowController[0]->setCycle(getValue(title, flowController[0]->getCycle(), 10, 255, UIStrings::Shared::SEC));
@@ -2350,11 +2351,11 @@ void cfgOutputs() {
 				}
 			else
 #endif
-			vessels[vessel]->setPIDCycle(getValue(title, pumpPID->GetPIDCycle(), 10, 255, UIStrings::Shared::SEC));
+			vessels[vessel]->setPIDCycle(getValue(title, vessels[vessel]->getPIDCycle(), 10, 255, UIStrings::Shared::SEC));
 				}
 				else if ((lastOption & B00001111) == OPT_HYSTERESIS) {
 					strcat_P(title, UIStrings::SystemSetup::OutputConfig::HYSTERESIS);
-#if defined PID_PUMP1 || PID_PUMP2
+#if defined PID_PUMP1 || defined PID_PUMP2
 					if (vessel == VS_PUMP)
 					{
 						flowController[0]->setHysteresis(getValue(title, flowController[0]->getHysteresis(), 10, 255, UIStrings::Shared::SEC));
@@ -2366,9 +2367,12 @@ void cfgOutputs() {
 #if defined USESTEAM || defined PID_PUMP1 || defined PID_PUMP2
         } else if ((lastOption & B00001111) == OPT_PRESS) {
 #if !defined USESTEAM
-            setPumpTgt(getValue_P(UIStrings::SystemSetup::OutputConfig::PUMPFLOW, getPumpTgt(), 1, 255, UIStrings::Units::PUNIT));
+            double flowTgt = getValue_P(UIStrings::SystemSetup::OutputConfig::PUMPFLOW, flowController[0]->getTargetFlowRate(), 1, 255, UIStrings::Units::PUNIT);
+            flowController[0]->setTargetFlowRate(flowTgt);
+	    flowController[1]->setTargetFlowRate(flowTgt);
 #else
             setSteamTgt(getValue_P(UIStrings::SystemSetup::OutputConfig::STEAMPRESS, getSteamTgt(), 1, 255, UIStrings::Units::PUNIT));
+#endif
 #endif
 #ifdef USESTEAM
         } else if ((lastOption & B00001111) == OPT_SENSOR) {

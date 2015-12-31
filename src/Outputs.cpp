@@ -33,13 +33,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 #include "Events.h"
 #include "Vessel.h"
 
-  #ifdef USESTEAM
-    #define LAST_HEAT_OUTPUT VS_STEAM
-  #elif defined DIRECT_FIRED_RIMS
-    #define LAST_HEAT_OUTPUT VS_STEAM
-  #else
-    #define LAST_HEAT_OUTPUT VS_KETTLE
-  #endif
+
 
 #ifdef USEPWM
 // note there are some assumptions here, we assume that the COM1A1, COM1B1, COM1A0, and COM1B0 
@@ -90,6 +84,7 @@ ISR(TIMER1_OVF_vect, ISR_NOBLOCK )
 	}
 
 	byte cachedOutput;
+#endif
 #if defined PWM_HLT  || defined PWM_MASH || defined PWM_KETTLE || defined PWM_STEAM
 	for (byte i = 0; i <= LAST_HEAT_OUTPUT; i++)
 	{
@@ -157,7 +152,7 @@ void pidInit() {
   
   #ifdef DEBUG_PID_GAIN
     for (byte vessel = VS_HLT; vessel <= NUM_VESSELS; vessel++) logDebugPIDGain(vessel);
-  #endi
+  #endif
 }
 
 void resetOutputs() {
@@ -166,8 +161,8 @@ void resetOutputs() {
   for (byte i = VS_HLT; i <= LAST_HEAT_OUTPUT; i++)
 	  vessels[i]->setSetpoint(0);
 #if defined PID_PUMP1 || defined PID_PUMP2
-  flowController[0]->setTargetOutput(0);
-  flowController[1]->setTargetOutput(0);
+  flowController[0]->setTargetFlowRate(0);
+  flowController[1]->setTargetFlowRate(0);
 #endif
   updateValves();
 }
@@ -256,8 +251,8 @@ void processHeatOutputs() {
       */
     }
   }
-#endif //#ifdef PVOUT
-  
+
+
 unsigned long computeValveBits() {
   if (estop) return 0;
   unsigned long vlvBits = 0;
@@ -332,13 +327,13 @@ byte autoValveBitmask(void) {
   byte modeMask = 0;
   for (byte i = AV_FILL; i < NUM_AV; i++)
     if (autoValve[i]) modeMask |= 1<<i;
-  if (flowController[0]->getSwitch() == SOFTSWITCH_AUTO) modeMask |= 1 << AV_SPARGE_IN;
-  if (flowController[1]->getSwitch() == SOFTSWITCH_AUTO) modeMask |= 1 << AV_SPARGE_OUT;
+  if (flowController[0]->getSwitch() == SOFTSWITCH_AUTO) modeMask |= 1 << AV_SPARGEIN;
+  if (flowController[1]->getSwitch() == SOFTSWITCH_AUTO) modeMask |= 1 << AV_SPARGEOUT;
   if (flowController[0]->getSwitch() == SOFTSWITCH_AUTO && flowController[1]->getSwitch() == SOFTSWITCH_AUTO) modeMask |= 1 << AV_FLYSPARGE;
   if (fillController[0]->getSwitch() == SOFTSWITCH_AUTO || fillController[1]->getSwitch() == SOFTSWITCH_AUTO) modeMask |= 1 << AV_FILL;
-  if (vessels[VS_HLT]->getSwitch() == SOFTSWITCH_AUTO) modeMask |= 1 << AV_HLT;
-  if (vessels[VS_MASH]->getSwitch() == SOFTSWITCH_AUTO) modeMask |= 1 << AV_MASH;
-  if (vessels[VS_KETTLE]->getSwitch() == SOFTSWITCH_AUTO) modeMask |= 1 << AV_KETTLE;
+  if (vessels[VS_HLT]->getHeatOverride() == SOFTSWITCH_AUTO) modeMask |= 1 << AV_HLT;
+  if (vessels[VS_MASH]->getHeatOverride() == SOFTSWITCH_AUTO) modeMask |= 1 << AV_MASH;
+  if (vessels[VS_KETTLE]->getHeatOverride() == SOFTSWITCH_AUTO) modeMask |= 1 << AV_KETTLE;
   return modeMask;
 }
 

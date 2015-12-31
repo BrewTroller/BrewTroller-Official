@@ -1,5 +1,7 @@
 # Hashes of file build rules.
 9ecdd630cbd84839898cecff4614d695 src/BrewTroller-OT_DX1_RIMSDF-eeprom.hex
 97e434e2adc3ce9e23f3135f2a0fb181 src/BrewTroller-OT_DX1_RIMSDF.hex
+194839b8900dae2b5f8d833209ff8053 src/BrewTroller-OT_DX1_STEAMPWM-eeprom.hex
+431da6b6ef7697435ade8466fc00c7d6 src/BrewTroller-OT_DX1_STEAMPWM.hex
 0c009fc8b45e97dd4afab84f9b9397a5 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF
 5e2f172d09816f565d07d2128b70c9f0 src/CMakeFiles/disassemble_BrewTroller-OT_DX1_RIMSDF

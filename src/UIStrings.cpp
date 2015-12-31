@@ -300,7 +300,7 @@ namespace UIStrings {
 #if defined USESTEAM
         const char TITLE_VS_STEAM[] PROGMEM = "Steam";
 #elif  defined PID_PUMP1 || defined PID_PUMP2
-        const char TITLE_VS_PUMP[] PROGMEM = "Pump";
+	const char TITLE_VS_PUMP[] PROGMEM = "Pump";
 #endif
     }
     
@@ -369,9 +369,9 @@ namespace UIStrings {
             Vessel::TITLE_VS_KETTLE
             
 #ifdef USESTEAM
-            , TITLE_VS_STEAM
+            , Vessel::TITLE_VS_STEAM
 #elif defined PID_PUMP1 || defined PID_PUMP2
-            , TITLE_VS_PUMP
+            , Vessel::TITLE_VS_PUMP
 #endif
         };
         

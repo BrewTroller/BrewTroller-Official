@@ -210,9 +210,32 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj.provides: src/CM
 
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj.provides.build: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj
 
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/flags.make
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/FlowController.cpp
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_8)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj"
+	cd /home/david/Develop/BrewTroller-Official/src && /usr/bin/avr-g++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj -c /home/david/Develop/BrewTroller-Official/src/FlowController.cpp
+
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.i"
+	cd /home/david/Develop/BrewTroller-Official/src && /usr/bin/avr-g++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/david/Develop/BrewTroller-Official/src/FlowController.cpp > CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.i
+
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.s"
+	cd /home/david/Develop/BrewTroller-Official/src && /usr/bin/avr-g++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/david/Develop/BrewTroller-Official/src/FlowController.cpp -o CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.s
+
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj.requires:
+.PHONY : src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj.requires
+
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj.provides: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj.requires
+	$(MAKE) -f src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/build.make src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj.provides.build
+.PHONY : src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj.provides
+
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj.provides.build: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj
+
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/flags.make
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: src/Events.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_8)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_9)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj"
 	cd /home/david/Develop/BrewTroller-Official/src && /usr/bin/avr-g++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj -c /home/david/Develop/BrewTroller-Official/src/Events.cpp
 
@@ -235,7 +258,7 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj.provides.build: 
 
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/flags.make
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj: src/Outputs.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_9)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_10)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj"
 	cd /home/david/Develop/BrewTroller-Official/src && /usr/bin/avr-g++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj -c /home/david/Develop/BrewTroller-Official/src/Outputs.cpp
 
@@ -258,7 +281,7 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj.provides.build:
 
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/PVOut.cpp.obj: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/flags.make
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/PVOut.cpp.obj: src/PVOut.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_10)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_11)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/PVOut.cpp.obj"
 	cd /home/david/Develop/BrewTroller-Official/src && /usr/bin/avr-g++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/PVOut.cpp.obj -c /home/david/Develop/BrewTroller-Official/src/PVOut.cpp
 
@@ -281,7 +304,7 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/PVOut.cpp.obj.provides.build: s
 
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/flags.make
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj: src/StepLogic.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_11)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_12)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj"
 	cd /home/david/Develop/BrewTroller-Official/src && /usr/bin/avr-g++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj -c /home/david/Develop/BrewTroller-Official/src/StepLogic.cpp
 
@@ -304,7 +327,7 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj.provides.buil
 
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Temp.cpp.obj: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/flags.make
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Temp.cpp.obj: src/Temp.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_12)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_13)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Temp.cpp.obj"
 	cd /home/david/Develop/BrewTroller-Official/src && /usr/bin/avr-g++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Temp.cpp.obj -c /home/david/Develop/BrewTroller-Official/src/Temp.cpp
 
@@ -327,7 +350,7 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Temp.cpp.obj.provides.build: sr
 
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Timer.cpp.obj: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/flags.make
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Timer.cpp.obj: src/Timer.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_13)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_14)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Timer.cpp.obj"
 	cd /home/david/Develop/BrewTroller-Official/src && /usr/bin/avr-g++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Timer.cpp.obj -c /home/david/Develop/BrewTroller-Official/src/Timer.cpp
 
@@ -350,7 +373,7 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Timer.cpp.obj.provides.build: s
 
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/flags.make
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj: src/UI.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_14)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_15)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj"
 	cd /home/david/Develop/BrewTroller-Official/src && /usr/bin/avr-g++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj -c /home/david/Develop/BrewTroller-Official/src/UI.cpp
 
@@ -373,7 +396,7 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj.provides.build: src/
 
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UIStrings.cpp.obj: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/flags.make
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UIStrings.cpp.obj: src/UIStrings.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_15)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_16)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UIStrings.cpp.obj"
 	cd /home/david/Develop/BrewTroller-Official/src && /usr/bin/avr-g++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UIStrings.cpp.obj -c /home/david/Develop/BrewTroller-Official/src/UIStrings.cpp
 
@@ -396,7 +419,7 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UIStrings.cpp.obj.provides.buil
 
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Util.cpp.obj: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/flags.make
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Util.cpp.obj: src/Util.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_16)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_17)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Util.cpp.obj"
 	cd /home/david/Develop/BrewTroller-Official/src && /usr/bin/avr-g++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Util.cpp.obj -c /home/david/Develop/BrewTroller-Official/src/Util.cpp
 
@@ -419,7 +442,7 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Util.cpp.obj.provides.build: sr
 
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/flags.make
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj: src/Vessel.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_17)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_18)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj"
 	cd /home/david/Develop/BrewTroller-Official/src && /usr/bin/avr-g++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj -c /home/david/Develop/BrewTroller-Official/src/Vessel.cpp
 
@@ -442,7 +465,7 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj.provides.build: 
 
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Volume.cpp.obj: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/flags.make
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Volume.cpp.obj: src/Volume.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_18)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/david/Develop/BrewTroller-Official/CMakeFiles $(CMAKE_PROGRESS_19)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Volume.cpp.obj"
 	cd /home/david/Develop/BrewTroller-Official/src && /usr/bin/avr-g++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Volume.cpp.obj -c /home/david/Develop/BrewTroller-Official/src/Volume.cpp
 
@@ -472,6 +495,7 @@ BrewTroller__OT_DX1_RIMSDF_elf_OBJECTS = \
 "CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_RGBIO8.cpp.obj" \
 "CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_S0ASC.cpp.obj" \
 "CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj" \
+"CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj" \
 "CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj" \
 "CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj" \
 "CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/PVOut.cpp.obj" \
@@ -494,6 +518,7 @@ src/BrewTroller-OT_DX1_RIMSDF.elf: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.
 src/BrewTroller-OT_DX1_RIMSDF.elf: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_RGBIO8.cpp.obj
 src/BrewTroller-OT_DX1_RIMSDF.elf: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_S0ASC.cpp.obj
 src/BrewTroller-OT_DX1_RIMSDF.elf: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj
+src/BrewTroller-OT_DX1_RIMSDF.elf: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj
 src/BrewTroller-OT_DX1_RIMSDF.elf: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj
 src/BrewTroller-OT_DX1_RIMSDF.elf: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj
 src/BrewTroller-OT_DX1_RIMSDF.elf: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/PVOut.cpp.obj
@@ -522,6 +547,7 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/requires: src/CMakeFiles/BrewTr
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/requires: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_RGBIO8.cpp.obj.requires
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/requires: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_S0ASC.cpp.obj.requires
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/requires: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj.requires
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/requires: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj.requires
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/requires: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj.requires
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/requires: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj.requires
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/requires: src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/PVOut.cpp.obj.requires

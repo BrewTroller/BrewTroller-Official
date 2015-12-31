@@ -39,21 +39,14 @@ with vessels without regard to the role they are playing (HLT vs. MLT vs. kettle
 #include "Outputs.h" //Needed only for minTriggerPin
 #include "BrewCore.h" //Needed for heartbeat
 #include "Timer.h" //Needed for setAlarm
+#include "PVOut.h"
 
 extern int temp[9]; //Needed to access aux sensors
+extern unsigned long vlvConfig[NUM_VLVCFGS], actProfiles;
 
 //Note that the includeAux numbers should be addresses e.g. TS_AUX1, not just a number (that's why they're bytes instead of booleans).
 	Vessel::Vessel(byte initrole, bool initIncludeAux[], byte FFBias, float initMinVolume = 0, byte initMinTriggerPin = 0, byte initMaxPower = 100, double initMinTemperature = 30, double initMaxTemperature = 250, bool initUsePWM = false)
 	{
-
-		for (int i = 0; i < VOLUME_READ_COUNT; i++)
-			volumeReadings[i] = 0;
-		oldestVolumeReading = 0;
-		 temperature = 0;
-		feedforwardTemperature = 0;
-
-		PIDoutput = 0;
-		volume = targetVolume = 0;
 		minTemperature = initMinTemperature;
 		maxTemperature = initMaxTemperature;
 		role = initrole;
@@ -118,12 +111,11 @@ extern int temp[9]; //Needed to access aux sensors
 		  pid->SetInputLimits(0, 7250 / steamPressureSensitivity);
 		#endif
 		}
-#else
-		usesSteam = false;
 #endif
 		
+#ifdef USEPWM
 		usesPWM = initUsePWM;
-
+#endif
 		hysteresis = ::getHysteresis(role); 
 		capacity = EEPROMreadLong(93 + role * 4);
 		deadspace = EEPROMreadInt(105 + role * 2);
@@ -194,7 +186,7 @@ extern int temp[9]; //Needed to access aux sensors
 		if (setpoint == 0)
 		{
 			feedforwardTemperature = 0;
-			PIDOutput = 0;
+			PIDoutput = 0;
 		}
 		updateOutput();
 	}
@@ -212,7 +204,7 @@ extern int temp[9]; //Needed to access aux sensors
 	void Vessel::setMaxPower(byte newMaxPower)
 	{
 		maxPower = newMaxPower;
-		pid->setOutputLimit(0, pidCycle * maxPower);
+		pid->SetOutputLimits(0, PIDcycle * maxPower);
 	}
 
 	void Vessel::setTunings(double p, double i, double d)
@@ -302,8 +294,8 @@ extern int temp[9]; //Needed to access aux sensors
 			//Turn output off due to error condition
 			heatPin.set(LOW);
 			PIDoutput = 0;
-			if (estop) bitClear(actValves, valveConfig); //Keep the valves and pumps working unless we have an estop condition. The volume triggers only affect the heating output
-			return false;
+			if (estop) bitClear(actProfiles, heatConfig); //Keep the valves and pumps working unless we have an estop condition. The volume triggers only affect the heating output
+			return;
 		}
 
 #ifdef RGBIO8_ENABLE
@@ -345,7 +337,7 @@ extern int temp[9]; //Needed to access aux sensors
 		    heatPin.set(LOW);
 			if (!vessels[VS_MASH]->getOutput())  //Both steam and mash are inactive, so deactivate valves
 			{
-				bitClear(actProfiles, activeConfig);
+				bitClear(actProfiles, heatConfig);
 				bitSet(actProfiles, idleConfig);
 			}
 		    return;
@@ -388,13 +380,13 @@ extern int temp[9]; //Needed to access aux sensors
 			{
 				//Turn output on
 				heatPin.set(HIGH);
-				PIDOutput = maxPower;
+				PIDoutput = maxPower;
 			}
 			else if (getTemperature() > getSetpoint()+hysteresis)
 			{
 				//Turn output off
 				heatPin.set(LOW);
-				PIDOutput = 0;
+				PIDoutput = 0;
 			}
 		}
 		updateHeatValves();
@@ -402,14 +394,14 @@ extern int temp[9]; //Needed to access aux sensors
 	
 	void Vessel::updateHeatValves()
 	{
-		if (pidOutput)
+		if (PIDoutput)
 		{
 			bitClear(actProfiles, idleConfig);
-			bitSet(actProfiles, activeConfig);
+			bitSet(actProfiles, heatConfig);
 		}
 		else
 		{
-			bitClear(actProfiles, activeConfig);
+			bitClear(actProfiles, heatConfig);
 			bitSet(actProfiles, idleConfig);
 		}
 	}
@@ -419,20 +411,6 @@ extern int temp[9]; //Needed to access aux sensors
 		PIDoutput = newOutput * PIDcycle;
 		heatOverride = SOFTSWITCH_MANUAL;
 		updateOutput();
-	}
-
-
-	bool Vessel::isOn()
-	{
-		return (heatPin.get());
-	}
-
-	byte Vessel::getOutput() {
-		return PIDoutput;
-	}
-
-	byte Vessel::getPercentOutput() {
-		return PIDoutput / PIDcycle;
 	}
 
 	void Vessel::setPID(bool newPID)
@@ -555,15 +533,6 @@ extern int temp[9]; //Needed to access aux sensors
 		}
 
 		return (newSensorValueAverage / VOLUME_READ_COUNT);
-	}f
-
-	void Vessel::fill()
-	{
-		bitSet(actProfiles, fillConfig);
-	}
-	void Vessel::stopFilling()
-	{
-		bitClear(actProfiles, fillConfig);
 	}
 
 	void initVessels()
@@ -582,10 +551,11 @@ extern int temp[9]; //Needed to access aux sensors
 			vessels[0] = vessels[1] = vessels[2] = new Vessel(0, mashIncludeAux, 0, 0, TRIGGER_HLTMIN, pidLimits[0]);
 #else
 
-		stage = FILL;
+		
 
 		for (byte i = 0; i < NUM_VESSELS; i++)
 		{
+		  vessels[i]->setStage(FILL);
 #ifdef KETTLE_AS_MASH
 			if (i == VS_MASH)
 			{
@@ -632,14 +602,14 @@ extern int temp[9]; //Needed to access aux sensors
 	void Vessel::updateFlowrateCalcs()
 	{
 		unsigned long tempmill = millis();
-		unsigned long MiliToMin = 60000;
+				
 		//Check flowrate periodically (FLOWRATE_READ_INTERVAL)
-		if (tempmill - lastFlowChk >= FLOWRATE_READ_INTERVAL) {
+		if (tempmill - lastFlowCheck >= FLOWRATE_READ_INTERVAL) {
 				
 				// note that the * 60000 is from converting thousands of a gallon / miliseconds to thousands of a gallon / minutes 
-				double newVol = getVolume()R;
-				flowrate = flowrate + newVol / 10;
-				flowrateHistory[flowrateIndex] = newVol;			
+				double newVol = getVolume();
+				flowRate = flowRate + newVol / 10;
+				flowRateHistory[flowRateIndex] = newVol;			
 				
 #ifdef DEBUG_VOL_READ
 				logStart_P(LOGDEBUG);
@@ -647,11 +617,10 @@ extern int temp[9]; //Needed to access aux sensors
 				logFieldI(i);
 				logFieldI(flowRate);
 #endif
-				flowrateIndex++;
-				if (flowrateIndex > 9) flowRateIndex = 0;
-			}
-			lastFlowChk = tempmill;
+				flowRateIndex++;
+				if (flowRateIndex > 9) flowRateIndex = 0;
 		}
+		lastFlowCheck = tempmill;
 	}
 
 	//This function updates the valve profiles to the right stage for this vessel and program stage.
@@ -669,7 +638,7 @@ extern int temp[9]; //Needed to access aux sensors
 		heatConfig = idleConfig = fillConfig = 0;
 
 		//Note: a vessel may hold multiple roles. This code assigns all relevant valve configs to that vessel. This is why we do |= instead of just =
-		select(stage)
+		switch(stage)
 		{
 			case FILL:
 					if (role == VS_HLT)
@@ -686,7 +655,7 @@ extern int temp[9]; //Needed to access aux sensors
 					}
 					//No valves for kettle in fill stage
 					break;
-				}
+				
 			case MASH:
 				if (role == VS_HLT)
 				{

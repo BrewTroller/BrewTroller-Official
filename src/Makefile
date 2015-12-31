@@ -332,6 +332,30 @@ Events.cpp.s:
 	cd /home/david/Develop/BrewTroller-Official && $(MAKE) -f src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/build.make src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.s
 .PHONY : Events.cpp.s
 
+FlowController.obj: FlowController.cpp.obj
+.PHONY : FlowController.obj
+
+# target to build an object file
+FlowController.cpp.obj:
+	cd /home/david/Develop/BrewTroller-Official && $(MAKE) -f src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/build.make src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj
+.PHONY : FlowController.cpp.obj
+
+FlowController.i: FlowController.cpp.i
+.PHONY : FlowController.i
+
+# target to preprocess a source file
+FlowController.cpp.i:
+	cd /home/david/Develop/BrewTroller-Official && $(MAKE) -f src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/build.make src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.i
+.PHONY : FlowController.cpp.i
+
+FlowController.s: FlowController.cpp.s
+.PHONY : FlowController.s
+
+# target to generate assembly for a file
+FlowController.cpp.s:
+	cd /home/david/Develop/BrewTroller-Official && $(MAKE) -f src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/build.make src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.s
+.PHONY : FlowController.cpp.s
+
 Outputs.obj: Outputs.cpp.obj
 .PHONY : Outputs.obj
 
@@ -607,6 +631,9 @@ help:
 	@echo "... Events.obj"
 	@echo "... Events.i"
 	@echo "... Events.s"
+	@echo "... FlowController.obj"
+	@echo "... FlowController.i"
+	@echo "... FlowController.s"
 	@echo "... Outputs.obj"
 	@echo "... Outputs.i"
 	@echo "... Outputs.s"

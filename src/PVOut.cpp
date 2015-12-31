@@ -31,7 +31,7 @@ void PVOutGPIO::set(unsigned long vlvBits) {
 }
 
 unsigned long PVOutGPIO::get() { return vlvBits; }
-
+ 
 
 PVOutMUX::PVOutMUX(byte latchPin, byte dataPin, byte clockPin, byte enablePin, boolean enableLogic) {
     muxLatchPin.setup(latchPin, OUTPUT);

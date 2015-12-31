@@ -5,7 +5,9 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewCore.cpp.obj: src/BrewCore.
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewCore.cpp.obj: src/BrewCore.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewCore.cpp.obj: src/BrewTroller.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewCore.cpp.obj: src/Com.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewCore.cpp.obj: src/Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewCore.cpp.obj: src/Enum.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewCore.cpp.obj: src/FlowController.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewCore.cpp.obj: src/HWProfiles/BrewTroller\ 1.0\ -\ 2.1/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewCore.cpp.obj: src/HWProfiles/BrewTroller\ 2.2\ -\ 2.4/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewCore.cpp.obj: src/HWProfiles/BrewTroller\ 3.x/HWProfile.h
@@ -34,7 +36,6 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewCore.cpp.obj: src/Timer.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewCore.cpp.obj: src/UI_LCD.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewCore.cpp.obj: src/Vessel.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewCore.cpp.obj: src/Volume.h
-src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewCore.cpp.obj: Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewCore.cpp.obj: lib/EEPROM/EEPROM.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewCore.cpp.obj: lib/PID_Beta6/PID_Beta6.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewCore.cpp.obj: lib/Wire/Wire.h
@@ -58,8 +59,10 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewTroller.cpp.obj: src/BrewTr
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewTroller.cpp.obj: src/BrewTroller.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewTroller.cpp.obj: src/Com.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewTroller.cpp.obj: src/Com_RGBIO8.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewTroller.cpp.obj: src/Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewTroller.cpp.obj: src/Enum.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewTroller.cpp.obj: src/Events.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewTroller.cpp.obj: src/FlowController.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewTroller.cpp.obj: src/HWProfiles/BrewTroller\ 1.0\ -\ 2.1/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewTroller.cpp.obj: src/HWProfiles/BrewTroller\ 2.2\ -\ 2.4/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewTroller.cpp.obj: src/HWProfiles/BrewTroller\ 3.x/HWProfile.h
@@ -87,7 +90,6 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewTroller.cpp.obj: src/Temp.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewTroller.cpp.obj: src/UI.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewTroller.cpp.obj: src/UI_LCD.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewTroller.cpp.obj: src/Vessel.h
-src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewTroller.cpp.obj: Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewTroller.cpp.obj: lib/EEPROM/EEPROM.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewTroller.cpp.obj: lib/PID_Beta6/PID_Beta6.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/BrewTroller.cpp.obj: lib/Wire/Wire.h
@@ -114,8 +116,10 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com.cpp.obj: src/Com.cpp
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com.cpp.obj: src/Com.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com.cpp.obj: src/Com_BTPD.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com.cpp.obj: src/Com_BTnic.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com.cpp.obj: src/Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com.cpp.obj: src/EEPROM.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com.cpp.obj: src/Enum.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com.cpp.obj: src/FlowController.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com.cpp.obj: src/HWProfiles/BrewTroller\ 1.0\ -\ 2.1/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com.cpp.obj: src/HWProfiles/BrewTroller\ 2.2\ -\ 2.4/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com.cpp.obj: src/HWProfiles/BrewTroller\ 3.x/HWProfile.h
@@ -144,7 +148,6 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com.cpp.obj: src/Timer.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com.cpp.obj: src/UIStrings.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com.cpp.obj: src/UI_LCD.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com.cpp.obj: src/Vessel.h
-src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com.cpp.obj: Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com.cpp.obj: lib/PID_Beta6/PID_Beta6.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com.cpp.obj: lib/Wire/Wire.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com.cpp.obj: lib/arduino/Arduino.h
@@ -165,7 +168,9 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com.cpp.obj: lib/modbusmaster/M
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_BTPD.cpp.obj: src/BrewTroller.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_BTPD.cpp.obj: src/Com_BTPD.cpp
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_BTPD.cpp.obj: src/Com_BTPD.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_BTPD.cpp.obj: src/Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_BTPD.cpp.obj: src/Enum.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_BTPD.cpp.obj: src/FlowController.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_BTPD.cpp.obj: src/HWProfiles/BrewTroller\ 1.0\ -\ 2.1/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_BTPD.cpp.obj: src/HWProfiles/BrewTroller\ 2.2\ -\ 2.4/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_BTPD.cpp.obj: src/HWProfiles/BrewTroller\ 3.x/HWProfile.h
@@ -189,7 +194,6 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_BTPD.cpp.obj: src/HardwareP
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_BTPD.cpp.obj: src/PVOut.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_BTPD.cpp.obj: src/UI_LCD.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_BTPD.cpp.obj: src/Vessel.h
-src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_BTPD.cpp.obj: Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_BTPD.cpp.obj: lib/EEPROM/EEPROM.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_BTPD.cpp.obj: lib/PID_Beta6/PID_Beta6.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_BTPD.cpp.obj: lib/Wire/Wire.h
@@ -216,9 +220,11 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_RGBIO8.cpp.obj: Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Com_S0ASC.cpp.obj: src/Com_S0ASC.cpp
 
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj: src/BrewTroller.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj: src/Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj: src/EEPROM.cpp
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj: src/Enum.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj: src/Events.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj: src/FlowController.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj: src/HWProfiles/BrewTroller\ 1.0\ -\ 2.1/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj: src/HWProfiles/BrewTroller\ 2.2\ -\ 2.4/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj: src/HWProfiles/BrewTroller\ 3.x/HWProfile.h
@@ -242,7 +248,6 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj: src/HardwarePro
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj: src/PVOut.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj: src/UI_LCD.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj: src/Vessel.h
-src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj: Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj: lib/EEPROM/EEPROM.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj: lib/PID_Beta6/PID_Beta6.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj: lib/Wire/Wire.h
@@ -263,10 +268,12 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/EEPROM.cpp.obj: lib/modbusmaste
 
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: src/BrewTroller.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: src/Com.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: src/Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: src/EEPROM.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: src/Enum.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: src/Events.cpp
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: src/Events.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: src/FlowController.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: src/HWProfiles/BrewTroller\ 1.0\ -\ 2.1/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: src/HWProfiles/BrewTroller\ 2.2\ -\ 2.4/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: src/HWProfiles/BrewTroller\ 3.x/HWProfile.h
@@ -293,7 +300,6 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: src/Timer.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: src/UI.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: src/UI_LCD.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: src/Vessel.h
-src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: lib/PID_Beta6/PID_Beta6.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: lib/Wire/Wire.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: lib/arduino/Arduino.h
@@ -312,10 +318,58 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: lib/liquidcryst
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: lib/menu/menu.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Events.cpp.obj: lib/modbusmaster/ModbusMaster.h
 
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/BrewTroller.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/Config.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/Enum.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/FlowController.cpp
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/FlowController.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/HWProfiles/BrewTroller\ 1.0\ -\ 2.1/HWProfile.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/HWProfiles/BrewTroller\ 2.2\ -\ 2.4/HWProfile.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/HWProfiles/BrewTroller\ 3.x/HWProfile.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/HWProfiles/BrewTroller\ 4.0\ Pro/HWProfile.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/HWProfiles/OpenTroller\ BX1/HERMS\ I2CLCD/HWProfile.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/HWProfiles/OpenTroller\ BX1/HERMS/HWProfile.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/HWProfiles/OpenTroller\ BX1/RIMS\ or\ Direct\ Fired\ I2CLCD/HWProfile.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/HWProfiles/OpenTroller\ BX1/RIMS\ or\ Direct\ Fired/HWProfile.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/HWProfiles/OpenTroller\ BX1/Single\ Vessel/HWProfile.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/HWProfiles/OpenTroller\ BX1/Steam\ or\ PWM\ Pump\ I2CLCD/HWProfile.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/HWProfiles/OpenTroller\ BX1/Steam\ or\ PWM\ Pump/HWProfile.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/HWProfiles/OpenTroller\ DX1/HERMS/HWProfile.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/HWProfiles/OpenTroller\ DX1/RIMS\ or\ Direct\ Fired/HWProfile.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/HWProfiles/OpenTroller\ DX1/Single\ Vessel/HWProfile.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/HWProfiles/OpenTroller\ DX1/Steam\ or\ PWM\ Pump/HWProfile.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/HWProfiles/OpenTroller\ EX1/HERMS/HWProfile.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/HWProfiles/OpenTroller\ EX1/RIMS\ or\ Direct\ Fired/HWProfile.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/HWProfiles/OpenTroller\ EX1/Single\ Vessel/HWProfile.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/HWProfiles/OpenTroller\ EX1/Steam\ or\ PWM\ Pump/HWProfile.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/HardwareProfile.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/PVOut.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/UI_LCD.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: src/Vessel.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: lib/EEPROM/EEPROM.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: lib/PID_Beta6/PID_Beta6.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: lib/Wire/Wire.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: lib/arduino/Arduino.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: lib/arduino/HardwareSerial.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: lib/arduino/Print.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: lib/arduino/Printable.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: lib/arduino/Stream.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: lib/arduino/USBAPI.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: lib/arduino/WCharacter.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: lib/arduino/WString.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: lib/arduino/binary.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: lib/arduino/new.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: lib/arduino/pins_arduino.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: lib/fastpin/pin.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: lib/liquidcrystalfp/LiquidCrystalFP.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/FlowController.cpp.obj: lib/modbusmaster/ModbusMaster.h
+
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj: src/BrewTroller.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj: src/Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj: src/EEPROM.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj: src/Enum.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj: src/Events.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj: src/FlowController.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj: src/HWProfiles/BrewTroller\ 1.0\ -\ 2.1/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj: src/HWProfiles/BrewTroller\ 2.2\ -\ 2.4/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj: src/HWProfiles/BrewTroller\ 3.x/HWProfile.h
@@ -341,7 +395,6 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj: src/Outputs.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj: src/PVOut.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj: src/UI_LCD.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj: src/Vessel.h
-src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj: Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj: lib/PID_Beta6/PID_Beta6.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj: lib/Wire/Wire.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Outputs.cpp.obj: lib/arduino/Arduino.h
@@ -398,9 +451,11 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/PVOut.cpp.obj: lib/fastpin/pin.
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/PVOut.cpp.obj: lib/modbusmaster/ModbusMaster.h
 
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj: src/BrewTroller.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj: src/Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj: src/EEPROM.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj: src/Enum.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj: src/Events.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj: src/FlowController.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj: src/HWProfiles/BrewTroller\ 1.0\ -\ 2.1/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj: src/HWProfiles/BrewTroller\ 2.2\ -\ 2.4/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj: src/HWProfiles/BrewTroller\ 3.x/HWProfile.h
@@ -428,7 +483,6 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj: src/StepLogi
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj: src/Timer.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj: src/UI_LCD.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj: src/Vessel.h
-src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj: Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj: lib/PID_Beta6/PID_Beta6.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj: lib/Wire/Wire.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj: lib/arduino/Arduino.h
@@ -447,7 +501,9 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj: lib/liquidcr
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/StepLogic.cpp.obj: lib/modbusmaster/ModbusMaster.h
 
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Temp.cpp.obj: src/BrewTroller.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Temp.cpp.obj: src/Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Temp.cpp.obj: src/Enum.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Temp.cpp.obj: src/FlowController.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Temp.cpp.obj: src/HWProfiles/BrewTroller\ 1.0\ -\ 2.1/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Temp.cpp.obj: src/HWProfiles/BrewTroller\ 2.2\ -\ 2.4/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Temp.cpp.obj: src/HWProfiles/BrewTroller\ 3.x/HWProfile.h
@@ -473,7 +529,6 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Temp.cpp.obj: src/Temp.cpp
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Temp.cpp.obj: src/Temp.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Temp.cpp.obj: src/UI_LCD.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Temp.cpp.obj: src/Vessel.h
-src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Temp.cpp.obj: Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Temp.cpp.obj: lib/EEPROM/EEPROM.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Temp.cpp.obj: lib/OneWire/OneWire.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Temp.cpp.obj: lib/PID_Beta6/PID_Beta6.h
@@ -495,8 +550,10 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Temp.cpp.obj: lib/liquidcrystal
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Temp.cpp.obj: lib/modbusmaster/ModbusMaster.h
 
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Timer.cpp.obj: src/BrewTroller.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Timer.cpp.obj: src/Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Timer.cpp.obj: src/EEPROM.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Timer.cpp.obj: src/Enum.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Timer.cpp.obj: src/FlowController.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Timer.cpp.obj: src/HWProfiles/BrewTroller\ 1.0\ -\ 2.1/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Timer.cpp.obj: src/HWProfiles/BrewTroller\ 2.2\ -\ 2.4/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Timer.cpp.obj: src/HWProfiles/BrewTroller\ 3.x/HWProfile.h
@@ -522,7 +579,6 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Timer.cpp.obj: src/Timer.cpp
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Timer.cpp.obj: src/Timer.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Timer.cpp.obj: src/UI_LCD.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Timer.cpp.obj: src/Vessel.h
-src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Timer.cpp.obj: Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Timer.cpp.obj: lib/PID_Beta6/PID_Beta6.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Timer.cpp.obj: lib/Wire/Wire.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Timer.cpp.obj: lib/arduino/Arduino.h
@@ -543,8 +599,10 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Timer.cpp.obj: lib/modbusmaster
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj: src/BrewCore.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj: src/BrewTroller.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj: src/Com_RGBIO8.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj: src/Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj: src/EEPROM.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj: src/Enum.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj: src/FlowController.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj: src/HWProfiles/BrewTroller\ 1.0\ -\ 2.1/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj: src/HWProfiles/BrewTroller\ 2.2\ -\ 2.4/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj: src/HWProfiles/BrewTroller\ 3.x/HWProfile.h
@@ -577,7 +635,6 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj: src/UI_LCD.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj: src/Util.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj: src/Vessel.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj: src/Volume.h
-src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj: Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj: lib/PID_Beta6/PID_Beta6.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj: lib/Wire/Wire.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/UI.cpp.obj: lib/arduino/Arduino.h
@@ -637,8 +694,10 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Util.cpp.obj: lib/arduino/pins_
 
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj: src/BrewCore.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj: src/BrewTroller.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj: src/Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj: src/EEPROM.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj: src/Enum.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj: src/FlowController.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj: src/HWProfiles/BrewTroller\ 1.0\ -\ 2.1/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj: src/HWProfiles/BrewTroller\ 2.2\ -\ 2.4/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj: src/HWProfiles/BrewTroller\ 3.x/HWProfile.h
@@ -667,7 +726,6 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj: src/UI_LCD.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj: src/Vessel.cpp
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj: src/Vessel.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj: src/Volume.h
-src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj: Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj: lib/PID_Beta6/PID_Beta6.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj: lib/Wire/Wire.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj: lib/arduino/Arduino.h
@@ -687,7 +745,9 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Vessel.cpp.obj: lib/modbusmaste
 
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Volume.cpp.obj: src/BrewCore.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Volume.cpp.obj: src/BrewTroller.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Volume.cpp.obj: src/Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Volume.cpp.obj: src/Enum.h
+src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Volume.cpp.obj: src/FlowController.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Volume.cpp.obj: src/HWProfiles/BrewTroller\ 1.0\ -\ 2.1/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Volume.cpp.obj: src/HWProfiles/BrewTroller\ 2.2\ -\ 2.4/HWProfile.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Volume.cpp.obj: src/HWProfiles/BrewTroller\ 3.x/HWProfile.h
@@ -713,7 +773,6 @@ src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Volume.cpp.obj: src/UI_LCD.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Volume.cpp.obj: src/Vessel.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Volume.cpp.obj: src/Volume.cpp
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Volume.cpp.obj: src/Volume.h
-src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Volume.cpp.obj: Config.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Volume.cpp.obj: lib/EEPROM/EEPROM.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Volume.cpp.obj: lib/PID_Beta6/PID_Beta6.h
 src/CMakeFiles/BrewTroller-OT_DX1_RIMSDF.elf.dir/Volume.cpp.obj: lib/Wire/Wire.h

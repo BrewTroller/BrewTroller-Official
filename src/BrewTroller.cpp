@@ -106,27 +106,6 @@ const void(* softReset) (void) = 0;
 #include <Wire.h>
 #endif
 
-#ifdef PWM_PUMP1
-#ifdef PWM_PUMP2
-#define NUM_PWM_PUMPS 2
-#else
-#define NUM_PWM_PUMPS 1
-#elif defined PWM_PUMP2
-#define NUM_PWM_PUMPS 1
-#else
-#define NUM_PWM_PUMPS 0
-#endif
-
-#ifdef PID_PUMP1
-#ifdef PID_PUMP2
-#define NUM_PID_PUMPS 2
-#else
-#define NUM_PID_PUMPS 1
-#elif defined PID_PUMP2
-#define NUM_PID_PUMPS 1
-#else
-#define NUM_PID_PUMPS 0
-#endif
 
 //**********************************************************************************
 // Globals
@@ -235,7 +214,7 @@ byte boilPwr;
 
 #ifdef RIMS_MLT_SETPOINT_DELAY
   byte steptoset = 0;
-  byte RIMStimeExpired = 0;
+  byte RIMStimeExpired = 0;Vessel::
   unsigned long starttime = 0;
   unsigned long timetoset = 0;
 #endif
@@ -360,7 +339,7 @@ void setup() {
     pidInit();
 
 #ifdef USEPWM
-    pwmInit();
+    pwmInit();Vessel::
   #endif
 
     //User Interface Initialization (UI.pde)
@@ -384,7 +363,7 @@ void setup() {
 //**********************************************************************************
 
 void loop() {
-    //User Interface Processing (UI.pde)
+    //User Interface Processing (UI.pde)Vessel::
 #ifndef NOUI
     uiCore();
 #endif

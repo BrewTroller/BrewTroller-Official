@@ -23,6 +23,35 @@ const extern void(* softReset) (void);
 #define USEPWM
 #endif
 
+#ifndef NUM_PWM_PUMPS
+#define NUM_PWM_PUMPS 0
+#if defined PWM_PUMP1 && defined PWM_PUMP2
+#undef NUM_PWM_PUMPS //Not strictly required, but good practice and prevents a compiler warning
+#define NUM_PWM_PUMPS 2
+#elif defined PWM_PUMP1 || defined PWM_PUMP2
+#undef NUM_PWM_PUMPS
+#define NUM_PWM_PUMPS 1
+#endif
+
+#define NUM_PID_PUMPS 0
+#if defined PID_PUMP1 && defined PID_PUMP2
+#undef NUM_PID_PUMPS
+#define NUM_PID_PUMPS 2
+#elif defined PID_PUMP1 || defined PID_PUMP2
+#undef NUM_PID_PUMPS
+#define NUM_PID_PUMPS 1
+#endif
+#endif //NUM_PWM_PUMPS
+
+
+  #ifdef USESTEAM
+    #define LAST_HEAT_OUTPUT VS_STEAM
+  #elif defined DIRECT_FIRED_RIMS
+    #define LAST_HEAT_OUTPUT VS_STEAM
+  #else
+    #define LAST_HEAT_OUTPUT VS_KETTLE
+  #endif
+  
 #ifdef USEMETRIC
   #define SETPOINT_MULT 50
   #define SETPOINT_DIV 2
@@ -124,7 +153,7 @@ extern char buf[20];
 //Output Globals
 extern Vessel* vessels[3];
 extern FlowController* flowController[2]; //Used to move between tuns
-extern FlowController* fillController; //Used to fill from outside
+extern FlowController* fillController[2]; //Used to fill from outside
 
 #ifdef USEPWM
 extern unsigned int cycleStart[6];
@@ -138,7 +167,7 @@ extern byte boilPwr;
 #ifdef RIMS_MLT_SETPOINT_DELAY
   extern byte steptoset;
   extern byte RIMStimeExpired;
-  extern unsigned long starttime;
+  extern unsigned long starttime;Vessel::
   extern unsigned long timetoset;
 #endif
 

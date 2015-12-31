@@ -18,6 +18,12 @@ NOTE: Some functionality supported in BT2.6 is not yet supported in this version
 #include <pin.h>
 #include <PID_Beta6.h>
 
+extern unsigned long actProfiles;
+
+	 typedef enum Stage {
+		 FILL, MASH, SPARGE, BOIL
+	 } Stage;
+	 
 //TODO: Split Steam vessel out into separate class (templated?)
 
 class Vessel
@@ -35,9 +41,9 @@ private:
 	float capacity; //Maximum volume
 	float deadspace; //Dead space
 	byte minTriggerPin; //Pin that triggers a low volume condition
-	
+		
 	byte heatConfig, idleConfig, fillConfig; //Note that "liquid out" is implemented by "fill" of the next vessel
-	
+		
 	SoftSwitch heatOverride = SOFTSWITCH_AUTO; // SOFTSWITCH_OFF, _ON, _AUTO 
 
 	//Temperature
@@ -61,15 +67,16 @@ private:
 	float hysteresis;
 	bool includeAux[3]; //Whether to average AUX1-3; stores their indices
 
-	//Volume
+//Volume
 	//Using int and ulong here to stay consistent with existing code. These could probably be converted to byte and float.
 	unsigned int volumeCalibrationPressure[10]; //The pressures used for calibration
 	unsigned long volumeCalibrationVolume[10]; //The volumes used for calibration
-	float targetVolume = 0;
+	float targetVolume;
 	//Flowrate in thousandths of gal/l per minute
-	long flowRate = 0;
-	long flowRateHistory[10] = { 0,0,0,0,0,0,0,0,0,0 };
-	byte flowIndex = 0;
+	long flowRate;
+	long flowRateHistory[10];
+	byte flowRateIndex;
+	unsigned long lastFlowCheck;
 	
 #ifdef USESTEAM
 	int steamPressureSensitivity;
@@ -102,37 +109,50 @@ private:
 public:
 	//All set functions also write the value to EEPROM
 
-	//No default constructor because we need to know which eeprom index to use
+	
+	 //No default constructor because we need to know which eeprom index to use
 	Vessel(byte initrole, bool initIncludeAux[], byte FFBias, float initMinVolume, byte initMinTriggerPin, byte initMaxPower, double initMinTemperature, double initMaxTemperature, bool initUsePWM);
 	~Vessel();
 
 	//Temperature control functions
 	void setSetpoint(double); //Sets the setpoint and updates outputs accordingly
-	 double getSetpoint(); //Returns the current setpoint
+	double getSetpoint(); //Returns the current setpoint
 	double getTemperature(); //Returns the current temperature reading
 	inline void ignorePreheat() { preheated = true; } //In some circumstances we want to ignore the fact that this vessel isn't actually preheated, like if the user triggers a timer to start early from the UI.
-	byte getOutput(); //Returns the current output level
-	byte getPercentOutput(); //Returns the output scaled 0-100
-	void setMaxPower(byte);
+	inline bool hasReachedTargetTemperature() {	return preheated; }
+	
+	inline bool isOn() {return (heatPin.get());}
+	inline byte getOutput() {return PIDoutput;}
+	inline byte getPercentOutput() {return PIDoutput / PIDcycle;}
+	
+	void setMaxPower(byte);	 
 	inline byte getMaxPower() {
 		return maxPower;
 	};
-	inline bool hasReachedTargetTemperature() {	return preheated; }
+	
+	inline bool isPID() { return usePID; }
+	void setPID(bool);
+	 bool pidisOn(); //Returns whether the heating element is on at this very moment (cycles on and off with PID). Use getOutput() to see the exact level.
+
 	inline float getPIDCycle() { return PIDcycle; }
 	void setPIDCycle(float);
-	inline float getHysteresis() { return hysteresis; }
-	void setHysteresis(float);
 	inline float getP() { if (pid) return pid->GetP_Param(); else return 3; } //3,4,1 are default values for PID control. Arguably we should return an error code and let the caller figure it out.
 	inline float getI() { if (pid) return pid->GetI_Param(); else return 4; }
 	inline float getD() { if (pid) return pid->GetD_Param(); else return 1; }
 	void setTunings(double p, double i, double d); //Also writes tunings to eeprom
+	inline float getHysteresis() { return hysteresis; }
+	void setHysteresis(float);
+	
 	void setTSAddress(byte*); //Also writes to EEPROM
-
-	inline bool isPID() { return usePID; }
-	void setPID(bool);
-
-	bool updateOutput(void); //Turn output on or off based on temperature, returning whether the output is on
+	
+	void updateOutput(void); //Turn output on or off based on temperature
 	void manualOutput(int); //Manual output control, sets the output to a fixed PID value
+	void setHeatOverride(SoftSwitch); //Forces the element on or off, or sets it to auto. Used with RGBIO8 soft switches and UI code that forces heat on/off regardless of setpoint.
+	SoftSwitch getHeatOverride(); 
+
+#ifdef USEPWM
+	void updatePWMOutput(); //This needs a separate function for speed reasons, because the full heat update function would run too much code in an interrupt handler
+#endif
 
 	//Volume functions
 	void updateVolumeCalibration(byte, unsigned long, int); //Update a volume calibration value, including writing to eeprom
@@ -146,32 +166,27 @@ public:
 	inline void setTargetVolume(float target) { targetVolume = target * 1000.0; };
 	inline float getTargetVolume() { return targetVolume / 1000.0; };
 	inline float getTargetPressure() {return targetVolume;} 
-	inline float getDeadspace() { return deadspace; }
-	void setDeadspace(float);
 	
 #ifdef USESTEAM
 	void setPressureSensitivity(int);
 	inline int getPressureSensitivity() {return steamPressureSensitivity; }
 #endif
-#ifdef USEPWM
-	void updatePWMOutput(); //This needs a separate function for speed reasons, because the full heat update function would run too much code in an interrupt handler
-#endif
+
+	inline float getDeadspace() { return deadspace; }
+	void setDeadspace(float);
 	inline float getCapacity() { return capacity; }
 	void setCapacity(float capacity);
-	inline void fill() { bitSet(actProfiles, fillConfig); }
-	inline void stopFilling() { bitClr(actProfiles, fillConfig); }
 
+	//Toggles the relevant fill valve profiles on and off
+	inline void fill() { bitSet(actProfiles, fillConfig); }
+	inline void stopFilling() { bitClear(actProfiles, fillConfig); }
+
+	//Gets specific calibration values from the volume calibration array
 	inline unsigned long getCalibrationVolume(byte index) { return volumeCalibrationVolume[index]; }
 	inline unsigned int getCalibrationPressure(byte index) { return volumeCalibrationVolume[index]; }
-	
-	 bool isOn(); //Returns whether the heating element is on at this very moment (cycles on and off with PID). Use getOutput() to see the exact level.
-	void setHeatOverride(SoftSwitch); //Forces the element on or off, or sets it to auto. Used with RGBIO8 soft switches.
-	 SoftSwitch getHeatOverride(); 
 
+	//Lets the vessel know which stage of the brew we're in so it can use the correct valve profile.
 	 inline void setStage(Stage s) { stage = s; updateValveConfigs(); }
-	 enum Stage {
-		 FILL, MASH, SPARGE, BOIL
-	 };
 };
 
 //Subroutine to initialize the system's vessels

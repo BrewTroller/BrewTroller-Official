@@ -365,13 +365,13 @@ void BTnic::execCmd(void) {
 	  logFieldI(actProfiles);
 	  logFieldI(computeValveBits());
 	  for (byte vessel = VS_HLT; vessel <= VS_KETTLE; vessel++) {
-		  logFieldI(setpoint[vessel]);
-		  logFieldI(temp[vessel]);
-		  logFieldI(getHeatPower(vessel));
-		  logFieldI(tgtVol[vessel]);
-		  logFieldI(volAvg[vessel]);
+		  logFieldI(vessels[vessel]->getSetpoint());
+		  logFieldI(vessels[vessel]->getTemperature());
+		  logFieldI(vessels[vessel]->getPercentOutput());
+		  logFieldI(vessels[vessel]->getVolume());
+		  logFieldI(vessels[vessel]->getTargetVolume());
 #ifdef FLOWRATE_CALCS
-		  logFieldI(flowRate[vessel]);
+		  logFieldI(flowController[max(i,2)]->getFlowRate());
 #else
 		  logFieldI(0);
 #endif
@@ -400,15 +400,15 @@ void BTnic::execCmd(void) {
   {
 	  byte vessel = cmdIndex / 10;
 	  byte calIndex = cmdIndex - vessel * 10;
-	  setVolCalib(vessel, calIndex, getCmdParamNum(2), getCmdParamNum(1));
+	  vessels[vessel]->updateVolumeCalibration(calIndex, getCmdParamNum(2), getCmdParamNum(1));
   }
   case CMD_GET_CAL: //B
   {
 	  logFieldCmd(CMD_GET_CAL, cmdIndex);
 	  byte vessel = cmdIndex / 10;
 	  byte calIndex = cmdIndex - vessel * 10;
-	  logFieldI(calibVols[vessel][calIndex]);
-	  logFieldI(calibVals[vessel][calIndex]);
+	  logFieldI(vessels[vessel]->getCalibrationVolume(calIndex));
+	  logFieldI(vessels[vessel]->getCalibrationPressure(calIndex));
   }
   break;
 
@@ -422,33 +422,33 @@ void BTnic::execCmd(void) {
 
 
   case CMD_SET_OSET:  //N
-	  setPIDEnabled(cmdIndex, getCmdParamNum(1));
-	  setPIDCycle(cmdIndex, getCmdParamNum(2));
-	  setPIDp(cmdIndex, getCmdParamNum(3));
-	  setPIDi(cmdIndex, getCmdParamNum(4));
-	  setPIDd(cmdIndex, getCmdParamNum(5));
+	  vessels[cmdIndex]->setPID(getCmdParamNum(1));
+	  vessels[cmdIndex]->setPIDCycle(getCmdParamNum(2));
+	  vessels[cmdIndex]->setTunings(getCmdParamNum(3), getCmdParamNum(4), getCmdParamNum(5));
+#ifdef USESTEAM
 	  if (cmdIndex == VS_STEAM) {
-		  setSteamZero(getCmdParamNum(6));
-		  setSteamTgt(getCmdParamNum(7));
-		  setSteamPSens(getCmdParamNum(8));
+		  vessels[cmdIndex]->updateVolumeCalibration(0,0,getCmdParamNum(6));
+		  vessels[cmdIndex]->setSetpoint(getCmdParamNum(7));
 	  }
-	  else setHysteresis(cmdIndex, getCmdParamNum(6));
+	  else 
+#endif
+	    vessels[cmdIndex]->setHysteresis(getCmdParamNum(6));
   case CMD_GET_OSET:  //D
 	  logFieldCmd(CMD_GET_OSET, cmdIndex);
-	  logFieldI(PIDEnabled[cmdIndex]);
-	  logFieldI(PIDCycle[cmdIndex]);
-	  logFieldI(getPIDp(cmdIndex));
-	  logFieldI(getPIDi(cmdIndex));
-	  logFieldI(getPIDd(cmdIndex));
+	  logFieldI(vessels[cmdIndex]->isPID());
+	  logFieldI(vessels[cmdIndex]->getPIDCycle());
+	  logFieldI(vessels[cmdIndex]->getP());
+	  logFieldI(vessels[cmdIndex]->getI());
+	  logFieldI(vessels[cmdIndex]->getD());
+#ifdef USESTEAM
 	  if (cmdIndex == VS_STEAM) {
-		  logFieldI(getSteamTgt());
-#ifndef PID_FLOW_CONTROL
-		  logFieldI(steamZero);
-		  logFieldI(steamPSens);
-#endif
+		  logFieldI(vessels[cmdIndex]->getSetpoint());
+		  logFieldI(vessels[cmdIndex]->getCalibrationPressure(0));
 	  }
-	  else {
-		  logFieldI(hysteresis[cmdIndex]);
+	  else 
+#endif
+	  {
+		  logFieldI(vessels[cmdIndex]->getHysteresis());
 		  logFieldI(0);
 		  logFieldI(0);
 	  }
@@ -604,12 +604,12 @@ void BTnic::execCmd(void) {
 
 
   case CMD_SET_VSET:  //R
-	  setCapacity(cmdIndex, getCmdParamNum(1));
-	  setVolLoss(cmdIndex, getCmdParamNum(2));
+	  vessels[cmdIndex]->setCapacity(getCmdParamNum(1));
+	  vessels[cmdIndex]->setDeadspace(getCmdParamNum(2));
   case CMD_GET_VSET:  //H
 	  logFieldCmd(CMD_GET_VSET, cmdIndex);
-	  logFieldI(getCapacity(cmdIndex));
-	  logFieldI(getVolLoss(cmdIndex));
+	  logFieldI(vessels[cmdIndex]->getCapacity());
+	  logFieldI(vessels[cmdIndex]->getDeadspace());
 	  break;
 
 
@@ -668,7 +668,7 @@ void BTnic::execCmd(void) {
 	  byte actModes = getCmdParamNum(1);
 	  for (byte i = AV_FILL; i <= AV_HLT; i++)
 		  if (actModes & (1 << i))
-			  select(i)
+			  switch(i)
 		  {
   case AV_FILL:
 	  fillController[0]->startAuto();
@@ -750,7 +750,7 @@ void BTnic::execCmd(void) {
 		  vessels[VS_MASH]->setHeatOverride(SOFTSWITCH_OFF);
 		  vessels[VS_MASH]->setHeatOverride(SOFTSWITCH_OFF);
 	  }
-	  select(getCmdParamNum(1))
+	  switch(getCmdParamNum(1))
 	  {
 	case VLV_FILLHLT:
 		flowController[0]->startOn();
@@ -771,7 +771,7 @@ void BTnic::execCmd(void) {
 		flowController[1]->startOn();
 		break;
 	case VLV_HLTHEAT:
-		vessels[VS_HEAT]->setHeatOverride(SOFTSWITCH_ON);
+		vessels[VS_HLT]->setHeatOverride(SOFTSWITCH_ON);
 		break;
 	case VLV_HLTIDLE:
 		vessels[VS_HLT]->manualOutput(0); //Turn the output on, but to 0, to force idle
@@ -824,7 +824,7 @@ void BTnic::execCmd(void) {
     
     case CMD_VOL:  //p
       logFieldCmd(CMD_VOL, cmdIndex);
-      logFieldI(volAvg[cmdIndex]);
+      logFieldI(vessels[cmdIndex]->getVolume());
       #ifdef FLOWRATE_CALCS
         logFieldI(flowRate[cmdIndex]);
       #else
@@ -842,7 +842,7 @@ void BTnic::execCmd(void) {
 		  VS_KETTLE
 #endif
 		  )
-		  logFieldI(vessels[cmdIndex]->getTemperature())
+		  logFieldI(vessels[cmdIndex]->getTemperature());
 	  else
 	      logFieldI(temp[cmdIndex]);
       break;
@@ -871,7 +871,7 @@ void BTnic::execCmd(void) {
       break;
       
     case CMD_SET_TGTVOL:  //{
-      vessels[cmdIndex]->setTargetVolume(min(getCmdParamNum(1), vessels[cmdIndex]->getCapacity());
+      vessels[cmdIndex]->setTargetVolume(min(getCmdParamNum(1), vessels[cmdIndex]->getCapacity()));
     case CMD_GET_TGTVOL:  //|
       logFieldCmd(CMD_GET_TGTVOL, cmdIndex);
       logFieldI(vessels[cmdIndex]->getTargetVolume());
@@ -885,7 +885,7 @@ void BTnic::execCmd(void) {
           break;
         case CONTROLSTATE_AUTO:
           vessels[VS_KETTLE]->setSetpoint(getBoilTemp());
-		  vessels[VS_KETTLE]->setHeatOverride(SOFTSWITCH_AUTO;
+		  vessels[VS_KETTLE]->setHeatOverride(SOFTSWITCH_AUTO);
           break;
         case CONTROLSTATE_ON:
 			vessels[VS_KETTLE]->setHeatOverride(SOFTSWITCH_ON);

@@ -253,13 +253,12 @@ void setSteamTgt(byte value) {
 
 	#endif
 EEPROM.write(116, value); 
-#endif
 }
 byte getSteamTgt() { return EEPROM.read(116); }
 
 inline void setPumpTgt(byte value) { 
 
-	flowController[0]->setSetpoint(value);
+	flowController[0]->setTargetFlowRate(value);
 	setSteamTgt(value); 
 }
 

@@ -223,6 +223,21 @@ SINGLE_VESSEL_SUPPORT:BOOL=OFF
 //Use Metric Units
 USEMETRIC:BOOL=OFF
 
+//Use PWM for the HLT output
+USEPWM_HLT,:BOOL=OFF
+
+//Use PWM for the Kettle output
+USEPWM_KETTLE,:BOOL=OFF
+
+//Use PWM for the Mash output
+USEPWM_MASH,:BOOL=OFF
+
+//Use PWM for the Pump2 output
+USEPWM_PUMP,:BOOL=OFF
+
+//Use PWM for the Steam output
+USEPWM_STEAM,:BOOL=OFF
+
 //Disable Volume Sensors
 VOLUME_MANUAL:BOOL=OFF
 

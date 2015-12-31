@@ -1,20 +1,24 @@
 #include "FlowController.h"
+#include "BrewTroller.h"
+#include <PID_Beta6.h>
+
+extern FlowController* flowController[2];
 
 void FlowController::initPID()
 {
-	pid = new PID(&pidInput, &pidOutput &pidSetpoint, 3, 4, 1);
+	pid = new PID(&pidInput, &pidOutput, &pidSetpoint, 3, 4, 1);
 #ifdef USEMETRIC
 	pid->SetInputLimits(0, 255000); // equivalent of 25.5 LPM (255 * 100)
 #else
-	`pid->SetInputLimits(0, 6375); // equivalent of 6.375 GPM (255 * 25)
+	pid->SetInputLimits(0, 6375); // equivalent of 6.375 GPM (255 * 25)
 #endif
 
-	pid->SetOutputLimits(PID_FLOW_MIN, pidCycle * PIDLIMIT_PUMP);
+	pid->SetOutputLimits(PID_FLOW_MIN, pid->GetSampleTime() * PIDLIMIT_PUMP);
 
 #ifdef PID_CONTROL_MANUAL
-	pid->SetMode(MANUAL);
+	pid->SetMode(PID::MANUAL_MODE);
 #else
-	pid->SetMode(AUTO);
+	pid->SetMode(PID::AUTO_MODE);
 #endif
 	pid->SetSampleTime(FLOWRATE_READ_INTERVAL);
 #ifdef PID_CONTROL_MANUAL
@@ -26,15 +30,14 @@ FlowController::FlowController(Vessel* initSource, Vessel* initDestination, pin*
 	source = initSource;
 	destination = initDestination;
 	flowControlPin = controlPin;
-	usePID = initUsePID;
-	usePWM = initusePWM;
+	usesPWM = initusePWM;
 	pidValves = initPidValves;
 	hysteresis = 250;
 	if (initUsePID)
 		initPID();
 }
 
-~FlowController::~FlowController() {
+FlowController::~FlowController() {
 	if (pid) delete pid;
 }
 
@@ -46,10 +49,10 @@ void FlowController::usePID(bool newPID)
 		delete pid;
 	update();
 }
-void FlowController::SetTargetFlowRate(double newRate)
+void FlowController::setTargetFlowRate(double newRate)
 {
 	targetFlowRate = newRate;
-	pid->SetSetpoint(newRate);
+	pidSetpoint = newRate;
 	update();
 }
 
@@ -59,12 +62,12 @@ void FlowController::matchFlow(FlowController* partnerFlow) //Matches this contr
 	if (partner)
 	{
 		if (partner->isPID())
-			pid->SetSetpoint(partner->getTargetFlowRate())
+			pidSetpoint = partner->getTargetFlowRate();
 		else
-			pid->SetSetpoint(partner->getFlowRate());
+			pidSetpoint = partner->getFlowRate();
 	}
 	else
-		pid->SetSetpoint(targetFlowRate);
+		pidSetpoint = targetFlowRate;
 	update();
 }
 
@@ -72,25 +75,26 @@ double FlowController::getVolumeChange()
 {
 	double volChange = 0;
 	if (source)
-		volChange += abs(source->getVolume() - previousSourceVolume);
+		volChange += abs(source->getVolume() - lastSourceVolume);
 	if (destination)
-		volChange += abs(destination->getVolume() - previousDestinationVolume);
+		volChange += abs(destination->getVolume() - lastDestVolume);
 	
 	//A disconnected volume sensor reads as exactly 0. We should not divide by 2 in that case. A real sensor in an empty vessel never reads as exactly 0.
 	//However it doesn't really matter because an exact sensor reading of 0 will simply be ignored in favor of the other vessel's sensor.
-	if (source && destination && source->getVolume() != 0 && previousSourceVolume != 0 && destination->getVolume != 0 && previousDestinationVolume != 0) 
+	if (source && destination && source->getVolume() != 0 && lastSourceVolume != 0 && destination->getVolume() != 0 && lastDestVolume != 0) 
 		volChange /= 2; //If we have two volume measurements, average them
 	return volChange;
 }
 
 void FlowController::update()
 {
+  //TODO: Actually calculate flow rates! 
 #ifdef HLT_FLY_SPARGE_STOP
 	const bool minVol = HLT_FLY_SPARGE_STOP_VOLUME;
 #else
 	const bool minVol = source->getDeadspace();
 #endif
-	if (estop || sSwitch = SOFTSWITCH_OFF || (source->getVolume() <= minVol && sSwitch != SOFTSWITCH_ON) //Don't dry run the pump, unless the soft switch forces it
+	if (estop || sSwitch == SOFTSWITCH_OFF || (source->getVolume() <= minVol && sSwitch != SOFTSWITCH_ON)) //Don't dry run the pump, unless the soft switch forces it
 	{
 		pidOutput = 0;
 		if (flowControlPin) flowControlPin->set(LOW);
@@ -107,7 +111,7 @@ void FlowController::update()
 		return;
 	}
 
-	if (usePID)
+	if (isPID())
 	{
 		//Note that for auto fly sparging, this is managed by setting identical setpoints for both controllers
 
@@ -115,7 +119,7 @@ void FlowController::update()
 		//Note that this will be kinda wonky if the partner's flow rate isn't constant, either due to variations in the system or due to
 		//sensor noise. It'll work but the PID will be forever chasing a moving target.
 		if (partner && !partner->isPID())
-			pid->SetSetpoint(partner->getFlowRate());
+			pidSetpoint = partner->getFlowRate();
 
 #ifdef PID_CONTROL_MANUAL
 
@@ -175,7 +179,7 @@ void FlowController::update()
 #ifdef USEPWM
 		//If using PWM, the output is updated by a separate timer-driven ISR, so we should exit here.
 		//It's important that we call pid->Compute() above, though, because it's not recalculated in the ISR.
-		if (usesPWM && isPID)
+		if (usesPWM && isPID())
 		{
 			updateValves();
 			return;
@@ -184,10 +188,11 @@ void FlowController::update()
 
 		//only 1 call to millis needed here, and if we get hit with an interrupt we still want to calculate based on the first read value of it
 		unsigned long timestamp = millis();
-		if (timestamp - cycleStart[eepromIndex] > pid->GetCycle() * 100) cycleStart[cycleStartIndex] += pid->GetCycle * 100;
+		byte cycleIndex = LAST_HEAT_OUTPUT+(this==flowController[1]); //The PID pumps are stored after the heat outputs in the cycle timing array. Since there are only two, this code checks to see if this is the second one and adds one if so.
+		if (timestamp - cycleStart[cycleIndex] > (unsigned int)pid->GetSampleTime() * 100) cycleStart[cycleIndex] += pid->GetSampleTime() * 100;
 
 		//cycleStart is the millisecond value when the current PID cycle started.
-		if (pidOutput >= timestamp - cycleStart[cycleStartIndex] && timestamp != cycleStart[cycleStartIndex])
+		if (pidOutput >= timestamp - cycleStart[cycleIndex] && timestamp != cycleStart[cycleIndex])
 		{
 			flowControlPin->set(HIGH);
 		}
@@ -208,14 +213,14 @@ void FlowController::update()
 				flowControlPin->set(HIGH);
 				pidOutput = 100;
 				if (source) lastSourceVolume = source->getVolume(); else lastSourceVolume = 0;
-				if (destination) lastDestVolume = destination->getVolume(); else lastDestinationVolume = 0;
+				if (destination) lastDestVolume = destination->getVolume(); else lastDestVolume = 0;
 			}
-			else if (getVolumeChange() > SPARGE_IN_HYSTERESIS && partner->getVolumeChange() < SPARGE_IN_HYSTERESIS)
+			else if (getVolumeChange() > hysteresis && partner->getVolumeChange() < hysteresis)
 			{
 				flowControlPin->set(LOW);
 				pidOutput = 0;
 				if (source) lastSourceVolume = source->getVolume(); else lastSourceVolume = 0;
-				if (destination) lastDestVolume = destination->getVolume(); else lastDestinationVolume = 0;
+				if (destination) lastDestVolume = destination->getVolume(); else lastDestVolume = 0;
 			}
 		}
 		else
@@ -247,7 +252,7 @@ void FlowController::update()
 //IMPORTANT: this function is called from an ISR, and therefore needs to be very fast
 void FlowController::updatePWMOutput(bool newOutput)
 {
-	if (usePWM && isPID)
+	if (usesPWM && isPID())
 		flowControlPin.set(newOutput);
 }
 
@@ -257,29 +262,25 @@ void FlowController::updateValves()
 {
 	if (!destination) return; //Should never happen, but check just in case...
 	if (pidOutput)
-		destination->fill()
+		destination->fill();
 	else
 		destination->stopFilling();
 }
 
 bool FlowController::isAtTarget()
 {
-	return (source && source->getVolume() < source->getTargetVolume()) || (destination && destination->getVolume() > destination->getTargetVolume()));
+	return (source && source->getVolume() < source->getTargetVolume()) || 
+	  (destination && destination->getVolume() > destination->getTargetVolume());
 }
-void FlowController::setPID(double cycle, double hysteresis, double p, double i, double d)}
+void FlowController::setPID(double cycle, double p, double i, double d)
 {
-	pid->SetCycle(cycle);
-	pid->SetHysteresis(hysteresis);
+	pid->SetSampleTime(cycle);
 	pid->SetTunings(p, i, d);
 }
 
 void initFlowControllers()
 {
-	//TODO: Make pidValves configurable (probably should be done in UI and EEPROM...)
-	if (vessels[VS_HLT] != vessels[VS_MASH])
-	{
-		bool pump1_PID, pump2_PID, pump1_PWM, pump2_PWM;
-#ifdef PID_PUMP1
+  #ifdef PID_PUMP1
 		const bool pump1_PID = true;
 #else
 		const bool pump1_PID = false;
@@ -299,20 +300,23 @@ void initFlowControllers()
 #else
 		const bool pump2_PWM = false;
 #endif
-
+		
+	//TODO: Make pidValves configurable (probably should be done in UI and EEPROM...)
+	if (vessels[VS_HLT] != vessels[VS_MASH])
+	{
 		//Note that in some cases these are the same vessel. This is fine - the FlowController class can handle it.
-		flowController[0] = new FlowController(vessels[VS_HLT], vessels[VS_MASH], &heatPin[VLV0_PIN], pump1_PID, pump1_PWM, false); 
+		flowController[0] = new FlowController(vessels[VS_HLT], vessels[VS_MASH], Valves.getPin(0), pump1_PID, pump1_PWM, false); 
 			
 		if (vessels[VS_MASH] != vessels[VS_KETTLE])
-			flowController[1] = new FlowController(vessels[VS_MASH], vessels[VS_KETTLE], heatPin[VLV1_PIN], pump2_PID, pump2_PWM, false);
+			flowController[1] = new FlowController(vessels[VS_MASH], vessels[VS_KETTLE], Valves.getPin(1), pump2_PID, pump2_PWM, false);
 		else
 			flowController[1] = flowController[0];
 	}
 	else
 		if (vessels[VS_MASH] != vessels[VS_KETTLE])
 			//If we only have mash and kettle, set up flow controller in slot 0 on pin0
-			flowController[0] = new FlowController(vessels[VS_MASH], vessels[VS_KETTLE], &heatPin[VLV0_PIN], pump1_PID, pump1_PWM, false);
+			flowController[0] = new FlowController(vessels[VS_MASH], vessels[VS_KETTLE], Valves.getPin(0), pump1_PID, pump1_PWM, false);
 
 	fillController[0] = new FlowController(NULL, vessels[VS_HLT], NULL, false, false, false);
-	fillController[1] = new FlowController(NULL, vessels[VS_MLT], NULL, false, false, false);
+	fillController[1] = new FlowController(NULL, vessels[VS_MASH], NULL, false, false, false);
 }

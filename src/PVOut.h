@@ -25,6 +25,8 @@
     void set(unsigned long vlvBits);
     
     unsigned long get();
+    
+    inline pin* getPin(byte index) {return &valvePin[index]; } //This function should be used with caution! The class could destroy this pin at any time and callers will be left with a dangling pointer.
   };
   
   class PVOutMUX

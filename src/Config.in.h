@@ -131,7 +131,7 @@ constexpr int HEAT_OUTPUTS_COUNT = 4;
 constexpr int HEAT_OUTPUTS_COUNT = 3;
 #endif
 
-constexpr uint8_t NUM_VESSELS HEAT_OUTPUTS_COUNT;
+constexpr uint8_t NUM_VESSELS = HEAT_OUTPUTS_COUNT;
 
 // These two should be used as the array index when operating on a HEAT_OUTPUT array.
 // They need to be variables instead of #defines because of use as index subscripts.

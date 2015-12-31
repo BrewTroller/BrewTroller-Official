@@ -5,7 +5,6 @@
 #include <Arduino.h>
 #include <pin.h>
 
-
 #ifdef USEPWM
 void pwmInit( void );
 #endif //USEPWM

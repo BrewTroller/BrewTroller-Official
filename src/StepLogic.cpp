@@ -213,7 +213,7 @@ void brewStepFill(enum StepSignal signal, struct ProgramThread *thread) {
   switch (signal) {
     case STEPSIGNAL_INIT:
 		for (byte i = 0; i < NUM_VESSELS; i++)
-			vessels[i]->setStage(Vessel::FILL);
+			vessels[i]->setStage(FILL);
       vessels[VS_HLT]->setTargetVolume(calcSpargeVol(thread->recipe));
       vessels[VS_MASH]->setTargetVolume(calcStrikeVol(thread->recipe));
       if (getProgMLHeatSrc(thread->recipe) == VS_HLT) {
@@ -288,7 +288,7 @@ void brewStepPreheat(enum StepSignal signal, struct ProgramThread *thread) {
   switch (signal) {
     case STEPSIGNAL_INIT:
 		for (byte i = 0; i < NUM_VESSELS; i++)
-			vessels[i]->setStage(Vessel::FILL);
+			vessels[i]->setStage(FILL);
       #ifdef MASH_PREHEAT_NOVALVES
         vlvConfig[VLV_MASHHEAT] = 0;
         vlvConfig[VLV_MASHIDLE] = 0;
@@ -360,7 +360,7 @@ void brewStepGrainIn(enum StepSignal signal, struct ProgramThread *thread) {
   switch (signal) {
     case STEPSIGNAL_INIT:
 		for (byte i = 0; i < NUM_VESSELS; i++)
-			vessels[i]->setStage(Vessel::FILL);
+			vessels[i]->setStage(FILL);
 
       //Disable HLT and Mash heat output during 'Add Grain' to avoid dry running heat elements and burns from HERMS recirc
       grainInStart = 0;
@@ -594,7 +594,7 @@ void brewStepSparge(enum StepSignal signal, struct ProgramThread *thread) {
   switch (signal) {
     case STEPSIGNAL_INIT:
 		for (byte i = 0; i < NUM_VESSELS; i++)
-			vessels[i]->setStage(Vessel::SPARGE);
+			vessels[i]->setStage(SPARGE);
       #ifdef HLT_HEAT_SPARGE
         #ifdef HLT_MIN_SPARGE
           if (vessels[VS_HLT]->getVolume() >= HLT_MIN_SPARGE)
@@ -612,7 +612,8 @@ void brewStepSparge(enum StepSignal signal, struct ProgramThread *thread) {
 		    flowController[0]->stop(); 
 		    flowController[1]->stop();
 		#endif
-      programThreadSetStep(thread, BREWSTEP_SPARGE);
+#endif //BATCH_SPARGE
+		    programThreadSetStep(thread, BREWSTEP_SPARGE);
       break;
     case STEPSIGNAL_UPDATE:
       
@@ -657,7 +658,7 @@ void brewStepBoil(enum StepSignal signal, struct ProgramThread *thread) {
  	switch (signal) {
     case STEPSIGNAL_INIT:
 		for (byte i = 0; i < NUM_VESSELS; i++)
-			vessels[i]->setStage(Vessel::BOIL);
+			vessels[i]->setStage(BOIL);
 		flowController[0]->setTargetFlowRate(0);
 		flowController[1]->setTargetFlowRate(0);
       vessels[VS_KETTLE]->setSetpoint(getBoilTemp());
