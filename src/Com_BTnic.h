@@ -29,7 +29,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 #ifdef BTNIC_PROTOCOL
 
 #include "Outputs.h"
-#include "EEPROM.hpp"
+#include "ConfigManager.hpp"
 #include "StepLogic.h"
 #include "Temp.h"
 #include "Timer.h"
@@ -437,11 +437,11 @@ void BTnic::execCmd(void) {
       logFieldCmd(CMD_GET_OSET, cmdIndex);
       logFieldI(PIDEnabled[cmdIndex]);
       logFieldI(PIDCycle[cmdIndex]);
-      logFieldI(getPIDp(cmdIndex));
-      logFieldI(getPIDi(cmdIndex));
-      logFieldI(getPIDd(cmdIndex));
+      logFieldI(ConfigManager::getPIDPGain(cmdIndex));
+      logFieldI(ConfigManager::getPIDIGain(cmdIndex));
+      logFieldI(ConfigManager::getPIDDGain(cmdIndex));
       if (cmdIndex == VS_STEAM) {
-        logFieldI(getSteamTgt());
+        logFieldI(ConfigManager::getSteamTarget());
         #ifndef PID_FLOW_CONTROL
           logFieldI(steamZero);
           logFieldI(steamPSens);
@@ -459,13 +459,13 @@ void BTnic::execCmd(void) {
       {
         char pName[20];
         getCmdParam(1, pName, 19);
-        setProgName(cmdIndex, pName);
+        ConfigManager::setProgramName(cmdIndex, pName);
       }
     case CMD_GET_PROGNAME:  //'\'
       logFieldCmd(CMD_GET_PROGNAME, cmdIndex);
       {
         char pName[20];
-        getProgName(cmdIndex, pName);
+        ConfigManager::getProgramName(cmdIndex, pName);
         logField(pName);
       }
       break;
@@ -474,7 +474,7 @@ void BTnic::execCmd(void) {
       logFieldCmd(CMD_GET_PROGNAMES, NO_CMDINDEX);
       for (byte i = 0; i < RECIPE_MAX; i++) {
         char pName[20];
-        getProgName(i, pName);
+        ConfigManager::getProgramName(i, pName);
         logField(pName);
       }
       break;

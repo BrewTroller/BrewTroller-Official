@@ -10,7 +10,7 @@ set(BT_TEST_SRCS src/main.cpp
                  src/globals.cpp
 				 src/EEPROMTests.cpp)
 #List all test target sources
-set(BT_TEST_TARGET_SRCS ../src/EEPROM.cpp)
+set(BT_TEST_TARGET_SRCS ../src/ConfigManager.cpp)
 
 #Include the BrewTroller headers
 include_directories(../src)

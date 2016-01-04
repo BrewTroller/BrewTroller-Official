@@ -6,7 +6,7 @@
 //  Copyright © 2015 EricYanush. All rights reserved.
 //
 
-#include "EEPROM.hpp"
+#include "ConfigManager.hpp"
 #include <avr/eeprom.h>
 #include "Enum.h"
 #include "Config.h"
@@ -84,12 +84,24 @@ void ConfigManager::setPIDPGain(uint8_t vessel, uint8_t newPGain) {
     eeprom_update_byte(&configStore->pidConfigs[vessel].PGain, newPGain);
 }
 
+uint8_t ConfigManager::getPIDPGain(uint8_t vessel) {
+    return eeprom_read_byte(&configStore->pidConfigs[vessel].PGain);
+}
+
 void ConfigManager::setPIDIGain(uint8_t vessel, uint8_t newIGain) {
     eeprom_update_byte(&configStore->pidConfigs[vessel].IGain, newIGain);
 }
 
+uint8_t ConfigManager::getPIDIGain(uint8_t vessel) {
+    return eeprom_read_byte(&configStore->pidConfigs[vessel].IGain);
+}
+
 void ConfigManager::setPIDDGain(uint8_t vessel, uint8_t newDGain) {
     eeprom_update_byte(&configStore->pidConfigs[vessel].DGain, newDGain);
+}
+
+uint8_t ConfigManager::getPIDDGain(uint8_t vessel) {
+    return eeprom_read_byte(&configStore->pidConfigs[vessel].DGain);
 }
 
 void ConfigManager::setHysteresis(uint8_t vessel, uint8_t newHysteresis) {
@@ -100,12 +112,26 @@ void ConfigManager::setSteamTarget(uint8_t newTarget) {
     eeprom_update_byte(&configStore->steamTarget, newTarget);
 }
 
+uint8_t ConfigManager::getSteamTarget() {
+    return eeprom_read_byte(&configStore->steamTarget);
+}
+
 void ConfigManager::setSteamZero(uint16_t newZero) {
     eeprom_update_block(&newZero, &configStore->steamZero, sizeof(config_t::steamZero));
 }
 
 void ConfigManager::setSteamPSense(uint16_t newPSense) {
     eeprom_update_block(&newPSense, &configStore->steamPSense, sizeof(config_t::steamPSense));
+}
+
+void ConfigManager::setProgramName(uint8_t program, char* newName) {
+    //ensure that last character is a null
+    newName[PROG_NAME_LEN - 1] = '\0';
+    eeprom_update_block(newName, &configStore->programs[program].name, PROG_NAME_LEN);
+}
+
+void ConfigManager::getProgramName(uint8_t program, char *name) {
+    eeprom_read_block(name, &configStore->programs[program].name, PROG_NAME_LEN);
 }
 
 void ConfigManager::loadConfig() {

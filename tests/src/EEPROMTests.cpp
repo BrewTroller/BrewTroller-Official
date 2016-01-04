@@ -7,7 +7,8 @@
 //
 
 #include "gtest/gtest.h"
-#include "EEPROM.hpp"
+#include "ConfigManager.hpp"
+#include <iostream>
 
 TEST(ProgramStruct, TestSize) {
     ASSERT_EQ(60, sizeof(program_config));
@@ -253,6 +254,36 @@ TEST(ConfigManager, TestSetPIDDGain) {
     }
 }
 
+TEST(ConfigManager, TestGetPIDPGain) {
+    config_t conf;
+    ConfigManager::init(&conf);
+    
+    conf.pidConfigs[VS_HLT].PGain = 111;
+    conf.pidConfigs[VS_KETTLE].PGain = 88;
+    ASSERT_EQ(111, ConfigManager::getPIDPGain(VS_HLT));
+    ASSERT_EQ(88, ConfigManager::getPIDPGain(VS_KETTLE));
+}
+
+TEST(ConfigManager, TestGetPIDIGain) {
+    config_t conf;
+    ConfigManager::init(&conf);
+    
+    conf.pidConfigs[VS_HLT].IGain = 111;
+    conf.pidConfigs[VS_KETTLE].IGain = 88;
+    ASSERT_EQ(111, ConfigManager::getPIDIGain(VS_HLT));
+    ASSERT_EQ(88, ConfigManager::getPIDIGain(VS_KETTLE));
+}
+
+TEST(ConfigManager, TestGetPIDDGain) {
+    config_t conf;
+    ConfigManager::init(&conf);
+    
+    conf.pidConfigs[VS_HLT].DGain = 111;
+    conf.pidConfigs[VS_KETTLE].DGain = 88;
+    ASSERT_EQ(111, ConfigManager::getPIDDGain(VS_HLT));
+    ASSERT_EQ(88, ConfigManager::getPIDDGain(VS_KETTLE));
+}
+
 TEST(ConfigManager, TestSetHysteresis) {
     config_t conf = {0};
     config_t confUntouched = {0};
@@ -279,6 +310,14 @@ TEST(ConfigManager, TestSetSteamTarget) {
     ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
 }
 
+TEST(ConfigManager, TestGetSteamTarget) {
+    config_t conf;
+    ConfigManager::init(&conf);
+    
+    conf.steamTarget = 77;
+    ASSERT_EQ(77, ConfigManager::getSteamTarget());
+}
+
 TEST(ConfigManager, TestSetSteamZero) {
     config_t conf = {0};
     config_t confUntouched = {0};
@@ -303,4 +342,40 @@ TEST(ConfigManager, TestSetSteamPSense) {
     
     conf.steamPSense = 0;
     ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+}
+
+TEST(ConfigManager, TestSetProgramName) {
+    config_t conf = {0};
+    config_t untouched = {0};
+    ConfigManager::init(&conf);
+    
+    char nameZero[20] = {0};
+    char nameTest[20] = "Test Name      1234";
+    ASSERT_EQ(PROG_NAME_LEN, sizeof(nameTest));
+    ASSERT_EQ('\0', nameTest[19]);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        ConfigManager::setProgramName(i, nameTest);
+        ASSERT_EQ(0, memcmp(&conf.programs[i].name, &nameTest, sizeof(nameTest)));
+        
+        //Zero the name back out and ensure nothing else was modified
+        memcpy(&conf.programs[i].name, nameZero, sizeof(nameZero));
+        ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    }
+}
+
+TEST(ConfigManager, TestGetProgramName) {
+    config_t conf;
+    ConfigManager::init(&conf);
+    
+    char nameTest[20] = "Test Name Test Name";
+    ASSERT_EQ(PROG_NAME_LEN, sizeof(nameTest));
+    ASSERT_EQ('\0', nameTest[19]);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        char temp[20] = {0};
+        memcpy(conf.programs[i].name, nameTest, sizeof(nameTest));
+        ConfigManager::getProgramName(i, temp);
+        ASSERT_EQ(0, memcmp(temp, nameTest, sizeof(nameTest)));
+    }
 }

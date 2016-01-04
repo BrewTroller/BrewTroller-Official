@@ -61,7 +61,7 @@ Compiled on Arduino-0022 (http://arduino.cc/en/Main/Software)
 #include "StepLogic.h"
 #include "Outputs.h"
 #include "Events.h"
-#include "EEPROM.hpp"
+#include "ConfigManager.hpp"
 #include "Temp.h"
 #include "BrewCore.h"
 #include "Com.h"

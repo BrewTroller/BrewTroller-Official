@@ -12,8 +12,8 @@ set(SOURCE_FILES
         Com_RGBIO8.cpp
         Com_RGBIO8.h
         Com_S0ASC.cpp
-        EEPROM.cpp
-        EEPROM.hpp
+        ConfigManager.cpp
+        ConfigManager.hpp
         Enum.h
         Events.cpp
         Events.h

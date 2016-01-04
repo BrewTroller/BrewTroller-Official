@@ -19,8 +19,8 @@
  Documentation, Forums and more information available at http://www.brewtroller.com
 */
 
-#ifndef EEPROM_hpp
-#define EEPROM_hpp
+#ifndef ConfigManager_hpp
+#define ConfigManager_hpp
 
 #include <stdint.h>
 #include "Enum.h"
@@ -285,6 +285,30 @@ public:
     static void setPIDDGain(uint8_t vessel, uint8_t newDGain);
     
     /**
+     getPIDPGain: Retrieves the PID P Gain value for the specified vessel
+     - parameter vessel: The vessel index to be retrieved for; defined in Enum.h
+     - returns: the current P gain (uint8_t) for the vessel
+     - precondition: init() has been called
+     */
+    static uint8_t getPIDPGain(uint8_t vessel);
+    
+    /**
+     getPIDIGain: Retrieves the PID I Gain value for the specified vessel
+     - parameter vessel: The vessel index to be retrieved for; defined in Enum.h
+     - returns: the current I gain (uint8_t) for the vessel
+     - precondition: init() has been called
+     */
+    static uint8_t getPIDIGain(uint8_t vessel);
+    
+    /**
+     getPIDDGain: Retrieves the PID D Gain value for the specified vessel
+     - parameter vessel: The vessel index to be retrieved for; defined in Enum.h
+     - returns: the current D gain (uint8_t) for the vessel
+     - precondition: init() has been called
+     */
+    static uint8_t getPIDDGain(uint8_t vessel);
+    
+    /**
      setHysteresis: Updates the Hysteresis value for the specified vessel
      - parameter vessel: The vessel index to be updated; defined in Enum.h
      - parameter newHysteresis: The value to update the hysteresis to
@@ -302,6 +326,13 @@ public:
     static void setSteamTarget(uint8_t newTarget);
     
     /**
+     getSteamTarget: Retrieves the Steam Target value
+     - returns: The current value (uint8_t)
+     - precondition: init() has been called
+     */
+    static uint8_t getSteamTarget();
+    
+    /**
      setSteamZero: Updates the Steam Zero value
      - parameter newZero: The value to update the Steam Zero to
      - returns: void
@@ -317,6 +348,23 @@ public:
      */
     static void setSteamPSense(uint16_t newPSense);
     
+    /**
+     setProgramName: Updates the program name for the specified program
+     - parameter program: The program number to update
+     - parameter newName: a c-string of length 19 Characters, padded with spaces, if necessary
+     - returns: void
+     - precondition: init() has been called
+     */
+    static void setProgramName(uint8_t program, char* newName);
+    
+    /**
+     getProgramName: Retrieves the program name for the specified program
+     - parameter program: The program number to retrieve for
+     - parameter name: A char buffer of length 20 to place the name into
+     - returns: void
+     - precondition: init() has been called
+     */
+    static void getProgramName(uint8_t program, char* name);
 };
 
 static config_t eepromConfig EEMEM;
