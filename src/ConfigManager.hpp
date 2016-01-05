@@ -469,6 +469,74 @@ public:
      */
     static uint8_t getProgramPitchTemp(uint8_t program);
     
+    /**
+     setProgramBoilMins: Sets the target length for the Boil step of the specified program
+     - parameter program: The target program number
+     - parameter mins: The target length in minutes of the Boil
+     - returns: void
+     */
+    static void setProgramBoilMins(uint8_t program, uint16_t mins);
+    
+    /**
+     getProgramBoilMins: Gets the target length for the Boil step of the specified program
+     - parameter program: The target program number
+     - returns: The current Boil length for the program in minutes
+     */
+    static uint16_t getProgramBoilMins(uint8_t program);
+    
+    /**
+     setProgramMLHeatSource: Sets the vessel used to heat the mash for a specified program
+     - parameter program: The target program number
+     - parameter vessel: The target vessel index used to heat the mash
+     - returns: void
+     */
+    static void setProgramMLHeatSource(uint8_t program, uint8_t vessel);
+    
+    /**
+     getProgramMLHeatSource: Gets the vessel used to heat the mash, in a specified program
+     - parameter program: The target program number
+     - returns: The current vessel index used for mash heat in the program
+     */
+    static uint8_t getProgramMLHeatSource(uint8_t program);
+    
+    /**
+     setProgramBoilAdditionAlarms: Sets the Boil Addition alarm flags of the specified program
+     - parameter program: The target program number
+     - parameter flags: The new flags bitfield
+     - returns: void
+     */
+    static void setProgramBoilAdditionAlarms(uint8_t program, uint16_t flags);
+    
+    /**
+     getProgramBoilAdditionAlarms: Gets the Boil Addition alarm flags of the specified program
+     - parameter program: The target program number
+     - returns: The current Boil addtion alarm flag bitfield for the program
+     */
+    static uint16_t getProgramBoilAdditionAlarms(uint8_t program);
+
+    /**
+     setTempSensorAddress: Sets the unique address for the specified sensor
+     - parameter sensor: The sensor index, defined in ENUM.h
+     - parameter newAddr: The address to set the sensor address to
+     - returns: void
+     */
+    static void setTempSensorAddress(uint8_t sensor, TempSensorAddress newAddr);
+    
+    /**
+     setVesselCapacity: Sets the Volume capacity of the specified vessel
+     - parameter vessel: The target vessel index, defined in ENUM.h
+     - parameter newCapacity: The new Capacity for the vessel
+     - returns: void
+     */
+    static void setVesselCapacity(uint8_t vessel, uint32_t newCapacity);
+    
+    /**
+     getVesselCapacity: Gets the Volume Capacity of the Vessel
+     - parameter vessel: The target vessel index, defined in ENUM.h
+     - returns: The current Volume Capacity for the vessel
+     */
+    static uint32_t getVesselCapacity(uint8_t vessel);
+    
 };
 
 static config_t eepromConfig EEMEM;

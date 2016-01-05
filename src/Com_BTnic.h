@@ -515,18 +515,18 @@ void BTnic::execCmd(void) {
     case CMD_SET_PROG:  //O (Partial program data)
       ConfigManager::setProgramSpargeTemp(cmdIndex, getCmdParamNum(1) * SETPOINT_DIV);
       ConfigManager::setProgramHLTTemp(cmdIndex, getCmdParamNum(2) * SETPOINT_DIV);
-      setProgBoil(cmdIndex, getCmdParamNum(3));
+      ConfigManager::setProgramBoilMins(cmdIndex, getCmdParamNum(3));
       ConfigManager::setProgramPitchTemp(cmdIndex, getCmdParamNum(4) * SETPOINT_DIV);
-      setProgAdds(cmdIndex, getCmdParamNum(5));
-      setProgMLHeatSrc(cmdIndex, getCmdParamNum(6));
+      ConfigManager::setProgramBoilAdditionAlarms(cmdIndex, getCmdParamNum(5));
+      ConfigManager::setProgramMLHeatSource(cmdIndex, getCmdParamNum(6));
     case CMD_GET_PROG:  //E (partial program data)
       logFieldCmd(CMD_GET_PROG, cmdIndex);
       logFieldI(ConfigManager::getProgramSpargeTemp(cmdIndex) / SETPOINT_DIV);
       logFieldI(ConfigManager::getProgramHLTTemp(cmdIndex) / SETPOINT_DIV);
-      logFieldI(getProgBoil(cmdIndex));
+      logFieldI(ConfigManager::getProgramBoilMins(cmdIndex));
       logFieldI(ConfigManager::getProgramPitchTemp(cmdIndex) / SETPOINT_DIV);
-      logFieldI(getProgAdds(cmdIndex));
-      logFieldI(getProgMLHeatSrc(cmdIndex));
+      logFieldI(ConfigManager::getProgramBoilAdditionAlarms(cmdIndex));
+      logFieldI(ConfigManager::getProgramMLHeatSource(cmdIndex));
       break;
       
     case CMD_SET_PROGRAM:
@@ -544,10 +544,10 @@ void BTnic::execCmd(void) {
       }
       ConfigManager::setProgramSpargeTemp(cmdIndex, getCmdParamNum(17) * SETPOINT_DIV);
       ConfigManager::setProgramHLTTemp(cmdIndex, getCmdParamNum(18) * SETPOINT_DIV);
-      setProgBoil(cmdIndex, getCmdParamNum(19));
+      ConfigManager::setProgramBoilMins(cmdIndex, getCmdParamNum(19));
       ConfigManager::setProgramPitchTemp(cmdIndex, getCmdParamNum(20) * SETPOINT_DIV);
-      setProgAdds(cmdIndex, getCmdParamNum(21));
-      setProgMLHeatSrc(cmdIndex, getCmdParamNum(22));
+      ConfigManager::setProgramBoilAdditionAlarms(cmdIndex, getCmdParamNum(21));
+      ConfigManager::setProgramMLHeatSource(cmdIndex, getCmdParamNum(22));
     case CMD_GET_PROGRAM:
       logFieldCmd(CMD_GET_PROGRAM, cmdIndex);
       {
@@ -564,10 +564,10 @@ void BTnic::execCmd(void) {
       }
       logFieldI(ConfigManager::getProgramSpargeTemp(cmdIndex) / SETPOINT_DIV);
       logFieldI(ConfigManager::getProgramHLTTemp(cmdIndex) / SETPOINT_DIV);
-      logFieldI(getProgBoil(cmdIndex));
+      logFieldI(ConfigManager::getProgramBoilMins(cmdIndex));
       logFieldI(ConfigManager::getProgramPitchTemp(cmdIndex) / SETPOINT_DIV);
-      logFieldI(getProgAdds(cmdIndex));
-      logFieldI(getProgMLHeatSrc(cmdIndex));
+      logFieldI(ConfigManager::getProgramBoilAdditionAlarms(cmdIndex));
+      logFieldI(ConfigManager::getProgramMLHeatSource(cmdIndex));
       logFieldI(calcStrikeTemp(cmdIndex) / SETPOINT_DIV);
       logFieldI(getFirstStepTemp(cmdIndex) / SETPOINT_DIV);
       logFieldI(calcPreboilVol(cmdIndex));
@@ -581,7 +581,7 @@ void BTnic::execCmd(void) {
       {
         byte addr[8];
         for (byte i=0; i<8; i++) addr[i] = (byte)getCmdParamNum(i+1);
-        setTSAddr(cmdIndex, addr);
+          ConfigManager::setTempSensorAddress(cmdIndex, addr);
       }
     case CMD_GET_TS:  //F
       logFieldCmd(CMD_GET_TS, cmdIndex);
@@ -604,11 +604,11 @@ void BTnic::execCmd(void) {
 
 
     case CMD_SET_VSET:  //R
-      setCapacity(cmdIndex, getCmdParamNum(1));
+      ConfigManager::setVesselCapacity(cmdIndex, getCmdParamNum(1));
       setVolLoss(cmdIndex, getCmdParamNum(2));
     case CMD_GET_VSET:  //H
       logFieldCmd(CMD_GET_VSET, cmdIndex);
-      logFieldI(getCapacity(cmdIndex));
+      logFieldI(ConfigManager::getVesselCapacity(cmdIndex));
       logFieldI(getVolLoss(cmdIndex));  
       break;
 

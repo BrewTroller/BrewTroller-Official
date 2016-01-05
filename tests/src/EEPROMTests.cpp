@@ -591,3 +591,138 @@ TEST(ConfigManager, TestGetProgramPitchTemp) {
         conf.programs[i].pitchTemperature = 0;
     }
 }
+
+TEST(ConfigManager, TestSetProgramBoilMins) {
+    config_t conf = {0};
+    config_t untouched = {0};
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        ConfigManager::setProgramBoilMins(i, 0x1234);
+        ASSERT_EQ(0x1234, conf.programs[i].boilMins);
+        
+        //Zero the change back out and ensure nothing else was modified
+        conf.programs[i].boilMins = 0;
+        ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    }
+}
+
+TEST(ConfigManager, TestGetProgramBoilMins) {
+    config_t conf;
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        conf.programs[i].boilMins = 0x4466;
+        ASSERT_EQ(0x4466, ConfigManager::getProgramBoilMins(i));
+        conf.programs[i].boilMins = 0;
+    }
+}
+
+TEST(ConfigManager, TestSetProgramMLHeatSource) {
+    config_t conf = {0};
+    config_t untouched = {0};
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        ConfigManager::setProgramMLHeatSource(i, VS_MASH);
+        ASSERT_EQ(VS_MASH, conf.programs[i].mashLiquorHeatSource);
+        
+        //Zero the change back out and ensure nothing else was modified
+        conf.programs[i].mashLiquorHeatSource = 0;
+        ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    }
+}
+
+TEST(ConfigManager, TestGetProgramMLHeatSource) {
+    config_t conf;
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        conf.programs[i].mashLiquorHeatSource = VS_KETTLE;
+        ASSERT_EQ(VS_KETTLE, ConfigManager::getProgramMLHeatSource(i));
+        conf.programs[i].mashLiquorHeatSource = 0;
+    }
+}
+
+TEST(ConfigManager, TestSetProgramBoilAdditonAlarms) {
+    config_t conf = {0};
+    config_t untouched = {0};
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        ConfigManager::setProgramBoilAdditionAlarms(i, 0x1234);
+        ASSERT_EQ(0x1234, conf.programs[i].boilAdditionAlarms);
+        
+        //Zero the change back out and ensure nothing else was modified
+        conf.programs[i].boilAdditionAlarms = 0;
+        ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    }
+}
+
+TEST(ConfigManager, TestGetProgramBoilAdditionAlarms) {
+    config_t conf;
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        conf.programs[i].boilAdditionAlarms = 0x4466;
+        ASSERT_EQ(0x4466, ConfigManager::getProgramBoilAdditionAlarms(i));
+        conf.programs[i].boilAdditionAlarms = 0;
+    }
+}
+
+TEST(ConfigManager, TestSetTempSensorAddress) {
+    config_t conf = {0};
+    config_t untouched = {0};
+    ConfigManager::init(&conf);
+    
+    TempSensorAddress addrZero = {0};
+    TempSensorAddress testAddr = {5, 10, 15, 20,
+                                  25, 30, 35, 40};
+    
+    for (uint8_t i = 0; i < NUM_TS; i++) {
+        ConfigManager::setTempSensorAddress(i, testAddr);
+        ASSERT_EQ(0, memcmp(testAddr, conf.tempSensorAddresses[i], sizeof(TempSensorAddress)));
+        
+        //Zero the change back out and ensure nothing else was modified
+        memcpy(conf.tempSensorAddresses[i], addrZero, sizeof(TempSensorAddress));
+        ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    }
+}
+
+TEST(ConfigManager, TestSetVesselCapacity) {
+    config_t conf = {0};
+    config_t untouched = {0};
+    ConfigManager::init(&conf);
+    
+    //This is only defined for HLT, MASH and KETTLE!!!
+    ConfigManager::setVesselCapacity(VS_HLT, 0xFEEDBEEF);
+    ASSERT_EQ(0xFEEDBEEF, conf.hltCapacity);
+    //Zero the change back out and ensure nothing else was modified
+    conf.hltCapacity = 0;
+    ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    ConfigManager::setVesselCapacity(VS_MASH, 0xFEEDBEEF);
+    ASSERT_EQ(0xFEEDBEEF, conf.mltCapacity);
+    //Zero the change back out and ensure nothing else was modified
+    conf.mltCapacity = 0;
+    ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    ConfigManager::setVesselCapacity(VS_KETTLE, 0xFEEDBEEF);
+    ASSERT_EQ(0xFEEDBEEF, conf.kettleCapacity);
+    //Zero the change back out and ensure nothing else was modified
+    conf.kettleCapacity = 0;
+    ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+}
+
+TEST(ConfigManager, TestGetVesselCapacity) {
+    config_t conf;
+    ConfigManager::init(&conf);
+    
+    //This is only defined for HLT, MASH, and  KETTLE!!!!
+    conf.hltCapacity = 0x12344321;
+    ASSERT_EQ(0x12344321, ConfigManager::getVesselCapacity(VS_HLT));
+    conf.hltCapacity = 0;
+    conf.mltCapacity = 0x12344321;
+    ASSERT_EQ(0x12344321, ConfigManager::getVesselCapacity(VS_MASH));
+    conf.mltCapacity = 0;
+    conf.kettleCapacity = 0x12344321;
+    ASSERT_EQ(0x12344321, ConfigManager::getVesselCapacity(VS_KETTLE));
+}

@@ -301,3 +301,73 @@ void ConfigManager::setProgramPitchTemp(uint8_t program, uint8_t newPitchTemp) {
 uint8_t ConfigManager::getProgramPitchTemp(uint8_t program) {
     return eeprom_read_byte(&configStore->programs[program].pitchTemperature);
 }
+
+void ConfigManager::setProgramBoilMins(uint8_t program, uint16_t mins) {
+    eeprom_update_block(&mins, &configStore->programs[program].boilMins, sizeof(uint16_t));
+}
+
+uint16_t ConfigManager::getProgramBoilMins(uint8_t program) {
+    uint16_t temp;
+    eeprom_read_block(&temp, &configStore->programs[program].boilMins, sizeof(uint16_t));
+    return temp;
+}
+
+void ConfigManager::setProgramMLHeatSource(uint8_t program, uint8_t vessel) {
+    eeprom_update_byte(&configStore->programs[program].mashLiquorHeatSource, vessel);
+}
+
+uint8_t ConfigManager::getProgramMLHeatSource(uint8_t program) {
+    return eeprom_read_byte(&configStore->programs[program].mashLiquorHeatSource);
+}
+
+void ConfigManager::setProgramBoilAdditionAlarms(uint8_t program, uint16_t flags) {
+    eeprom_update_block(&flags, &configStore->programs[program].boilAdditionAlarms, sizeof(uint16_t));
+}
+
+uint16_t ConfigManager::getProgramBoilAdditionAlarms(uint8_t program) {
+    uint16_t temp;
+    eeprom_read_block(&temp, &configStore->programs[program].boilAdditionAlarms, sizeof(uint16_t));
+    return temp;
+}
+
+void ConfigManager::setTempSensorAddress(uint8_t sensor, TempSensorAddress newAddr) {
+    eeprom_update_block(newAddr, &configStore->tempSensorAddresses[sensor], sizeof(TempSensorAddress));
+}
+
+void ConfigManager::setVesselCapacity(uint8_t vessel, uint32_t newCapacity) {
+    uint32_t* targetParam;
+    switch (vessel) {
+        case VS_HLT:
+            targetParam = &configStore->hltCapacity;
+            break;
+        case VS_MASH:
+            targetParam = &configStore->mltCapacity;
+            break;
+        case VS_KETTLE:
+            targetParam = &configStore->kettleCapacity;
+            break;
+        default:
+            return;
+    }
+    eeprom_update_block(&newCapacity, targetParam, sizeof(uint32_t));
+}
+
+uint32_t ConfigManager::getVesselCapacity(uint8_t vessel) {
+    uint32_t* targetParam;
+    switch (vessel) {
+        case VS_HLT:
+            targetParam = &configStore->hltCapacity;
+            break;
+        case VS_MASH:
+            targetParam = &configStore->mltCapacity;
+            break;
+        case VS_KETTLE:
+            targetParam = &configStore->kettleCapacity;
+            break;
+        default:
+            return 0;
+    }
+    uint32_t temp;
+    eeprom_read_block(&temp, targetParam, sizeof(uint32_t));
+    return temp;
+}
