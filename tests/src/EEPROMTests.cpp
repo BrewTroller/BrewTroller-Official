@@ -379,3 +379,215 @@ TEST(ConfigManager, TestGetProgramName) {
         ASSERT_EQ(0, memcmp(temp, nameTest, sizeof(nameTest)));
     }
 }
+
+TEST(ConfigManager, TestSetProgramMashTemp) {
+    config_t conf = {0};
+    config_t untouched = {0};
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        for (uint8_t j = 0; j < MASHSTEP_COUNT; j++) {
+            ConfigManager::setProgramMashStepTemp(i, j, 21);
+            ASSERT_EQ(21, conf.programs[i].mashStepTemp[j]);
+            conf.programs[i].mashStepTemp[j] = 0;
+            ASSERT_EQ(0, memcmp(&conf, &untouched, sizeof(config_t)));
+        }
+    }
+}
+
+TEST(ConfigManager, TestGetProgramMashTemp) {
+    config_t conf = {0};
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        for (uint8_t j = 0; j < MASHSTEP_COUNT; j++) {
+            conf.programs[i].mashStepTemp[j] = 21;
+            ASSERT_EQ(21, ConfigManager::getProgramMashStepTemp(i, j));
+            conf.programs[i].mashStepTemp[j] = 0;
+        }
+    }
+}
+
+TEST(ConfigManager, TestSetProgramMashMins) {
+    config_t conf = {0};
+    config_t untouched = {0};
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        for (uint8_t j = 0; j < MASHSTEP_COUNT; j++) {
+            ConfigManager::setProgramMashStepMins(i, j, 77);
+            ASSERT_EQ(77, conf.programs[i].mashStepLength[j]);
+            conf.programs[i].mashStepLength[j] = 0;
+            ASSERT_EQ(0, memcmp(&conf, &untouched, sizeof(config_t)));
+        }
+    }
+}
+
+TEST(ConfigManager, TestGetProgramMashMins) {
+    config_t conf = {0};
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        for (uint8_t j = 0; j < MASHSTEP_COUNT; j++) {
+            conf.programs[i].mashStepLength[j] = 66;
+            ASSERT_EQ(66, ConfigManager::getProgramMashStepMins(i, j));
+            conf.programs[i].mashStepLength[j] = 0;
+        }
+    }
+}
+
+TEST(ConfigManager, TestSetProgramBatchVol) {
+    config_t conf = {0};
+    config_t untouched = {0};
+    ConfigManager::init(&conf);
+
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        ConfigManager::setProgramBatchVol(i, 0xFEEDBEEF);
+        ASSERT_EQ(0xFEEDBEEF, conf.programs[i].batchVolume);
+        
+        //Zero the change back out and ensure nothing else was modified
+        conf.programs[i].batchVolume = 0;
+        ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    }
+}
+
+TEST(ConfigManager, TestGetProgramBatchVol) {
+    config_t conf;
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        conf.programs[i].batchVolume = 0xABCDEF81;
+        ASSERT_EQ(0xABCDEF81, ConfigManager::getProgramBatchVol(i));
+        conf.programs[i].batchVolume = 0;
+    }
+}
+
+TEST(ConfigManager, TestSetProgramMashRatio) {
+    config_t conf = {0};
+    config_t untouched = {0};
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        ConfigManager::setProgramMashRatio(i, 0xABCD);
+        ASSERT_EQ(0xABCD, conf.programs[i].mashRatio);
+        
+        //Zero the change back out and ensure nothing else was modified
+        conf.programs[i].mashRatio = 0;
+        ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    }
+}
+
+TEST(ConfigManager, TestGetProgramMashRatio) {
+    config_t conf;
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        conf.programs[i].mashRatio = 0xFF88;
+        ASSERT_EQ(0xFF88, ConfigManager::getProgramMashRatio(i));
+        conf.programs[i].mashRatio = 0;
+    }
+}
+
+TEST(ConfigManager, TestSetProgramGrainWeight) {
+    config_t conf = {0};
+    config_t untouched = {0};
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        ConfigManager::setProgramGrainWeight(i, 0xFEEDBEEF);
+        ASSERT_EQ(0xFEEDBEEF, conf.programs[i].grainWeight);
+        
+        //Zero the change back out and ensure nothing else was modified
+        conf.programs[i].grainWeight = 0;
+        ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    }
+}
+
+TEST(ConfigManager, TestGetProgramGrainWeight) {
+    config_t conf;
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        conf.programs[i].grainWeight = 0xABCDEF81;
+        ASSERT_EQ(0xABCDEF81, ConfigManager::getProgramGrainWeight(i));
+        conf.programs[i].grainWeight = 0;
+    }
+}
+
+TEST(ConfigManager, TestSetProgramSpargeTemp) {
+    config_t conf = {0};
+    config_t untouched = {0};
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        ConfigManager::setProgramSpargeTemp(i, 177);
+        ASSERT_EQ(177, conf.programs[i].spargeTemp);
+        
+        //Zero the change back out and ensure nothing else was modified
+        conf.programs[i].spargeTemp = 0;
+        ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    }
+}
+
+TEST(ConfigManager, TestGetProgramSpargeTemp) {
+    config_t conf;
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        conf.programs[i].spargeTemp = 88;
+        ASSERT_EQ(88, ConfigManager::getProgramSpargeTemp(i));
+        conf.programs[i].spargeTemp = 0;
+    }
+}
+
+TEST(ConfigManager, TestSetProgramHLTTemp) {
+    config_t conf = {0};
+    config_t untouched = {0};
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        ConfigManager::setProgramHLTTemp(i, 177);
+        ASSERT_EQ(177, conf.programs[i].hltTemperature);
+        
+        //Zero the change back out and ensure nothing else was modified
+        conf.programs[i].hltTemperature = 0;
+        ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    }
+}
+
+TEST(ConfigManager, TestGetProgramHLTTemp) {
+    config_t conf;
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        conf.programs[i].hltTemperature = 88;
+        ASSERT_EQ(88, ConfigManager::getProgramHLTTemp(i));
+        conf.programs[i].hltTemperature = 0;
+    }
+}
+
+TEST(ConfigManager, TestSetProgramPitchTemp) {
+    config_t conf = {0};
+    config_t untouched = {0};
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        ConfigManager::setProgramPitchTemp(i, 177);
+        ASSERT_EQ(177, conf.programs[i].pitchTemperature);
+        
+        //Zero the change back out and ensure nothing else was modified
+        conf.programs[i].pitchTemperature = 0;
+        ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    }
+}
+
+TEST(ConfigManager, TestGetProgramPitchTemp) {
+    config_t conf;
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < RECIPE_MAX; i++) {
+        conf.programs[i].pitchTemperature = 88;
+        ASSERT_EQ(88, ConfigManager::getProgramPitchTemp(i));
+        conf.programs[i].pitchTemperature = 0;
+    }
+}

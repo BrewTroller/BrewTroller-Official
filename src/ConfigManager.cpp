@@ -134,6 +134,52 @@ void ConfigManager::getProgramName(uint8_t program, char *name) {
     eeprom_read_block(name, &configStore->programs[program].name, PROG_NAME_LEN);
 }
 
+void ConfigManager::setProgramMashStepTemp(uint8_t program, uint8_t step, uint8_t temperature) {
+    eeprom_update_byte(&configStore->programs[program].mashStepTemp[step], temperature);
+}
+
+uint8_t ConfigManager::getProgramMashStepTemp(uint8_t program, uint8_t step) {
+    return eeprom_read_byte(&configStore->programs[program].mashStepTemp[step]);
+}
+
+void ConfigManager::setProgramMashStepMins(uint8_t program, uint8_t step, uint8_t mins) {
+    eeprom_update_byte(&configStore->programs[program].mashStepLength[step], mins);
+}
+
+uint8_t ConfigManager::getProgramMashStepMins(uint8_t program, uint8_t step) {
+    return eeprom_read_byte(&configStore->programs[program].mashStepLength[step]);
+}
+
+void ConfigManager::setProgramBatchVol(uint8_t program, uint32_t newBatchVol) {
+    eeprom_update_block(&newBatchVol, &configStore->programs[program].batchVolume, sizeof(uint32_t));
+}
+
+uint32_t ConfigManager::getProgramBatchVol(uint8_t program) {
+    uint32_t temp;
+    eeprom_read_block(&temp, &configStore->programs[program].batchVolume, sizeof(uint32_t));
+    return temp;
+}
+
+void ConfigManager::setProgramMashRatio(uint8_t program, uint16_t newMashRatio) {
+    eeprom_update_block(&newMashRatio, &configStore->programs[program].mashRatio, sizeof(uint16_t));
+}
+
+uint16_t ConfigManager::getProgramMashRatio(uint8_t program) {
+    uint16_t temp;
+    eeprom_read_block(&temp, &configStore->programs[program].mashRatio, sizeof(uint16_t));
+    return temp;
+}
+
+void ConfigManager::setProgramGrainWeight(uint8_t program, uint32_t newGrainWeight) {
+    eeprom_update_block(&newGrainWeight, &configStore->programs[program].grainWeight, sizeof(uint32_t));
+}
+
+uint32_t ConfigManager::getProgramGrainWeight(uint8_t program) {
+    uint32_t temp;
+    eeprom_read_block(&temp, &configStore->programs[program].grainWeight, sizeof(uint32_t));
+    return temp;
+}
+
 void ConfigManager::loadConfig() {
     //Load the temperature sensor addresses
     extern uint8_t tSensor[8][9];
@@ -230,4 +276,28 @@ void ConfigManager::loadConfig() {
     #endif
     
     //TODO: Add modbus relay board config loading; it isn't done because for some reason the old eeprom board was deleteing the current configs and new'ing new ones, I'm not sure where or IF they were originally allocated.
+}
+
+void ConfigManager::setProgramSpargeTemp(uint8_t program, uint8_t newSpargeTemp) {
+    eeprom_update_byte(&configStore->programs[program].spargeTemp, newSpargeTemp);
+}
+
+uint8_t ConfigManager::getProgramSpargeTemp(uint8_t program) {
+    return eeprom_read_byte(&configStore->programs[program].spargeTemp);
+}
+
+void ConfigManager::setProgramHLTTemp(uint8_t program, uint8_t newHLTTemp) {
+    eeprom_update_byte(&configStore->programs[program].hltTemperature, newHLTTemp);
+}
+
+uint8_t ConfigManager::getProgramHLTTemp(uint8_t program) {
+    return eeprom_read_byte(&configStore->programs[program].hltTemperature);
+}
+
+void ConfigManager::setProgramPitchTemp(uint8_t program, uint8_t newPitchTemp) {
+    eeprom_update_byte(&configStore->programs[program].pitchTemperature, newPitchTemp);
+}
+
+uint8_t ConfigManager::getProgramPitchTemp(uint8_t program) {
+    return eeprom_read_byte(&configStore->programs[program].pitchTemperature);
 }

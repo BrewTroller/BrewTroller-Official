@@ -173,26 +173,24 @@ public:
     /**
      init: intializes the configuration manager
      paramter config: pointer to a config struct in eeprom
+     - note: All other functions in this class require this method to be called before they can be called.
      */
     static void init(config_t* config);
     
     /**
      configIsValid: Method to detrmine if the config store is valid (has the right schema version)
-     - precondition: init() has been called
      - returns: true if the config store is valid, false otherwise
      */
     static bool configIsValid();
     
     /**
      initConfig: Method initializes backing config store to default values
-     - precondition: init() has been called
      - returns: void
      */
     //static void initConfig();
     
     /**
      loadGlobals: Ugly method for loading globals from eeprom, for compatibility with legacy code
-     - precondition: init() has been called
      - returns: void
      - Note: This method will go away as soon as all the global vars can be removed, this method is NOT subject to any unit tests!!!
      */
@@ -201,14 +199,12 @@ public:
     /**
      setBoilTemp: Update the boil temperature parameter
      - parameter newBoilTemp: the value to update the store with
-     - precondition: init() has been called
      - returns: void
      */
     static void setBoilTemp(const uint8_t newBoilTemp);
     
     /**
      getBoilTemp: Return the current boil temperature parameter
-     - precondition: init() has been called
      - returns: The current value of the boil temperature parameter from the config store
      */
     static uint8_t getBoilTemp();
@@ -219,7 +215,6 @@ public:
      - parameter slot: The calibration slot to update (0 .. VOL_CALIB_COUNT)
      - parameter data: The data value to use for the calibration
      - parameter volume: The volume value for the calibration data point
-     - precondition: init() has been called
      - returns: void
      */
     static void setVolumeCalib(const uint8_t vessel, const uint8_t slot, const uint16_t data, const uint32_t volume);
@@ -228,14 +223,12 @@ public:
      setEvapRate: Updates the evaporation rate parameter
      - parameter newEvapRate: The value to update the config store with
      - returns: void
-     - precondition: init() has been called
      */
     static void setEvapRate(const uint8_t newEvapRate);
     
     /**
      getEvapRate: Return the current EvapRate value from the store
      - returns: the current evapRate value in the store
-     - precondition: init() has been called
      */
     static uint8_t getEvapRate();
     
@@ -244,7 +237,6 @@ public:
      - parameter vessel: The vessel index to be updated; defined in Enum.h
      - parameter enabled: Enable PID for the vessel index if true, else disable it
      - returns: void
-     - precondition: init() has been called
      */
     static void setPIDEnabled(uint8_t vessel, bool enabled);
     
@@ -262,7 +254,6 @@ public:
      - parameter vessel: The vessel index to be updated; defined in Enum.h
      - parameter newPGain: The value to update the P Gain to
      - returns: void
-     - precondition: init() has been called
      */
     static void setPIDPGain(uint8_t vessel, uint8_t newPGain);
     
@@ -271,7 +262,6 @@ public:
      - parameter vessel: The vessel index to be updated; defined in Enum.h
      - parameter newIGain: The value to update the I Gain to
      - returns: void
-     - precondition: init() has been called
      */
     static void setPIDIGain(uint8_t vessel, uint8_t newIGain);
     
@@ -280,7 +270,6 @@ public:
      - parameter vessel: The vessel index to be updated; defined in Enum.h
      - parameter newPGain: The value to update the D Gain to
      - returns: void
-     - precondition: init() has been called
      */
     static void setPIDDGain(uint8_t vessel, uint8_t newDGain);
     
@@ -288,7 +277,6 @@ public:
      getPIDPGain: Retrieves the PID P Gain value for the specified vessel
      - parameter vessel: The vessel index to be retrieved for; defined in Enum.h
      - returns: the current P gain (uint8_t) for the vessel
-     - precondition: init() has been called
      */
     static uint8_t getPIDPGain(uint8_t vessel);
     
@@ -296,7 +284,6 @@ public:
      getPIDIGain: Retrieves the PID I Gain value for the specified vessel
      - parameter vessel: The vessel index to be retrieved for; defined in Enum.h
      - returns: the current I gain (uint8_t) for the vessel
-     - precondition: init() has been called
      */
     static uint8_t getPIDIGain(uint8_t vessel);
     
@@ -304,7 +291,6 @@ public:
      getPIDDGain: Retrieves the PID D Gain value for the specified vessel
      - parameter vessel: The vessel index to be retrieved for; defined in Enum.h
      - returns: the current D gain (uint8_t) for the vessel
-     - precondition: init() has been called
      */
     static uint8_t getPIDDGain(uint8_t vessel);
     
@@ -313,7 +299,6 @@ public:
      - parameter vessel: The vessel index to be updated; defined in Enum.h
      - parameter newHysteresis: The value to update the hysteresis to
      - returns: void
-     - precondition: init() has been called
      */
     static void setHysteresis(uint8_t vessel, uint8_t newHysteresis);
     
@@ -321,14 +306,12 @@ public:
      setSteamTarget: Updates the Steam Target value
      - parameter newTarget: The value to update the Steam Target
      - returns: void
-     - precondition: init() has been called
      */
     static void setSteamTarget(uint8_t newTarget);
     
     /**
      getSteamTarget: Retrieves the Steam Target value
      - returns: The current value (uint8_t)
-     - precondition: init() has been called
      */
     static uint8_t getSteamTarget();
     
@@ -336,7 +319,6 @@ public:
      setSteamZero: Updates the Steam Zero value
      - parameter newZero: The value to update the Steam Zero to
      - returns: void
-     - precondition: init() has been called
      */
     static void setSteamZero(uint16_t newZero);
     
@@ -344,7 +326,6 @@ public:
      setSteamPSense: Updates the Steam PSense value
      - parameter newPSense: The value to update the Steam Psense to
      - returns: void
-     - precondition: init() has been called
      */
     static void setSteamPSense(uint16_t newPSense);
     
@@ -353,7 +334,6 @@ public:
      - parameter program: The program number to update
      - parameter newName: a c-string of length 19 Characters, padded with spaces, if necessary
      - returns: void
-     - precondition: init() has been called
      */
     static void setProgramName(uint8_t program, char* newName);
     
@@ -362,9 +342,133 @@ public:
      - parameter program: The program number to retrieve for
      - parameter name: A char buffer of length 20 to place the name into
      - returns: void
-     - precondition: init() has been called
      */
     static void getProgramName(uint8_t program, char* name);
+    
+    /**
+     setProgramMashStepTemp: Sets the target temperature for the specified mash step of the specified program
+     - parameter program: The program number to set the step temperature for
+     - parameter step: The mash step index to set the temperature for
+     - parameter temperature: The target temperature
+     - returns: void
+     */
+    static void setProgramMashStepTemp(uint8_t program, uint8_t step, uint8_t temperature);
+    
+    /**
+     getProgramMashStepTemp: Gets the target temperature for the specified mash step of the specified program
+     - parameter program: The program number to get the step temperature for
+     - parameter step: The mash step index to get the temperature for
+     - returns: The current mash step target temperature for the program and step specified
+     */
+    static uint8_t getProgramMashStepTemp(uint8_t program, uint8_t step);
+    
+    /**
+     setProgramMashStepMins: Sets the target length for the specified mash step of the specified program
+     - parameter program: The program number to set the step length for
+     - parameter step: The mash step index to set the length for
+     - parameter mins: The target length in minutes of the step
+     - returns: void
+     */
+    static void setProgramMashStepMins(uint8_t program, uint8_t step, uint8_t mins);
+    
+    /**
+     getProgramMashStepMins: Gets the target length for the specified mash step of the specified program
+     - parameter program: The program number to get the step length for
+     - parameter step: The mash step index to get the length for
+     - returns: The current mash step length for the program and step specified, in minutes
+     */
+    static uint8_t getProgramMashStepMins(uint8_t program, uint8_t step);
+    
+    /**
+     setProgramBatchVol: Sets the Batch Volume of the specified program
+     - parameter program: The program number to set the Batch Volume for
+     - parameter newBatchVol: The new Batch Volume for the program
+     - returns: void
+     */
+    static void setProgramBatchVol(uint8_t program, uint32_t newBatchVol);
+    
+    /**
+     getProgramBatchVol: Gets the Batch Volume of the specified program
+     - parameter program: The program number to get the Batch Volume for
+     - returns: The current Batch Volume for the program
+     */
+    static uint32_t getProgramBatchVol(uint8_t program);
+    
+    /**
+     setProgramMashRatio: Sets the Mash Ratio of the specified program
+     - parameter program: The program number to set the Mash Ratio for
+     - parameter newMashRatio: The new Mash Ratio for the program
+     - returns: void
+     */
+    static void setProgramMashRatio(uint8_t program, uint16_t newMashRatio);
+    
+    /**
+     getProgramMashRatio: Gets the Mash Ratio of the specified program
+     - parameter program: The program number to get the Mash Ratio for
+     - returns: The current Mash Ratio for the program
+     */
+    static uint16_t getProgramMashRatio(uint8_t program);
+    
+    /**
+     setProgramGrainWeight: Sets the Grain Weight of the specified program
+     - parameter program: The program number to set the Grain Weight for
+     - parameter newGrainWeight: The new Grain Weight for the program
+     - returns: void
+     */
+    static void setProgramGrainWeight(uint8_t program, uint32_t newGrainWeight);
+    
+    /**
+     getProgramGrainWeight: Gets the Grain Weight of the specified program
+     - parameter program: The program number to get the Grain Weight for
+     - returns: The current Grain Weight for the program
+     */
+    static uint32_t getProgramGrainWeight(uint8_t program);
+    
+    /**
+     setProgramSpargeTemp: Sets the Sparge Temperature of the specified program
+     - parameter program: The target program number
+     - parameter newSpargeTemp: The new Sparge Temperature for the program
+     - returns: void
+     */
+    static void setProgramSpargeTemp(uint8_t program, uint8_t newSpargeTemp);
+    
+    /**
+     getProgramSpargeTemp: Gets the Sparge Temperature of the specified program
+     - parameter program: The target program number
+     - returns: The current Sparge Temperature for the program
+     */
+    static uint8_t getProgramSpargeTemp(uint8_t program);
+    
+    /**
+     setProgramHLTTemp: Sets the HLT Temperature of the specified program
+     - parameter program: The target program number
+     - parameter newHLTTemp: The new HLT Temperature for the program
+     - returns: void
+     */
+    static void setProgramHLTTemp(uint8_t program, uint8_t newHLTTemp);
+    
+    /**
+     getProgramHLTTemp: Gets the HLT Temperature of the specified program
+     - parameter program: The target program number
+     - returns: The current HLT Temperature for the program
+     */
+    static uint8_t getProgramHLTTemp(uint8_t program);
+    
+    /**
+     setProgramPitchTemp: Sets the Pitch Temperature of the specified program
+     - parameter program: The target program number
+     - parameter newPitchTemp: The new Pitch Temperature for the program
+     - returns: void
+     */
+    static void setProgramPitchTemp(uint8_t program, uint8_t newPitchTemp);
+    
+    /**
+     getProgramPitchTemp: Gets the Pitch Temperature of the specified program
+     - parameter program: The target program number
+     - returns: The current Pitch Temperature for the program
+     */
+    static uint8_t getProgramPitchTemp(uint8_t program);
+    
 };
 
 static config_t eepromConfig EEMEM;

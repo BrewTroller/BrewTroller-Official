@@ -481,50 +481,50 @@ void BTnic::execCmd(void) {
       
     case CMD_SET_PROGTEMPS:  //']'
       for (byte i = 0; i < MASHSTEP_COUNT; i++) {
-        setProgMashTemp(cmdIndex, i, getCmdParamNum(i + 1) * SETPOINT_DIV);
+          ConfigManager::setProgramMashStepTemp(cmdIndex, i, getCmdParamNum(i + 1) * SETPOINT_DIV);
       }
     case CMD_GET_PROGTEMPS:  //'^'
       logFieldCmd(CMD_GET_PROGTEMPS, cmdIndex);
       for (byte i = 0; i < MASHSTEP_COUNT; i++) {
-        logFieldI(getProgMashTemp(cmdIndex, i) / SETPOINT_DIV);
+          logFieldI(ConfigManager::getProgramMashStepTemp(cmdIndex, i) / SETPOINT_DIV);
       }
       break;
 
     case CMD_SET_PROGMINS:  //'_'
       for (byte i = 0; i < MASHSTEP_COUNT; i++) {
-        setProgMashMins(cmdIndex, i, getCmdParamNum(i + 1));
+        ConfigManager::setProgramMashStepMins(cmdIndex, i, getCmdParamNum(i + 1));
       }
     case CMD_GET_PROGMINS:  //'`'
       logFieldCmd(CMD_GET_PROGMINS, cmdIndex);
       for (byte i = 0; i < MASHSTEP_COUNT; i++) {
-        logFieldI(getProgMashMins(cmdIndex, i));
+          logFieldI(ConfigManager::getProgramMashStepMins(cmdIndex, i));
       }
       break;
 
     case CMD_SET_PROGVOLS:  //x
-      setProgBatchVol(cmdIndex, getCmdParamNum(1));
-      setProgGrain(cmdIndex, getCmdParamNum(2));
-      setProgRatio(cmdIndex, getCmdParamNum(3));
+      ConfigManager::setProgramBatchVol(cmdIndex, getCmdParamNum(1));
+      ConfigManager::setProgramGrainWeight(cmdIndex, getCmdParamNum(2));
+      ConfigManager::setProgramMashRatio(cmdIndex, getCmdParamNum(3));
     case CMD_GET_PROGVOLS:  //y
       logFieldCmd(CMD_GET_PROGVOLS, cmdIndex);
-      logFieldI(getProgBatchVol(cmdIndex));
-      logFieldI(getProgGrain(cmdIndex));
-      logFieldI(getProgRatio(cmdIndex));
+      logFieldI(ConfigManager::getProgramBatchVol(cmdIndex));
+      logFieldI(ConfigManager::getProgramGrainWeight(cmdIndex));
+      logFieldI(ConfigManager::getProgramMashRatio(cmdIndex));
       break;
       
     case CMD_SET_PROG:  //O (Partial program data)
-      setProgSparge(cmdIndex, getCmdParamNum(1) * SETPOINT_DIV);
-      setProgHLT(cmdIndex, getCmdParamNum(2) * SETPOINT_DIV);
+      ConfigManager::setProgramSpargeTemp(cmdIndex, getCmdParamNum(1) * SETPOINT_DIV);
+      ConfigManager::setProgramHLTTemp(cmdIndex, getCmdParamNum(2) * SETPOINT_DIV);
       setProgBoil(cmdIndex, getCmdParamNum(3));
-      setProgPitch(cmdIndex, getCmdParamNum(4) * SETPOINT_DIV);
+      ConfigManager::setProgramPitchTemp(cmdIndex, getCmdParamNum(4) * SETPOINT_DIV);
       setProgAdds(cmdIndex, getCmdParamNum(5));
       setProgMLHeatSrc(cmdIndex, getCmdParamNum(6));
     case CMD_GET_PROG:  //E (partial program data)
       logFieldCmd(CMD_GET_PROG, cmdIndex);
-      logFieldI(getProgSparge(cmdIndex) / SETPOINT_DIV);
-      logFieldI(getProgHLT(cmdIndex) / SETPOINT_DIV);
+      logFieldI(ConfigManager::getProgramSpargeTemp(cmdIndex) / SETPOINT_DIV);
+      logFieldI(ConfigManager::getProgramHLTTemp(cmdIndex) / SETPOINT_DIV);
       logFieldI(getProgBoil(cmdIndex));
-      logFieldI(getProgPitch(cmdIndex) / SETPOINT_DIV);
+      logFieldI(ConfigManager::getProgramPitchTemp(cmdIndex) / SETPOINT_DIV);
       logFieldI(getProgAdds(cmdIndex));
       logFieldI(getProgMLHeatSrc(cmdIndex));
       break;
@@ -533,39 +533,39 @@ void BTnic::execCmd(void) {
       {
         char pName[20];
         getCmdParam(1, pName, 19);
-        setProgName(cmdIndex, pName);
+        ConfigManager::setProgramName(cmdIndex, pName);
       }
-      setProgBatchVol(cmdIndex, getCmdParamNum(2));
-      setProgGrain(cmdIndex, getCmdParamNum(3));
-      setProgRatio(cmdIndex, getCmdParamNum(4));
+      ConfigManager::setProgramBatchVol(cmdIndex, getCmdParamNum(2));
+      ConfigManager::setProgramGrainWeight(cmdIndex, getCmdParamNum(3));
+      ConfigManager::setProgramMashRatio(cmdIndex, getCmdParamNum(4));
       for (byte i = 0; i < MASHSTEP_COUNT; i++) {
-        setProgMashTemp(cmdIndex, i, getCmdParamNum(i * 2 + 5) * SETPOINT_DIV);
-        setProgMashMins(cmdIndex, i, getCmdParamNum(i * 2 + 6));
+        ConfigManager::setProgramMashStepTemp(cmdIndex, i, getCmdParamNum(i * 2 + 5) * SETPOINT_DIV);
+        ConfigManager::setProgramMashStepMins(cmdIndex, i, getCmdParamNum(i * 2 + 6));
       }
-      setProgSparge(cmdIndex, getCmdParamNum(17) * SETPOINT_DIV);
-      setProgHLT(cmdIndex, getCmdParamNum(18) * SETPOINT_DIV);
+      ConfigManager::setProgramSpargeTemp(cmdIndex, getCmdParamNum(17) * SETPOINT_DIV);
+      ConfigManager::setProgramHLTTemp(cmdIndex, getCmdParamNum(18) * SETPOINT_DIV);
       setProgBoil(cmdIndex, getCmdParamNum(19));
-      setProgPitch(cmdIndex, getCmdParamNum(20) * SETPOINT_DIV);
+      ConfigManager::setProgramPitchTemp(cmdIndex, getCmdParamNum(20) * SETPOINT_DIV);
       setProgAdds(cmdIndex, getCmdParamNum(21));
       setProgMLHeatSrc(cmdIndex, getCmdParamNum(22));
     case CMD_GET_PROGRAM:
       logFieldCmd(CMD_GET_PROGRAM, cmdIndex);
       {
         char pName[20];
-        getProgName(cmdIndex, pName);
+        ConfigManager::getProgramName(cmdIndex, pName);
         logField(pName);
       }
-      logFieldI(getProgBatchVol(cmdIndex));
-      logFieldI(getProgGrain(cmdIndex));
-      logFieldI(getProgRatio(cmdIndex));
+      logFieldI(ConfigManager::getProgramBatchVol(cmdIndex));
+      logFieldI(ConfigManager::getProgramGrainWeight(cmdIndex));
+      logFieldI(ConfigManager::getProgramMashRatio(cmdIndex));
       for (byte i = 0; i < MASHSTEP_COUNT; i++) {
-        logFieldI(getProgMashTemp(cmdIndex, i) / SETPOINT_DIV);
-        logFieldI(getProgMashMins(cmdIndex, i));
+        logFieldI(ConfigManager::getProgramMashStepTemp(cmdIndex, i) / SETPOINT_DIV);
+        logFieldI(ConfigManager::getProgramMashStepMins(cmdIndex, i));
       }
-      logFieldI(getProgSparge(cmdIndex) / SETPOINT_DIV);
-      logFieldI(getProgHLT(cmdIndex) / SETPOINT_DIV);
+      logFieldI(ConfigManager::getProgramSpargeTemp(cmdIndex) / SETPOINT_DIV);
+      logFieldI(ConfigManager::getProgramHLTTemp(cmdIndex) / SETPOINT_DIV);
       logFieldI(getProgBoil(cmdIndex));
-      logFieldI(getProgPitch(cmdIndex) / SETPOINT_DIV);
+      logFieldI(ConfigManager::getProgramPitchTemp(cmdIndex) / SETPOINT_DIV);
       logFieldI(getProgAdds(cmdIndex));
       logFieldI(getProgMLHeatSrc(cmdIndex));
       logFieldI(calcStrikeTemp(cmdIndex) / SETPOINT_DIV);
