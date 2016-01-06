@@ -605,18 +605,20 @@ void BTnic::execCmd(void) {
 
     case CMD_SET_VSET:  //R
       ConfigManager::setVesselCapacity(cmdIndex, getCmdParamNum(1));
-      setVolLoss(cmdIndex, getCmdParamNum(2));
+      ConfigManager::setVesselVolumeLoss(cmdIndex, getCmdParamNum(2));
     case CMD_GET_VSET:  //H
       logFieldCmd(CMD_GET_VSET, cmdIndex);
       logFieldI(ConfigManager::getVesselCapacity(cmdIndex));
-      logFieldI(getVolLoss(cmdIndex));  
+      logFieldI(ConfigManager::getVesselVolumeLoss(cmdIndex));
       break;
 
 
     case CMD_INIT_EEPROM:  //I
       if (getCmdParamNum(1) != 210) return rejectCmd(CMD_REJECT_PARAM);
       logFieldCmd(CMD_INIT_EEPROM, NO_CMDINDEX);
-      initEEPROM();
+      ConfigManager::initConfig();
+      //Do a soft restart
+      softReset();
       break;
       
 
@@ -631,7 +633,9 @@ void BTnic::execCmd(void) {
       
       
     case CMD_SET_VLVCFG:  //Q
-      setValveCfg(cmdIndex, getCmdParamNum(1));
+      //update the global and the Config Store
+      vlvConfig[cmdIndex] = getCmdParamNum(1);
+      ConfigManager::setValveProfileConfig(cmdIndex, getCmdParamNum(1));
     case CMD_GET_VLVCFG:  //d
       logFieldCmd(CMD_GET_VLVCFG, cmdIndex);
       logFieldI(vlvConfig[cmdIndex]);  
@@ -677,8 +681,16 @@ void BTnic::execCmd(void) {
       break;
       
       
+    ///TODO: This code needs to be verified and cleaned up! Its UGLY!
     case CMD_SET_SETPOINT:  //X
-      setSetpoint(cmdIndex, getCmdParamNum(1) * SETPOINT_DIV);
+      #if defined PID_FLOW_CONTROL || defined USESTEAM
+        if (cmdIndex == VS_STEAM) setpoint[cmdIndex] = getCmdParamNum(1) * SETPOINT_DIV;
+        else setpoint[cmdIndex] = getCmdParamNum(1) * SETPOINT_DIV * SETPOINT_MULT;
+      #else
+        setpoint[cmdIndex] = getCmdParamNum(1) * SETPOINT_DIV * SETPOINT_MULT;
+      #endif
+      ConfigManager::setVesselTempSetpoint(cmdIndex, getCmdParamNum(1)* SETPOINT_DIV);
+      eventHandler(EVENT_SETPOINT, cmdIndex);
     case CMD_SETPOINT:  //t
       logFieldCmd(CMD_SETPOINT, cmdIndex);
       logFieldI(setpoint[cmdIndex] / (SETPOINT_MULT * SETPOINT_DIV));
@@ -725,7 +737,8 @@ void BTnic::execCmd(void) {
       
 
     case CMD_SET_BOILPWR:  //i
-      setBoilPwr(getCmdParamNum(1));
+      boilPwr = getCmdParamNum(1);
+      ConfigManager::setBoilPower(getCmdParamNum(1));
     case CMD_GET_BOILPWR:  //f
       logFieldCmd(CMD_GET_BOILPWR, NO_CMDINDEX);
       logFieldI(boilPwr);
@@ -733,18 +746,18 @@ void BTnic::execCmd(void) {
       
       
     case CMD_SET_DELAYTIME:  //j
-      setDelayMins(getCmdParamNum(1));
+      ConfigManager::setDelayMins(getCmdParamNum(1));
     case CMD_GET_DELAYTIME:  //g
       logFieldCmd(CMD_GET_DELAYTIME, NO_CMDINDEX);
-      logFieldI(getDelayMins());
+      logFieldI(ConfigManager::getDelayMins());
       break;
       
       
     case CMD_SET_GRAINTEMP:  //k
-      setGrainTemp(getCmdParamNum(1));
+      ConfigManager::setGrainTemperature(getCmdParamNum(1));
     case CMD_GET_GRAINTEMP:  //h
       logFieldCmd(CMD_GET_GRAINTEMP, NO_CMDINDEX);
-      logFieldI(getGrainTemp());
+      logFieldI(ConfigManager::getGrainTemperature());
       break;
       
     
@@ -787,7 +800,7 @@ void BTnic::execCmd(void) {
       break;
       
     case CMD_SET_TGTVOL:  //{
-      tgtVol[cmdIndex] = min(getCmdParamNum(1), getCapacity(cmdIndex));
+      tgtVol[cmdIndex] = min(getCmdParamNum(1), ConfigManager::getVesselCapacity(cmdIndex));
     case CMD_GET_TGTVOL:  //|
       logFieldCmd(CMD_GET_TGTVOL, cmdIndex);
       logFieldI(tgtVol[cmdIndex]);
@@ -801,7 +814,7 @@ void BTnic::execCmd(void) {
           setpoint[VS_KETTLE] = 0;
           break;
         case CONTROLSTATE_AUTO:
-          setpoint[VS_KETTLE] = getBoilTemp();
+          setpoint[VS_KETTLE] = ConfigManager::getBoilTemp();
           break;
         case CONTROLSTATE_ON:
           setpoint[VS_KETTLE] = 1;

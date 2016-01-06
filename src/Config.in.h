@@ -42,9 +42,13 @@
 //
 #cmakedefine USEMETRIC
 #ifdef USEMETRIC
+    constexpr uint8_t DEFAULT_GRAINTEMP = 16;
+    constexpr uint8_t DEFAULT_BOILTEMP = 100;
     #define SETPOINT_MULT 50
     #define SETPOINT_DIV 2
 #else
+    constexpr uint8_t DEFAULT_GRAINTEMP = 60;
+    constexpr uint8_t DEFAULT_BOILTEMP = 212;
     #define SETPOINT_MULT 100
     #define SETPOINT_DIV 1
 #endif

@@ -154,7 +154,8 @@ struct config_t {
     
     uint8_t eepromSchemaVersion;
     
-    uint16_t lcdBrightContrast;
+    uint8_t lcdBrightness;
+    uint8_t lcdContrast;
     
     uint8_t triggerPins[5];
     
@@ -187,7 +188,7 @@ public:
      initConfig: Method initializes backing config store to default values
      - returns: void
      */
-    //static void initConfig();
+    static void initConfig();
     
     /**
      loadGlobals: Ugly method for loading globals from eeprom, for compatibility with legacy code
@@ -536,6 +537,85 @@ public:
      - returns: The current Volume Capacity for the vessel
      */
     static uint32_t getVesselCapacity(uint8_t vessel);
+    
+    /**
+     setVesselVolumeLoss: Sets the Volume Loss of the specified vessel
+     - parameter vessel: The target vessel index, defined in ENUM.h
+     - parameter newLoss: The new Volume Loss for the vessel
+     - returns: void
+     */
+    static void setVesselVolumeLoss(uint8_t vessel, uint16_t newLoss);
+    
+    /**
+     getVesselVolumeLoss: Gets the Volume Loss of the Vessel
+     - parameter vessel: The target vessel index, defined in ENUM.h
+     - returns: The current Volume Loss for the vessel
+     */
+    static uint16_t getVesselVolumeLoss(uint8_t vessel);
+    
+    /**
+     setValveProfileConfig: Sets the config for a specified valve profile
+     - parameter profile: The target profile index, defined in ENUM.h
+     - parameter newConfig: The new Config for the profile
+     - returns: void
+     */
+    static void setValveProfileConfig(uint8_t profile, uint32_t newConfig);
+    
+    /**
+     setVesselTempSetpoint: Sets the Temperature setpoint for a specified vessel
+     - parameter vessel: The target vessel index, defined in ENUM.h
+     - parameter newSetpoint: The new temperature setpoint for the vessel
+     - returns: void
+     */
+    static void setVesselTempSetpoint(uint8_t vessel, uint8_t newSetpoint);
+    
+    /**
+     setBoilPower: Sets the Boil Power % used when boiling
+     - parameter newBoilPower: The Boil Power% to update to
+     - returns: void
+     */
+    static void setBoilPower(uint8_t newBoilPower);
+    
+    /**
+     setDelayMins: Updates the Delay Minutes Value
+     - parameter newDelayMins: The value to update Delay Minutes to
+     - returns: void
+     */
+    static void setDelayMins(uint16_t newDelayMins);
+    
+    /**
+     getDelayMins: Gets the Delay Minutes Value
+     - returns: The current Delay minutes value
+     */
+    static uint16_t getDelayMins();
+    
+    /**
+     setGrainTemperature: Updates the Grain Temperature Value
+     - parameter newGrainTemp: The value to update Grain Temperature to
+     - returns: void
+     */
+    static void setGrainTemperature(uint8_t newGrainTemp);
+    
+    /**
+     getGrainTemperature: Gets the Grain Temperature Value
+     - returns: The current Grain Temperature value
+     */
+    static uint8_t getGrainTemperature();
+    
+    /**
+     setTriggerPin: Updates pin number used for the specified trigger index
+     - parameter trigger: The target trigger index, defined in ENUM.h
+     - parameter pinNum: The new pin number to use for the trigger
+     - returns: void
+     */
+    static void setTriggerPin(TriggerType trigger, uint8_t pinNum);
+    
+    /**
+     getTriggerPin: Gets the trigger pin number used for a trigger index
+     - parameter trigger: The target trigger type, defined in ENUM.h
+     - returns: The current pin number for the trigger
+     */
+    static uint8_t getTriggerPin(TriggerType trigger);
     
 };
 

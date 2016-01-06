@@ -14,6 +14,9 @@
 // The EEPROM class also requires the header for some old compile time constants that need to be refactored
 
 #define SETPOINT_MULT 100
+#define SETPOINT_DIV 1
 
+constexpr uint8_t DEFAULT_GRAINTEMP = 60;
+constexpr uint8_t DEFAULT_BOILTEMP = 212;
 
 #endif /* Config_h */

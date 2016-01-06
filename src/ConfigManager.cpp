@@ -371,3 +371,130 @@ uint32_t ConfigManager::getVesselCapacity(uint8_t vessel) {
     eeprom_read_block(&temp, targetParam, sizeof(uint32_t));
     return temp;
 }
+
+void ConfigManager::setVesselVolumeLoss(uint8_t vessel, uint16_t newLoss) {
+    uint16_t* targetParam;
+    switch (vessel) {
+        case VS_HLT:
+            targetParam = &configStore->hltVolLoss;
+            break;
+        case VS_MASH:
+            targetParam = &configStore->mltVolLoss;
+            break;
+        case VS_KETTLE:
+            targetParam = &configStore->kettleVolLoss;
+            break;
+        default:
+            return;
+    }
+    eeprom_update_block(&newLoss, targetParam, sizeof(uint16_t));
+}
+
+uint16_t ConfigManager::getVesselVolumeLoss(uint8_t vessel) {
+    uint16_t* targetParam;
+    switch (vessel) {
+        case VS_HLT:
+            targetParam = &configStore->hltVolLoss;
+            break;
+        case VS_MASH:
+            targetParam = &configStore->mltVolLoss;
+            break;
+        case VS_KETTLE:
+            targetParam = &configStore->kettleVolLoss;
+            break;
+        default:
+            return 0;
+    }
+    uint16_t temp;
+    eeprom_read_block(&temp, targetParam, sizeof(uint16_t));
+    return temp;
+}
+
+void ConfigManager::setValveProfileConfig(uint8_t profile, uint32_t newConfig){
+    eeprom_update_block(&newConfig, &configStore->valveProfileCfg[profile], sizeof(uint32_t));
+}
+
+void ConfigManager::setVesselTempSetpoint(uint8_t vessel, uint8_t newSetpoint) {
+    uint8_t* targetParam;
+    switch (vessel) {
+        case VS_HLT:
+            targetParam = &configStore->hltSetPoint;
+            break;
+        case VS_MASH:
+            targetParam = &configStore->mltSetPoint;
+            break;
+        case VS_KETTLE:
+            targetParam = &configStore->kettleSetPoint;
+            break;
+        default:
+            return;
+    }
+    eeprom_update_byte(targetParam, newSetpoint);
+}
+
+void ConfigManager::setBoilPower(uint8_t newBoilPower) {
+    eeprom_update_byte(&configStore->boilPower, newBoilPower);
+}
+
+void ConfigManager::setDelayMins(uint16_t newDelayMins) {
+    eeprom_update_block(&newDelayMins, &configStore->delayMins, sizeof(uint16_t));
+}
+
+uint16_t ConfigManager::getDelayMins() {
+    uint16_t temp;
+    eeprom_read_block(&temp, &configStore->delayMins, sizeof(uint16_t));
+    return temp;
+}
+
+void ConfigManager::setGrainTemperature(uint8_t newGrainTemp) {
+    eeprom_update_byte(&configStore->grainTemp, newGrainTemp);
+}
+
+uint8_t ConfigManager::getGrainTemperature() {
+    return eeprom_read_byte(&configStore->grainTemp);
+}
+
+void ConfigManager::setTriggerPin(TriggerType trigger, uint8_t pinNum) {
+    eeprom_update_byte(&configStore->triggerPins[trigger], pinNum);
+}
+
+uint8_t ConfigManager::getTriggerPin(TriggerType trigger) {
+    return eeprom_read_byte(&configStore->triggerPins[trigger]);
+}
+
+void ConfigManager::initConfig() {
+    //Zero the config structure out
+    for (size_t i = 0; i < sizeof(config_t); i++) {
+        eeprom_update_byte(((uint8_t*)configStore) + i, 0);
+    }
+    
+    //Set the Defaults for PID configs
+    for (uint8_t i = VS_HLT; i < VS_STEAM; i++) {
+        ConfigManager::setPIDPGain(i, 3);
+        ConfigManager::setPIDIGain(i, 4);
+        ConfigManager::setPIDDGain(i, 2);
+        ConfigManager::setPIDCycle(i, 4);
+        ConfigManager::setHysteresis(i, 5);
+    }
+    
+    //Mark the BT Fingerprint
+    eeprom_update_byte(&configStore->btFingerprint, 252);
+    
+    //Set the defaults for Grain temperature and boil temperature
+    setGrainTemperature(DEFAULT_GRAINTEMP);
+    setBoilTemp(DEFAULT_BOILTEMP);
+    
+    //Set the default boil power
+    setBoilPower(100);
+    
+    //Ensure all program threads are inactive
+    for (uint8_t i = 0; i < PROGRAMTHREAD_MAX; i++) {
+        eeprom_update_byte(&configStore->pgmThreads[i].activeStep, BREWSTEP_NONE);
+        eeprom_update_byte(&configStore->pgmThreads[i].recipe, RECIPE_NONE);
+    }
+    
+    //Set the default LCD brightness and contrast
+    //  These should get refactored out into constants, probably into UI header files, but that's too much of a mess right now; They were/are defined in HWProfile.h, but are the same for every profile, so they probably shouldn't be there.
+    eeprom_update_byte(&configStore->lcdBrightness, 255);
+    eeprom_update_byte(&configStore->lcdContrast, 100);
+}

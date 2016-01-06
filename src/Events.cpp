@@ -33,7 +33,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 #include "UI.h"
 #include "Events.h"
 #include "Timer.h"
-#include "EEPROM.h"
+#include "ConfigManager.hpp"
 
 void eventHandler(byte eventID, int eventParam) {
   //Global Event handler
@@ -66,12 +66,12 @@ void eventHandler(byte eventID, int eventParam) {
 #ifdef DIGITAL_INPUTS
   void triggerSetup() {
     //If EEPROM is not initialized skip trigger init
-    if (checkConfig()) return;
+    if (!ConfigManager::configIsValid()) return;
     //For each logical trigger type see what the assigned trigger pin is (if any)
     for (byte i = 0; i < NUM_TRIGGERS; i++) {
       if (TriggerPin[i] != NULL) TriggerPin[i]->detachPCInt();
-      if (getTriggerPin(i)) {
-        TriggerPin[i] = &digInPin[getTriggerPin(i) - 1];
+      if (ConfigManager::getTriggerPin((TriggerType)i)) {
+        TriggerPin[i] = &digInPin[ConfigManager::getTriggerPin((TriggerType)i) - 1];
         if (i == TRIGGER_ESTOP) TriggerPin[i]->attachPCInt(CHANGE, eStopISR);
         else if (i == TRIGGER_SPARGEMAX) TriggerPin[i]->attachPCInt(RISING, spargeMaxISR);
         else if (i == TRIGGER_HLTMIN) TriggerPin[i]->attachPCInt(FALLING, hltMinISR);

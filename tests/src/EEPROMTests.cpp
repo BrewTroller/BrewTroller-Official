@@ -8,6 +8,7 @@
 
 #include "gtest/gtest.h"
 #include "ConfigManager.hpp"
+#include "Config.h"
 #include <iostream>
 
 TEST(ProgramStruct, TestSize) {
@@ -81,7 +82,8 @@ TEST(ConfigStruct, TestLayout) {
     ASSERT_EQ(786, offsetof(config_t, programs));
     ASSERT_EQ(2046, offsetof(config_t, btFingerprint));
     ASSERT_EQ(2047, offsetof(config_t, eepromSchemaVersion));
-    ASSERT_EQ(2048, offsetof(config_t, lcdBrightContrast));
+    ASSERT_EQ(2048, offsetof(config_t, lcdBrightness));
+    ASSERT_EQ(2049, offsetof(config_t, lcdContrast));
     ASSERT_EQ(2050, offsetof(config_t, triggerPins));
     ASSERT_EQ(2065, offsetof(config_t, modbusBrdConf));
 }
@@ -725,4 +727,214 @@ TEST(ConfigManager, TestGetVesselCapacity) {
     conf.mltCapacity = 0;
     conf.kettleCapacity = 0x12344321;
     ASSERT_EQ(0x12344321, ConfigManager::getVesselCapacity(VS_KETTLE));
+}
+
+TEST(ConfigManager, TestSetVesselVolumeLoss) {
+    config_t conf = {0};
+    config_t untouched = {0};
+    ConfigManager::init(&conf);
+    
+    //This is only defined for HLT, MASH and KETTLE!!!
+    ConfigManager::setVesselVolumeLoss(VS_HLT, 0xBEEF);
+    ASSERT_EQ(0xBEEF, conf.hltVolLoss);
+    //Zero the change back out and ensure nothing else was modified
+    conf.hltVolLoss = 0;
+    ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    ConfigManager::setVesselVolumeLoss(VS_MASH, 0xBEEF);
+    ASSERT_EQ(0xBEEF, conf.mltVolLoss);
+    //Zero the change back out and ensure nothing else was modified
+    conf.mltVolLoss = 0;
+    ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    ConfigManager::setVesselVolumeLoss(VS_KETTLE, 0xBEEF);
+    ASSERT_EQ(0xBEEF, conf.kettleVolLoss);
+    //Zero the change back out and ensure nothing else was modified
+    conf.kettleVolLoss = 0;
+    ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+}
+
+TEST(ConfigManager, TestGetVesselVolumeLoss) {
+    config_t conf;
+    ConfigManager::init(&conf);
+    
+    //This is only defined for HLT, MASH, and  KETTLE!!!!
+    conf.hltVolLoss = 0x4321;
+    ASSERT_EQ(0x4321, ConfigManager::getVesselVolumeLoss(VS_HLT));
+    conf.hltVolLoss = 0;
+    conf.mltVolLoss = 0x4321;
+    ASSERT_EQ(0x4321, ConfigManager::getVesselVolumeLoss(VS_MASH));
+    conf.mltVolLoss = 0;
+    conf.kettleVolLoss = 0x4321;
+    ASSERT_EQ(0x4321, ConfigManager::getVesselVolumeLoss(VS_KETTLE));
+}
+
+TEST(ConfigManager, TestSetValveProfileConfig) {
+    config_t conf = {0};
+    config_t untouched = {0};
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < NUM_VLVCFGS; i++) {
+        ConfigManager::setValveProfileConfig(i, 0xAABBCCDD);
+        ASSERT_EQ(0xAABBCCDD, conf.valveProfileCfg[i]);
+        conf.valveProfileCfg[i] = 0;
+        ASSERT_EQ(0, memcmp(&conf, &untouched, sizeof(config_t)));
+    }
+}
+
+TEST(ConfigManager, TestSetVesselTempSetpoint) {
+    config_t conf = {0};
+    config_t untouched = {0};
+    ConfigManager::init(&conf);
+    
+    //This is only defined for HLT, MASH and KETTLE!!!
+    ConfigManager::setVesselTempSetpoint(VS_HLT, 121);
+    ASSERT_EQ(121, conf.hltSetPoint);
+    //Zero the change back out and ensure nothing else was modified
+    conf.hltSetPoint = 0;
+    ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    ConfigManager::setVesselTempSetpoint(VS_MASH, 121);
+    ASSERT_EQ(121, conf.mltSetPoint);
+    //Zero the change back out and ensure nothing else was modified
+    conf.mltSetPoint = 0;
+    ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    ConfigManager::setVesselTempSetpoint(VS_KETTLE, 121);
+    ASSERT_EQ(121, conf.kettleSetPoint);
+    //Zero the change back out and ensure nothing else was modified
+    conf.kettleSetPoint = 0;
+    ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+}
+
+TEST(ConfigManager, TestSetBoilPower) {
+    config_t conf = {0};
+    config_t untouched = {0};
+    ConfigManager::init(&conf);
+    
+    ConfigManager::setBoilPower(69);
+    ASSERT_EQ(69, conf.boilPower);
+    
+    //Zero the change back out and ensure nothing else was modified
+    conf.boilPower = 0;
+    ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+}
+
+TEST(ConfigManager, TestSetDelayMins) {
+    config_t conf = {0};
+    config_t confUntouched = {0};
+    ConfigManager::init(&conf);
+    
+    ConfigManager::setDelayMins(0xABBA);
+    ASSERT_EQ(0xABBA, conf.delayMins);
+    
+    conf.delayMins = 0;
+    ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+}
+
+TEST(ConfigManager, TestGetDelayMins) {
+    config_t conf;
+    ConfigManager::init(&conf);
+    
+    conf.delayMins = 0xBADA;
+    ASSERT_EQ(0xBADA, ConfigManager::getDelayMins());
+}
+
+TEST(ConfigManager, TestSetGrainTemperature) {
+    config_t conf = {0};
+    config_t confUntouched = {0};
+    ConfigManager::init(&conf);
+    
+    ConfigManager::setGrainTemperature(199);
+    ASSERT_EQ(199, conf.grainTemp);
+    
+    conf.grainTemp = 0;
+    ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+}
+
+TEST(ConfigManager, TestGetGrainTemperature) {
+    config_t conf;
+    ConfigManager::init(&conf);
+    
+    conf.grainTemp = 55;
+    ASSERT_EQ(55, ConfigManager::getGrainTemperature());
+}
+
+TEST(ConfigManager, TestSetTriggerPin) {
+    config_t conf = {0};
+    config_t confUntouched = {0};
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < NUM_TRIGGERS; i++) {
+        ConfigManager::setTriggerPin((TriggerType)i, 8);
+        ASSERT_EQ(8, conf.triggerPins[i]);
+        conf.triggerPins[i] = 0;
+    }
+    ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+}
+
+TEST(ConfigManager, TestGetTriggerPin) {
+    config_t conf;
+    ConfigManager::init(&conf);
+    
+    for (uint8_t i = 0; i < NUM_TRIGGERS; i++) {
+        conf.triggerPins[i] = 21;
+        ASSERT_EQ(21, ConfigManager::getTriggerPin((TriggerType)i));
+        conf.triggerPins[i] = 0;
+    }
+}
+
+TEST(ConfigManager, TestConfigInit) {
+    config_t conf;
+    config_t zeroConf = {0};
+    
+    ConfigManager::init(&conf);
+    
+    ConfigManager::initConfig();
+    //Test the PID, Cycle, and Hysteresis Values for each vessel are set to defaults
+    for (uint8_t i = 0; i <= VS_KETTLE; i++) {
+        ASSERT_EQ(3, conf.pidConfigs[i].PGain);
+        conf.pidConfigs[i].PGain = 0;
+        ASSERT_EQ(4, conf.pidConfigs[i].IGain);
+        conf.pidConfigs[i].IGain = 0;
+        ASSERT_EQ(2, conf.pidConfigs[i].DGain);
+        conf.pidConfigs[i].DGain = 0;
+        ASSERT_EQ(4, conf.pidConfigs[i].cycleTime);
+        conf.pidConfigs[i].cycleTime = 0;
+        ASSERT_EQ(5, conf.pidConfigs[i].hysteresis);
+        conf.pidConfigs[i].hysteresis = 0;
+    }
+    
+    //Test default Grain temp
+    ASSERT_EQ(DEFAULT_GRAINTEMP, conf.grainTemp);
+    conf.grainTemp = 0;
+    
+    //Test default boil temp
+    ASSERT_EQ(DEFAULT_BOILTEMP, conf.boilTemp);
+    conf.boilTemp = 0;
+    
+    //Test default boil power
+    ASSERT_EQ(100, conf.boilPower);
+    conf.boilPower = 0;
+    
+    //Test all program threads have been set to idle
+    for (uint8_t i = 0; i < PROGRAMTHREAD_MAX; i++) {
+        ASSERT_EQ(BREWSTEP_NONE, conf.pgmThreads[i].activeStep);
+        conf.pgmThreads[i].activeStep = 0;
+        ASSERT_EQ(RECIPE_NONE, conf.pgmThreads[i].recipe);
+        conf.pgmThreads[i].recipe = 0;
+    }
+    
+    //Test the lcd brightness and contrast are set to default values
+    ASSERT_EQ(255, conf.lcdBrightness);
+    conf.lcdBrightness = 0;
+    ASSERT_EQ(100, conf.lcdContrast);
+    conf.lcdContrast = 0;
+    
+    //Test the config version number
+    ASSERT_EQ(0, conf.eepromSchemaVersion);
+    
+    //Test the Fingerprint has been set
+    ASSERT_EQ(252, conf.btFingerprint);
+    conf.btFingerprint = 0;
+    
+    //Ensure that init has zeroed out the rest of the config structure
+    //  We don't care about any data that lies outside of the config structure, as we aren't using it
+    ASSERT_EQ(0, memcmp(&conf, &zeroConf, sizeof(config_t)));
 }

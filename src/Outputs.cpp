@@ -28,7 +28,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 #include "HardwareProfile.h"
 #include "Enum.h"
 #include "BrewTroller.h"
-#include "EEPROM.h"
+#include "ConfigManager.hpp"
 #include "Outputs.h"
 #include "Events.h"
 
@@ -218,7 +218,9 @@ void pidInit() {
   for (byte vessel = VS_HLT; vessel <= VS_KETTLE; vessel++) {
     pid[vessel].SetInputLimits(0, 25500);
     pid[vessel].SetOutputLimits(0, PIDCycle[vessel] * pidLimits[vessel]);
-    pid[vessel].SetTunings(getPIDp(vessel), getPIDi(vessel), getPIDd(vessel));
+      pid[vessel].SetTunings(ConfigManager::getPIDPGain(vessel),
+                             ConfigManager::getPIDIGain(vessel),
+                             ConfigManager::getPIDDGain(vessel));
     pid[vessel].SetMode(PID::AUTO_MODE);
     pid[vessel].SetSampleTime(PID_CYCLE_TIME);
   }
@@ -232,7 +234,9 @@ void pidInit() {
       pid[VS_PUMP].SetInputLimits(0, 6375); // equivalent of 6.375 GPM (255 * 25)
     #endif
     pid[VS_PUMP].SetOutputLimits(PID_FLOW_MIN, PIDCycle[VS_PUMP] * PIDLIMIT_STEAM);
-    pid[VS_PUMP].SetTunings(getPIDp(VS_PUMP), getPIDi(VS_PUMP), getPIDd(VS_PUMP));
+    pid[VS_PUMP].SetTunings(ConfigManager::getPIDPGain(VS_PUMP),
+                            ConfigManager::getPIDIGain(VS_PUMP),
+                            ConfigManager::getPIDDGain(VS_PUMP));
     #ifdef PID_CONTROL_MANUAL
       pid[VS_PUMP].SetMode(MANUAL);
     #else
@@ -249,7 +253,9 @@ void pidInit() {
       pid[VS_STEAM].SetInputLimits(0, 7250000 / steamPSens);
     #endif
     pid[VS_STEAM].SetOutputLimits(0, PIDCycle[VS_STEAM] * PIDLIMIT_STEAM);
-    pid[VS_STEAM].SetTunings(getPIDp(VS_STEAM), getPIDi(VS_STEAM), getPIDd(VS_STEAM));
+    pid[VS_STEAM].SetTunings(ConfigManager::getPIDPGain(VS_STEAM),
+                             ConfigManager::getPIDIGain(VS_STEAM),
+                             ConfigManager::getPIDDGain(VS_STEAM));
     pid[VS_STEAM].SetMode(PID::AUTO_MODE);
     pid[VS_STEAM].SetSampleTime(PID_CYCLE_TIME);
   #endif
@@ -270,7 +276,7 @@ void resetHeatOutput(byte vessel) {
   #ifdef PWM_BY_TIMER
     uint8_t oldSREG;
   #endif
-  setSetpoint(vessel, 0);
+  ConfigManager::setVesselTempSetpoint(vessel, 0);
   PIDOutput[vessel] = 0;
   #ifdef PID_FEED_FORWARD
     if(vessel == VS_MASH)
