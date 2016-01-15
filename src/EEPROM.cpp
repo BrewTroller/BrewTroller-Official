@@ -71,12 +71,7 @@ void loadSetup() {
   //**********************************************************************************
   //setpoints (299-301)
   //**********************************************************************************
-  for (byte i=VS_HLT; i<=NUM_VESSELS; i++) { //TODO: Make this operate only for the number of vessels, not always for all 3 vessels
-	  //TODO: why is EEPROM code setting an event handler? This should be somewhere else.
-    //Setting loaded directly by vessels
-    eventHandler(EVENT_SETPOINT, i);
-  }
-  
+ 
   
   //**********************************************************************************
   //timers (302-305)

@@ -6,13 +6,13 @@
 
 constexpr unsigned long FLOWRATE_READ_INTERVAL = 1000;
 
+
 class FlowController
 {
 private:
 	Vessel* source;
 	Vessel* destination;
 	double flowRate, targetFlowRate;
-	double lastSourceVolume, lastDestVolume;
 
 	FlowController* partner = NULL; //Another flow controller with which to try to equalize rates
 
@@ -41,28 +41,35 @@ public:
 	FlowController(Vessel* initSource, Vessel* initDestination, pin* controlPin, bool initUsePID, bool initUsesPWM, bool initPidValves);
 	~FlowController();
 
-	void matchFlow(FlowController*); //Matches this controller's flow rate to the flow of the partner;
 	void update();
 	void updatePWMOutput(bool);
-	bool isAtTarget(); //Returns whether flow is currently active/needed
+
+	inline double getTargetFlowRate() { return targetFlowRate; }
 
 	inline bool isPID() { return (pid == NULL); }
+	inline bool isPWM() { return usesPWM; }
+
+	//PID control
+	void matchFlow(FlowController*); //Matches this controller's flow rate to the flow of the partner;
+	void setTargetFlowRate(double newRate); //Targets a numeric flow rate
+
 	void usePID(bool);
-	inline bool usePWM() { return usesPWM; }
-	inline double getTargetFlowRate() { return targetFlowRate; }
-	inline double getFlowRate() { return flowRate;}
-	void setTargetFlowRate(double newRate);
 	void setPID(double cycle, double p, double i, double d);
-	
 	inline void setCycle(double cycle) { pid->SetSampleTime(cycle); }
+	inline void setHysteresis(double newHysteresis) {  hysteresis = newHysteresis; }
+
 	inline double getCycle() { return pid->GetSampleTime(); }
 	inline double getHysteresis() { return hysteresis; }
-	inline void setHysteresis(double newHysteresis) {  hysteresis = newHysteresis; }
 	inline double getP() { return pid->GetP_Param(); }
 	inline double getI() { return pid->GetI_Param(); }
 	inline double getD() { return pid->GetD_Param(); }
+
+	bool isAtTarget(); //Returns whether flow is currently active/needed
+	inline double getFlowRate() { return flowRate; }
 	inline double getOutput() { return pidOutput; }
 	double getVolumeChange();
+
+	//Switch control
 	inline SoftSwitch getSwitch() { return sSwitch; }
 	inline void setSwitch(SoftSwitch s) { sSwitch = s; update(); }
 

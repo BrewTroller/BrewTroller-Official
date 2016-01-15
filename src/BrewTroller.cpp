@@ -117,10 +117,7 @@ vessels[VS_HLT] is the traditional HLT vessel that heats strike water.
 vessels[VS_MASH] is the vessel where the grain goes.
 vessels[VS_KETTLE] is the vessel where the boil happens.
 
-	vessel that VS_SPARGE is equal to. 
 It is entirely possible for some of the VS_to be identical. For example, in a BIAB system, they are all identical.
-
-TODO: Convert from HLT to VS_STRIKE and VS_SPARGE to allow more configuration of where strike and sparge water are heated.
 
 Note that pump, while assigned VS_PUMP identifier in some hardware configs, is not truly a vessel is are not part of this array.
 Rather, VS_PUMP is managed through the valve profile code. Also, VS_STEAM has a ton of special-case management.
@@ -339,7 +336,7 @@ void setup() {
     pidInit();
 
 #ifdef USEPWM
-    pwmInit();Vessel::
+    pwmInit();
   #endif
 
     //User Interface Initialization (UI.pde)
@@ -350,8 +347,11 @@ void setup() {
 
 	//Initialize vessels and flow controllers. 
 	initVessels();
-
 	initFlowControllers();
+
+	//Initialize setpoint event handlers
+	for (byte i = VS_HLT; i <= NUM_VESSELS; i++)
+		eventHandler(EVENT_SETPOINT, i);
 
     //Init of program threads will call event handler to set active screen and must be called after uiInit()
     programThreadsInit();

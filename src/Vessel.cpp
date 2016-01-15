@@ -597,8 +597,6 @@ extern unsigned long vlvConfig[NUM_VLVCFGS], actProfiles;
 #endif
 	}
 
-	//TODO: Replace magic number 10 (number of volume samples to average over) with a defined constant
-	//TODO: Running this calculation on every volume measurement could slow the system. If so, it could be sped up simply by calculating it less often - it shouldn't change much.
 	void Vessel::updateFlowrateCalcs()
 	{
 		unsigned long tempmill = millis();
@@ -606,9 +604,9 @@ extern unsigned long vlvConfig[NUM_VLVCFGS], actProfiles;
 		//Check flowrate periodically (FLOWRATE_READ_INTERVAL)
 		if (tempmill - lastFlowCheck >= FLOWRATE_READ_INTERVAL) {
 				
-				// note that the * 60000 is from converting thousands of a gallon / miliseconds to thousands of a gallon / minutes 
-				double newVol = getVolume();
-				flowRate = flowRate + newVol / 10;
+				// note that the * 60000 is from converting thousands of a gallon or liter / miliseconds to thousands of a gal/L / minutes 
+				double newVol = getVolume() * 60000;
+				flowRate = flowRate + newVol / FLOWRATE_SAMPLES;
 				flowRateHistory[flowRateIndex] = newVol;			
 				
 #ifdef DEBUG_VOL_READ
@@ -618,7 +616,7 @@ extern unsigned long vlvConfig[NUM_VLVCFGS], actProfiles;
 				logFieldI(flowRate);
 #endif
 				flowRateIndex++;
-				if (flowRateIndex > 9) flowRateIndex = 0;
+				if (flowRateIndex > FLOWRATE_SAMPLES-1) flowRateIndex = 0;
 		}
 		lastFlowCheck = tempmill;
 	}

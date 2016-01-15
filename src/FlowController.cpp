@@ -35,6 +35,7 @@ FlowController::FlowController(Vessel* initSource, Vessel* initDestination, pin*
 	hysteresis = 250;
 	if (initUsePID)
 		initPID();
+	lastReadTime = millis();
 }
 
 FlowController::~FlowController() {
@@ -86,9 +87,23 @@ double FlowController::getVolumeChange()
 	return volChange;
 }
 
+void FlowController::calcFlowRate()
+{
+	//Note that we don't want to average in a vessel that has no volume sensor, so we'll ignore a vessel with zero volume.
+	//In the edge case where there is a volume sensor but the volume has gone to zero, the result is slightly incorrect because it sets
+	//the flow rate to zero as soon as the volume hits zero, which is one sample too early, but this is inconsequential.
+	//Also note that the vessels themselves perform sample rate calculations and smoothing, so we don't have to do it here.
+	if (source && source->getVolume())
+		flowRate = source->getFlowRate();
+	if (dest && dest->getVolume())
+		flowRate = (flowRate + dest->getFlowRate()) / 2;
+}
+
 void FlowController::update()
 {
-  //TODO: Actually calculate flow rates! 
+  //Calculate flow rates always, even if we have an estop or other halt condition, to keep the UI correct
+	calcFlowRate();
+
 #ifdef HLT_FLY_SPARGE_STOP
 	const bool minVol = HLT_FLY_SPARGE_STOP_VOLUME;
 #else
@@ -137,7 +152,7 @@ void FlowController::update()
 					}
 					else pidOutput += 10;
 				}
-				else if ((long)pid->GetSetpoint() - flowRate[VS_KETTLE] < -100) {
+				else if ((long)pid->GetSetpoint() - getFlowRate() < -100) {
 					additioncount[0]++;
 					additioncount[1] = 0;
 					if (additioncount[0] > 5) {    // this is here to break a case where adding 10 causes a change of 100 but lowering 10 causes a change of 100 off the setpoint and we just oscilate. 
@@ -146,7 +161,7 @@ void FlowController::update()
 					}
 					else pidOutput -= 10;
 				}
-				else if ((long)pid->GetSetpoint() - flowRate[VS_KETTLE] > 50) {
+				else if ((long)pid->GetSetpoint() - getFlowRate() > 50) {
 					additioncount[0] = 0;
 					additioncount[1]++;
 					if (additioncount[0] > 5) {    // this is here to break a case where adding 5 causes a change of 50 but lowering 5 causes a change of 50 off the setpoint and we just oscilate. 
@@ -155,7 +170,7 @@ void FlowController::update()
 					}
 					else pidOutput += 5;
 				}
-				else if ((long)pid->GetSetpoint() - flowRate[VS_KETTLE] < -50) {
+				else if ((long)pid->GetSetpoint() - getFlowRate() < -50) {
 					additioncount[0] = 0;
 					additioncount[1]++;
 					if (additioncount[0] > 5) {    // this is here to break a case where adding 5 causes a change of 50 but lowering 5 causes a change of 50 off the setpoint and we just oscilate. 
@@ -164,8 +179,8 @@ void FlowController::update()
 					}
 					else pidOutput -= 5;
 				}
-				else if ((long)pid->GetSetpoint() - flowRate[VS_KETTLE] > 10) pidOutput += 1;
-				else if ((long)pid->GetSetpoint() - flowRate[VS_KETTLE] < -10) pidOutput -= 1;
+				else if ((long)pid->GetSetpoint() - getFlowRate() > 10) pidOutput += 1;
+				else if ((long)pid->GetSetpoint() - getFlowRate() < -10) pidOutput -= 1;
 
 				if (pidOutput > pid->GetOUTMax()) pidOutput = pid->GetOUTMax();
 				else if (pidOutput < pid->GetOUTMin()) pidOutput = pid->GetOUTMin();

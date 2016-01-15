@@ -26,6 +26,8 @@ extern unsigned long actProfiles;
 	 
 //TODO: Split Steam vessel out into separate class (templated?)
 
+	 constexpr unsigned byte FLOWRATE_SAMPLES = 10; //Smooth flow rate over n samples
+
 class Vessel
 {
 private:

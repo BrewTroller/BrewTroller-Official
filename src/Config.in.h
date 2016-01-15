@@ -553,17 +553,17 @@ static const uint8_t TS = 1;
 // take over for finer temperaature control.
 
 #ifdef USESTEAM
-// If you are not recirculating your mash, the offset should probably be greater. TODO: Make this configurable
+// If you are not recirculating your mash, the offset should probably be greater. 
 #define STEAM_OFFSET 5
-
+#endif
 
 // If your HLT output passes through your RIMS tube to your mash kettle, you may want
 // to define RIMS_DURING_SPARGE so that it can also control the temp of your sparge
 // water.  The logic here is somehwat different than for mashing, in that it will only
 // control the VS_STEAM output. TODO: Fix the code described by the previous sentence so it's more logical. You can use this in conjuction with HLT_HEAT_SPARGE
 // to fire the HLT too.
-#define RIMS_DURING_SPARGE
-#endif
+//#define RIMS_DURING_SPARGE
+
 //**********************************************************************************
 
 
