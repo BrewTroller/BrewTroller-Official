@@ -11,6 +11,9 @@
 #include "Enum.h"
 #include "Config.h"
 
+//Define the config structure exposed in ConfigManager.hpp
+config_t eepromConfig EEMEM;
+
 static config_t* configStore;
 
 void ConfigManager::init(config_t *config) {
@@ -200,7 +203,6 @@ void ConfigManager::loadConfig() {
     
     for (uint8_t i = VS_HLT; i < VS_COUNT; i++) {
         PIDEnabled[i] = (pidOpts >> i) & 0x1;
-        output_config curr;
         PIDCycle[i] = eeprom_read_byte(&configStore->pidConfigs[i].cycleTime);
         hysteresis[i] = eeprom_read_byte(&configStore->pidConfigs[i].hysteresis);
     }
@@ -460,6 +462,24 @@ void ConfigManager::setTriggerPin(TriggerType trigger, uint8_t pinNum) {
 
 uint8_t ConfigManager::getTriggerPin(TriggerType trigger) {
     return eeprom_read_byte(&configStore->triggerPins[trigger]);
+}
+
+void ConfigManager::setProgramThread(uint8_t threadIndex, ProgramThread *thread) {
+    eeprom_update_block(thread, &configStore->pgmThreads[threadIndex], sizeof(ProgramThread));
+}
+
+void ConfigManager::getProgramThread(uint8_t threadIndex, ProgramThread *threadOut) {
+    eeprom_read_block(threadOut, &configStore->pgmThreads[threadIndex], sizeof(ProgramThread));
+}
+
+uint16_t ConfigManager::getBoilAdditionsTrigger() {
+    uint16_t temp;
+    eeprom_read_block(&temp, &configStore->boilAdditionsTrigger, sizeof(uint16_t));
+    return temp;
+}
+
+void ConfigManager::setBoilAdditionsTrigger(uint16_t trigger) {
+    eeprom_update_block(&trigger, &configStore->boilAdditionsTrigger, sizeof(uint16_t));
 }
 
 void ConfigManager::initConfig() {

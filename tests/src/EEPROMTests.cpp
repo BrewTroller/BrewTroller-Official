@@ -11,6 +11,20 @@
 #include "Config.h"
 #include <iostream>
 
+class ConfigManagerTests : public ::testing::Test {
+protected:
+    virtual void SetUp() {
+        ConfigManager::init(&conf);
+    }
+    
+    config_t conf = {0};
+    config_t untouched = {0};
+    
+    bool confIsInInitState() {
+        return memcmp(&conf, &untouched, sizeof(config_t)) == 0;
+    }
+};
+
 TEST(ProgramStruct, TestSize) {
     ASSERT_EQ(60, sizeof(program_config));
 }
@@ -88,10 +102,7 @@ TEST(ConfigStruct, TestLayout) {
     ASSERT_EQ(2065, offsetof(config_t, modbusBrdConf));
 }
 
-TEST(ConfigManager, TestConfigValidation) {
-    config_t conf;
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestConfigValidation) {
     //Fingerprint and schema match, should be true
     conf.btFingerprint = EEPROM_FINGERPRINT;
     conf.eepromSchemaVersion = EEPROM_SCHEMA_VER;
@@ -111,35 +122,22 @@ TEST(ConfigManager, TestConfigValidation) {
     ASSERT_FALSE(ConfigManager::configIsValid());
 }
 
-TEST(ConfigManager, TestGetBoilTemp) {
-    config_t conf;
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestGetBoilTemp) {
     conf.boilTemp = 12;
     ASSERT_EQ(12, ConfigManager::getBoilTemp());
 }
 
-TEST(ConfigManager, SetBoilTemp) {
-    config_t conf = {0};
-    config_t confUntouched = {0};
-    
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, SetBoilTemp) {
     conf.boilTemp = 21;
     ConfigManager::setBoilTemp(18);
     ASSERT_EQ(18, conf.boilTemp);
     
     //Ensure nothing else was touched!
-    conf.boilTemp = confUntouched.boilTemp;
-    ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+    conf.boilTemp = 0;
+    ASSERT_TRUE(confIsInInitState());
 }
 
-TEST(ConfigManager, TestSetVolumeCalibration) {
-    config_t conf = {0};
-    config_t confUntouched = {0};
-    
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetVolumeCalibration) {
     for (uint8_t i = VS_HLT; i <= VS_KETTLE; i++) {
         for (uint8_t j = 0; j < VOL_CALIB_COUNT; j++) {
             ConfigManager::setVolumeCalib(i, j, 155, 88888888);
@@ -164,193 +162,132 @@ TEST(ConfigManager, TestSetVolumeCalibration) {
                     break;
             }
             //Make sure nothing else was touched
-            ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+            ASSERT_TRUE(confIsInInitState());
         }
     }
 }
 
-TEST(ConfigManager, TestSetEvapRate) {
-    config_t conf = {0};
-    config_t confUntouched = {0};
-    
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetEvapRate) {
     ConfigManager::setEvapRate(52);
     ASSERT_EQ(52, conf.evapRate);
     
     conf.evapRate = 0;
-    ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+    ASSERT_TRUE(confIsInInitState());
 }
 
-TEST(ConfigManager, TestGetEvapRate) {
-    config_t conf;
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestGetEvapRate) {
     conf.evapRate = 85;
     ASSERT_EQ(85, ConfigManager::getEvapRate());
 }
 
-TEST(ConfigManager, TestSetPIDEnabled) {
-    config_t conf = {0};
-    config_t confUntouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetPIDEnabled) {
     for(uint8_t i = 0; i < VS_KETTLE; i++) {
         ConfigManager::setPIDEnabled(i, true);
         ASSERT_EQ(0x1 << i, conf.pidEnabledFlags);
         ConfigManager::setPIDEnabled(i, false);
         ASSERT_EQ(0, conf.pidEnabledFlags);
-        ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+        ASSERT_TRUE(confIsInInitState());
     }
 }
 
-TEST(ConfigManager, TestSetPIDCycle) {
-    config_t conf = {0};
-    config_t confUntouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetPIDCycle) {
     for (uint8_t i = 0; i < VS_COUNT; i++) {
         ConfigManager::setPIDCycle(i, 111);
         ASSERT_EQ(111, conf.pidConfigs[i].cycleTime);
         conf.pidConfigs[i].cycleTime = 0;
-        ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+        ASSERT_TRUE(confIsInInitState());
     }
 }
 
-TEST(ConfigManager, TestSetPIDPGain) {
-    config_t conf = {0};
-    config_t confUntouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetPIDPGain) {
     for (uint8_t i = 0; i < VS_COUNT; i++) {
         ConfigManager::setPIDPGain(i, 123);
         ASSERT_EQ(123, conf.pidConfigs[i].PGain);
         conf.pidConfigs[i].PGain = 0;
-        ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+        ASSERT_TRUE(confIsInInitState());
     }
 }
 
-TEST(ConfigManager, TestSetPIDIGain) {
-    config_t conf = {0};
-    config_t confUntouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetPIDIGain) {
     for (uint8_t i = 0; i < VS_COUNT; i++) {
         ConfigManager::setPIDIGain(i, 234);
         ASSERT_EQ(234, conf.pidConfigs[i].IGain);
         conf.pidConfigs[i].IGain = 0;
-        ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+        ASSERT_TRUE(confIsInInitState());
     }
 }
 
-TEST(ConfigManager, TestSetPIDDGain) {
-    config_t conf = {0};
-    config_t confUntouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetPIDDGain) {
     for (uint8_t i = 0; i < VS_COUNT; i++) {
         ConfigManager::setPIDDGain(i, 189);
         ASSERT_EQ(189, conf.pidConfigs[i].DGain);
         conf.pidConfigs[i].DGain = 0;
-        ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+        ASSERT_TRUE(confIsInInitState());
     }
 }
 
-TEST(ConfigManager, TestGetPIDPGain) {
-    config_t conf;
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestGetPIDPGain) {
     conf.pidConfigs[VS_HLT].PGain = 111;
     conf.pidConfigs[VS_KETTLE].PGain = 88;
     ASSERT_EQ(111, ConfigManager::getPIDPGain(VS_HLT));
     ASSERT_EQ(88, ConfigManager::getPIDPGain(VS_KETTLE));
 }
 
-TEST(ConfigManager, TestGetPIDIGain) {
-    config_t conf;
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestGetPIDIGain) {
     conf.pidConfigs[VS_HLT].IGain = 111;
     conf.pidConfigs[VS_KETTLE].IGain = 88;
     ASSERT_EQ(111, ConfigManager::getPIDIGain(VS_HLT));
     ASSERT_EQ(88, ConfigManager::getPIDIGain(VS_KETTLE));
 }
 
-TEST(ConfigManager, TestGetPIDDGain) {
-    config_t conf;
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestGetPIDDGain) {
     conf.pidConfigs[VS_HLT].DGain = 111;
     conf.pidConfigs[VS_KETTLE].DGain = 88;
     ASSERT_EQ(111, ConfigManager::getPIDDGain(VS_HLT));
     ASSERT_EQ(88, ConfigManager::getPIDDGain(VS_KETTLE));
 }
 
-TEST(ConfigManager, TestSetHysteresis) {
-    config_t conf = {0};
-    config_t confUntouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetHysteresis) {
     for (uint8_t i = 0; i < VS_COUNT; i++) {
         ConfigManager::setHysteresis(i, 101);
         ASSERT_EQ(101, conf.pidConfigs[i].hysteresis);
         conf.pidConfigs[i].hysteresis = 0;
-        ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+        ASSERT_TRUE(confIsInInitState());
     }
 }
 
-TEST(ConfigManager, TestSetSteamTarget) {
-    config_t conf = {0};
-    config_t confUntouched = {0};
-    
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetSteamTarget) {
     ConfigManager::setSteamTarget(14);
     ASSERT_EQ(14, conf.steamTarget);
     
     conf.steamTarget = 0;
-    ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+    ASSERT_TRUE(confIsInInitState());
 }
 
-TEST(ConfigManager, TestGetSteamTarget) {
-    config_t conf;
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestGetSteamTarget) {
     conf.steamTarget = 77;
     ASSERT_EQ(77, ConfigManager::getSteamTarget());
 }
 
-TEST(ConfigManager, TestSetSteamZero) {
-    config_t conf = {0};
-    config_t confUntouched = {0};
-    
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetSteamZero) {
     ConfigManager::setSteamZero(5123);
     ASSERT_EQ(5123, conf.steamZero);
     
     conf.steamZero = 0;
-    ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+    ASSERT_TRUE(confIsInInitState());
 }
 
-TEST(ConfigManager, TestSetSteamPSense) {
-    config_t conf = {0};
-    config_t confUntouched = {0};
-    
+TEST_F(ConfigManagerTests, TestSetSteamPSense) {
     ConfigManager::init(&conf);
     
     ConfigManager::setSteamPSense(7654);
     ASSERT_EQ(7654, conf.steamPSense);
     
     conf.steamPSense = 0;
-    ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+    ASSERT_TRUE(confIsInInitState());
 }
 
-TEST(ConfigManager, TestSetProgramName) {
-    config_t conf = {0};
-    config_t untouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetProgramName) {
     char nameZero[20] = {0};
     char nameTest[20] = "Test Name      1234";
     ASSERT_EQ(PROG_NAME_LEN, sizeof(nameTest));
@@ -362,14 +299,11 @@ TEST(ConfigManager, TestSetProgramName) {
         
         //Zero the name back out and ensure nothing else was modified
         memcpy(&conf.programs[i].name, nameZero, sizeof(nameZero));
-        ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+        ASSERT_TRUE(confIsInInitState());
     }
 }
 
-TEST(ConfigManager, TestGetProgramName) {
-    config_t conf;
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestGetProgramName) {
     char nameTest[20] = "Test Name Test Name";
     ASSERT_EQ(PROG_NAME_LEN, sizeof(nameTest));
     ASSERT_EQ('\0', nameTest[19]);
@@ -382,25 +316,18 @@ TEST(ConfigManager, TestGetProgramName) {
     }
 }
 
-TEST(ConfigManager, TestSetProgramMashTemp) {
-    config_t conf = {0};
-    config_t untouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetProgramMashTemp) {
     for (uint8_t i = 0; i < RECIPE_MAX; i++) {
         for (uint8_t j = 0; j < MASHSTEP_COUNT; j++) {
             ConfigManager::setProgramMashStepTemp(i, j, 21);
             ASSERT_EQ(21, conf.programs[i].mashStepTemp[j]);
             conf.programs[i].mashStepTemp[j] = 0;
-            ASSERT_EQ(0, memcmp(&conf, &untouched, sizeof(config_t)));
+            ASSERT_TRUE(confIsInInitState());
         }
     }
 }
 
-TEST(ConfigManager, TestGetProgramMashTemp) {
-    config_t conf = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestGetProgramMashTemp) {
     for (uint8_t i = 0; i < RECIPE_MAX; i++) {
         for (uint8_t j = 0; j < MASHSTEP_COUNT; j++) {
             conf.programs[i].mashStepTemp[j] = 21;
@@ -410,25 +337,18 @@ TEST(ConfigManager, TestGetProgramMashTemp) {
     }
 }
 
-TEST(ConfigManager, TestSetProgramMashMins) {
-    config_t conf = {0};
-    config_t untouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetProgramMashMins) {
     for (uint8_t i = 0; i < RECIPE_MAX; i++) {
         for (uint8_t j = 0; j < MASHSTEP_COUNT; j++) {
             ConfigManager::setProgramMashStepMins(i, j, 77);
             ASSERT_EQ(77, conf.programs[i].mashStepLength[j]);
             conf.programs[i].mashStepLength[j] = 0;
-            ASSERT_EQ(0, memcmp(&conf, &untouched, sizeof(config_t)));
+            ASSERT_TRUE(confIsInInitState());
         }
     }
 }
 
-TEST(ConfigManager, TestGetProgramMashMins) {
-    config_t conf = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestGetProgramMashMins) {
     for (uint8_t i = 0; i < RECIPE_MAX; i++) {
         for (uint8_t j = 0; j < MASHSTEP_COUNT; j++) {
             conf.programs[i].mashStepLength[j] = 66;
@@ -438,25 +358,18 @@ TEST(ConfigManager, TestGetProgramMashMins) {
     }
 }
 
-TEST(ConfigManager, TestSetProgramBatchVol) {
-    config_t conf = {0};
-    config_t untouched = {0};
-    ConfigManager::init(&conf);
-
+TEST_F(ConfigManagerTests, TestSetProgramBatchVol) {
     for (uint8_t i = 0; i < RECIPE_MAX; i++) {
         ConfigManager::setProgramBatchVol(i, 0xFEEDBEEF);
         ASSERT_EQ(0xFEEDBEEF, conf.programs[i].batchVolume);
         
         //Zero the change back out and ensure nothing else was modified
         conf.programs[i].batchVolume = 0;
-        ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+        ASSERT_TRUE(confIsInInitState());
     }
 }
 
-TEST(ConfigManager, TestGetProgramBatchVol) {
-    config_t conf;
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestGetProgramBatchVol) {
     for (uint8_t i = 0; i < RECIPE_MAX; i++) {
         conf.programs[i].batchVolume = 0xABCDEF81;
         ASSERT_EQ(0xABCDEF81, ConfigManager::getProgramBatchVol(i));
@@ -464,25 +377,18 @@ TEST(ConfigManager, TestGetProgramBatchVol) {
     }
 }
 
-TEST(ConfigManager, TestSetProgramMashRatio) {
-    config_t conf = {0};
-    config_t untouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetProgramMashRatio) {
     for (uint8_t i = 0; i < RECIPE_MAX; i++) {
         ConfigManager::setProgramMashRatio(i, 0xABCD);
         ASSERT_EQ(0xABCD, conf.programs[i].mashRatio);
         
         //Zero the change back out and ensure nothing else was modified
         conf.programs[i].mashRatio = 0;
-        ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+        ASSERT_TRUE(confIsInInitState());
     }
 }
 
-TEST(ConfigManager, TestGetProgramMashRatio) {
-    config_t conf;
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestGetProgramMashRatio) {
     for (uint8_t i = 0; i < RECIPE_MAX; i++) {
         conf.programs[i].mashRatio = 0xFF88;
         ASSERT_EQ(0xFF88, ConfigManager::getProgramMashRatio(i));
@@ -490,25 +396,18 @@ TEST(ConfigManager, TestGetProgramMashRatio) {
     }
 }
 
-TEST(ConfigManager, TestSetProgramGrainWeight) {
-    config_t conf = {0};
-    config_t untouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetProgramGrainWeight) {
     for (uint8_t i = 0; i < RECIPE_MAX; i++) {
         ConfigManager::setProgramGrainWeight(i, 0xFEEDBEEF);
         ASSERT_EQ(0xFEEDBEEF, conf.programs[i].grainWeight);
         
         //Zero the change back out and ensure nothing else was modified
         conf.programs[i].grainWeight = 0;
-        ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+        ASSERT_TRUE(confIsInInitState());
     }
 }
 
-TEST(ConfigManager, TestGetProgramGrainWeight) {
-    config_t conf;
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestGetProgramGrainWeight) {
     for (uint8_t i = 0; i < RECIPE_MAX; i++) {
         conf.programs[i].grainWeight = 0xABCDEF81;
         ASSERT_EQ(0xABCDEF81, ConfigManager::getProgramGrainWeight(i));
@@ -516,25 +415,18 @@ TEST(ConfigManager, TestGetProgramGrainWeight) {
     }
 }
 
-TEST(ConfigManager, TestSetProgramSpargeTemp) {
-    config_t conf = {0};
-    config_t untouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetProgramSpargeTemp) {
     for (uint8_t i = 0; i < RECIPE_MAX; i++) {
         ConfigManager::setProgramSpargeTemp(i, 177);
         ASSERT_EQ(177, conf.programs[i].spargeTemp);
         
         //Zero the change back out and ensure nothing else was modified
         conf.programs[i].spargeTemp = 0;
-        ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+        ASSERT_TRUE(confIsInInitState());
     }
 }
 
-TEST(ConfigManager, TestGetProgramSpargeTemp) {
-    config_t conf;
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestGetProgramSpargeTemp) {
     for (uint8_t i = 0; i < RECIPE_MAX; i++) {
         conf.programs[i].spargeTemp = 88;
         ASSERT_EQ(88, ConfigManager::getProgramSpargeTemp(i));
@@ -542,25 +434,18 @@ TEST(ConfigManager, TestGetProgramSpargeTemp) {
     }
 }
 
-TEST(ConfigManager, TestSetProgramHLTTemp) {
-    config_t conf = {0};
-    config_t untouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetProgramHLTTemp) {
     for (uint8_t i = 0; i < RECIPE_MAX; i++) {
         ConfigManager::setProgramHLTTemp(i, 177);
         ASSERT_EQ(177, conf.programs[i].hltTemperature);
         
         //Zero the change back out and ensure nothing else was modified
         conf.programs[i].hltTemperature = 0;
-        ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+        ASSERT_TRUE(confIsInInitState());
     }
 }
 
-TEST(ConfigManager, TestGetProgramHLTTemp) {
-    config_t conf;
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestGetProgramHLTTemp) {
     for (uint8_t i = 0; i < RECIPE_MAX; i++) {
         conf.programs[i].hltTemperature = 88;
         ASSERT_EQ(88, ConfigManager::getProgramHLTTemp(i));
@@ -568,25 +453,18 @@ TEST(ConfigManager, TestGetProgramHLTTemp) {
     }
 }
 
-TEST(ConfigManager, TestSetProgramPitchTemp) {
-    config_t conf = {0};
-    config_t untouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetProgramPitchTemp) {
     for (uint8_t i = 0; i < RECIPE_MAX; i++) {
         ConfigManager::setProgramPitchTemp(i, 177);
         ASSERT_EQ(177, conf.programs[i].pitchTemperature);
         
         //Zero the change back out and ensure nothing else was modified
         conf.programs[i].pitchTemperature = 0;
-        ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+        ASSERT_TRUE(confIsInInitState());
     }
 }
 
-TEST(ConfigManager, TestGetProgramPitchTemp) {
-    config_t conf;
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestGetProgramPitchTemp) {
     for (uint8_t i = 0; i < RECIPE_MAX; i++) {
         conf.programs[i].pitchTemperature = 88;
         ASSERT_EQ(88, ConfigManager::getProgramPitchTemp(i));
@@ -594,25 +472,18 @@ TEST(ConfigManager, TestGetProgramPitchTemp) {
     }
 }
 
-TEST(ConfigManager, TestSetProgramBoilMins) {
-    config_t conf = {0};
-    config_t untouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetProgramBoilMins) {
     for (uint8_t i = 0; i < RECIPE_MAX; i++) {
         ConfigManager::setProgramBoilMins(i, 0x1234);
         ASSERT_EQ(0x1234, conf.programs[i].boilMins);
         
         //Zero the change back out and ensure nothing else was modified
         conf.programs[i].boilMins = 0;
-        ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+        ASSERT_TRUE(confIsInInitState());
     }
 }
 
-TEST(ConfigManager, TestGetProgramBoilMins) {
-    config_t conf;
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestGetProgramBoilMins) {
     for (uint8_t i = 0; i < RECIPE_MAX; i++) {
         conf.programs[i].boilMins = 0x4466;
         ASSERT_EQ(0x4466, ConfigManager::getProgramBoilMins(i));
@@ -620,25 +491,18 @@ TEST(ConfigManager, TestGetProgramBoilMins) {
     }
 }
 
-TEST(ConfigManager, TestSetProgramMLHeatSource) {
-    config_t conf = {0};
-    config_t untouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetProgramMLHeatSource) {
     for (uint8_t i = 0; i < RECIPE_MAX; i++) {
         ConfigManager::setProgramMLHeatSource(i, VS_MASH);
         ASSERT_EQ(VS_MASH, conf.programs[i].mashLiquorHeatSource);
         
         //Zero the change back out and ensure nothing else was modified
         conf.programs[i].mashLiquorHeatSource = 0;
-        ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+        ASSERT_TRUE(confIsInInitState());
     }
 }
 
-TEST(ConfigManager, TestGetProgramMLHeatSource) {
-    config_t conf;
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestGetProgramMLHeatSource) {
     for (uint8_t i = 0; i < RECIPE_MAX; i++) {
         conf.programs[i].mashLiquorHeatSource = VS_KETTLE;
         ASSERT_EQ(VS_KETTLE, ConfigManager::getProgramMLHeatSource(i));
@@ -646,25 +510,18 @@ TEST(ConfigManager, TestGetProgramMLHeatSource) {
     }
 }
 
-TEST(ConfigManager, TestSetProgramBoilAdditonAlarms) {
-    config_t conf = {0};
-    config_t untouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetProgramBoilAdditonAlarms) {
     for (uint8_t i = 0; i < RECIPE_MAX; i++) {
         ConfigManager::setProgramBoilAdditionAlarms(i, 0x1234);
         ASSERT_EQ(0x1234, conf.programs[i].boilAdditionAlarms);
         
         //Zero the change back out and ensure nothing else was modified
         conf.programs[i].boilAdditionAlarms = 0;
-        ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+        ASSERT_TRUE(confIsInInitState());
     }
 }
 
-TEST(ConfigManager, TestGetProgramBoilAdditionAlarms) {
-    config_t conf;
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestGetProgramBoilAdditionAlarms) {
     for (uint8_t i = 0; i < RECIPE_MAX; i++) {
         conf.programs[i].boilAdditionAlarms = 0x4466;
         ASSERT_EQ(0x4466, ConfigManager::getProgramBoilAdditionAlarms(i));
@@ -672,11 +529,7 @@ TEST(ConfigManager, TestGetProgramBoilAdditionAlarms) {
     }
 }
 
-TEST(ConfigManager, TestSetTempSensorAddress) {
-    config_t conf = {0};
-    config_t untouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetTempSensorAddress) {
     TempSensorAddress addrZero = {0};
     TempSensorAddress testAddr = {5, 10, 15, 20,
                                   25, 30, 35, 40};
@@ -687,37 +540,30 @@ TEST(ConfigManager, TestSetTempSensorAddress) {
         
         //Zero the change back out and ensure nothing else was modified
         memcpy(conf.tempSensorAddresses[i], addrZero, sizeof(TempSensorAddress));
-        ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+        ASSERT_TRUE(confIsInInitState());
     }
 }
 
-TEST(ConfigManager, TestSetVesselCapacity) {
-    config_t conf = {0};
-    config_t untouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetVesselCapacity) {
     //This is only defined for HLT, MASH and KETTLE!!!
     ConfigManager::setVesselCapacity(VS_HLT, 0xFEEDBEEF);
     ASSERT_EQ(0xFEEDBEEF, conf.hltCapacity);
     //Zero the change back out and ensure nothing else was modified
     conf.hltCapacity = 0;
-    ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    ASSERT_TRUE(confIsInInitState());
     ConfigManager::setVesselCapacity(VS_MASH, 0xFEEDBEEF);
     ASSERT_EQ(0xFEEDBEEF, conf.mltCapacity);
     //Zero the change back out and ensure nothing else was modified
     conf.mltCapacity = 0;
-    ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    ASSERT_TRUE(confIsInInitState());
     ConfigManager::setVesselCapacity(VS_KETTLE, 0xFEEDBEEF);
     ASSERT_EQ(0xFEEDBEEF, conf.kettleCapacity);
     //Zero the change back out and ensure nothing else was modified
     conf.kettleCapacity = 0;
-    ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    ASSERT_TRUE(confIsInInitState());
 }
 
-TEST(ConfigManager, TestGetVesselCapacity) {
-    config_t conf;
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestGetVesselCapacity) {
     //This is only defined for HLT, MASH, and  KETTLE!!!!
     conf.hltCapacity = 0x12344321;
     ASSERT_EQ(0x12344321, ConfigManager::getVesselCapacity(VS_HLT));
@@ -729,33 +575,26 @@ TEST(ConfigManager, TestGetVesselCapacity) {
     ASSERT_EQ(0x12344321, ConfigManager::getVesselCapacity(VS_KETTLE));
 }
 
-TEST(ConfigManager, TestSetVesselVolumeLoss) {
-    config_t conf = {0};
-    config_t untouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetVesselVolumeLoss) {
     //This is only defined for HLT, MASH and KETTLE!!!
     ConfigManager::setVesselVolumeLoss(VS_HLT, 0xBEEF);
     ASSERT_EQ(0xBEEF, conf.hltVolLoss);
     //Zero the change back out and ensure nothing else was modified
     conf.hltVolLoss = 0;
-    ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    ASSERT_TRUE(confIsInInitState());
     ConfigManager::setVesselVolumeLoss(VS_MASH, 0xBEEF);
     ASSERT_EQ(0xBEEF, conf.mltVolLoss);
     //Zero the change back out and ensure nothing else was modified
     conf.mltVolLoss = 0;
-    ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    ASSERT_TRUE(confIsInInitState());
     ConfigManager::setVesselVolumeLoss(VS_KETTLE, 0xBEEF);
     ASSERT_EQ(0xBEEF, conf.kettleVolLoss);
     //Zero the change back out and ensure nothing else was modified
     conf.kettleVolLoss = 0;
-    ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    ASSERT_TRUE(confIsInInitState());
 }
 
-TEST(ConfigManager, TestGetVesselVolumeLoss) {
-    config_t conf;
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestGetVesselVolumeLoss) {
     //This is only defined for HLT, MASH, and  KETTLE!!!!
     conf.hltVolLoss = 0x4321;
     ASSERT_EQ(0x4321, ConfigManager::getVesselVolumeLoss(VS_HLT));
@@ -767,125 +606,128 @@ TEST(ConfigManager, TestGetVesselVolumeLoss) {
     ASSERT_EQ(0x4321, ConfigManager::getVesselVolumeLoss(VS_KETTLE));
 }
 
-TEST(ConfigManager, TestSetValveProfileConfig) {
-    config_t conf = {0};
-    config_t untouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetValveProfileConfig) {
     for (uint8_t i = 0; i < NUM_VLVCFGS; i++) {
         ConfigManager::setValveProfileConfig(i, 0xAABBCCDD);
         ASSERT_EQ(0xAABBCCDD, conf.valveProfileCfg[i]);
         conf.valveProfileCfg[i] = 0;
-        ASSERT_EQ(0, memcmp(&conf, &untouched, sizeof(config_t)));
+        ASSERT_TRUE(confIsInInitState());
     }
 }
 
-TEST(ConfigManager, TestSetVesselTempSetpoint) {
-    config_t conf = {0};
-    config_t untouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetVesselTempSetpoint) {
     //This is only defined for HLT, MASH and KETTLE!!!
     ConfigManager::setVesselTempSetpoint(VS_HLT, 121);
     ASSERT_EQ(121, conf.hltSetPoint);
     //Zero the change back out and ensure nothing else was modified
     conf.hltSetPoint = 0;
-    ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    ASSERT_TRUE(confIsInInitState());
     ConfigManager::setVesselTempSetpoint(VS_MASH, 121);
     ASSERT_EQ(121, conf.mltSetPoint);
     //Zero the change back out and ensure nothing else was modified
     conf.mltSetPoint = 0;
-    ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    ASSERT_TRUE(confIsInInitState());
     ConfigManager::setVesselTempSetpoint(VS_KETTLE, 121);
     ASSERT_EQ(121, conf.kettleSetPoint);
     //Zero the change back out and ensure nothing else was modified
     conf.kettleSetPoint = 0;
-    ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    ASSERT_TRUE(confIsInInitState());
 }
 
-TEST(ConfigManager, TestSetBoilPower) {
-    config_t conf = {0};
-    config_t untouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetBoilPower) {
     ConfigManager::setBoilPower(69);
     ASSERT_EQ(69, conf.boilPower);
     
     //Zero the change back out and ensure nothing else was modified
     conf.boilPower = 0;
-    ASSERT_EQ(0, memcmp(&untouched, &conf, sizeof(config_t)));
+    ASSERT_TRUE(confIsInInitState());
 }
 
-TEST(ConfigManager, TestSetDelayMins) {
-    config_t conf = {0};
-    config_t confUntouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetDelayMins) {
     ConfigManager::setDelayMins(0xABBA);
     ASSERT_EQ(0xABBA, conf.delayMins);
     
     conf.delayMins = 0;
-    ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+    ASSERT_TRUE(confIsInInitState());
 }
 
-TEST(ConfigManager, TestGetDelayMins) {
-    config_t conf;
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestGetDelayMins) {
     conf.delayMins = 0xBADA;
     ASSERT_EQ(0xBADA, ConfigManager::getDelayMins());
 }
 
-TEST(ConfigManager, TestSetGrainTemperature) {
-    config_t conf = {0};
-    config_t confUntouched = {0};
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestSetGrainTemperature) {
     ConfigManager::setGrainTemperature(199);
     ASSERT_EQ(199, conf.grainTemp);
     
     conf.grainTemp = 0;
-    ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+    ASSERT_TRUE(confIsInInitState());
 }
 
-TEST(ConfigManager, TestGetGrainTemperature) {
-    config_t conf;
-    ConfigManager::init(&conf);
-    
+TEST_F(ConfigManagerTests, TestGetGrainTemperature) {
     conf.grainTemp = 55;
     ASSERT_EQ(55, ConfigManager::getGrainTemperature());
 }
 
-TEST(ConfigManager, TestSetTriggerPin) {
-    config_t conf = {0};
-    config_t confUntouched = {0};
-    ConfigManager::init(&conf);
-    
-    for (uint8_t i = 0; i < NUM_TRIGGERS; i++) {
+TEST_F(ConfigManagerTests, TestSetTriggerPin) {
+for (uint8_t i = 0; i < NUM_TRIGGERS; i++) {
         ConfigManager::setTriggerPin((TriggerType)i, 8);
         ASSERT_EQ(8, conf.triggerPins[i]);
         conf.triggerPins[i] = 0;
     }
-    ASSERT_EQ(0, memcmp(&conf, &confUntouched, sizeof(config_t)));
+    ASSERT_TRUE(confIsInInitState());
 }
 
-TEST(ConfigManager, TestGetTriggerPin) {
-    config_t conf;
-    ConfigManager::init(&conf);
-    
-    for (uint8_t i = 0; i < NUM_TRIGGERS; i++) {
+TEST_F(ConfigManagerTests, TestGetTriggerPin) {
+for (uint8_t i = 0; i < NUM_TRIGGERS; i++) {
         conf.triggerPins[i] = 21;
         ASSERT_EQ(21, ConfigManager::getTriggerPin((TriggerType)i));
         conf.triggerPins[i] = 0;
     }
 }
 
-TEST(ConfigManager, TestConfigInit) {
-    config_t conf;
-    config_t zeroConf = {0};
+TEST_F(ConfigManagerTests, SetProgramThread) {
+    const ProgramThread zeroThread{0};
+    ProgramThread testThread;
+    testThread.activeStep = MASHSTEP_MASHOUT;
+    testThread.recipe = 5;
     
-    ConfigManager::init(&conf);
+    for (uint8_t i = 0; i <= PROGRAMTHREAD_MAX; i++) {
+        ConfigManager::setProgramThread(i, &testThread);
+        ASSERT_EQ(0, memcmp(&testThread, &conf.pgmThreads[i], sizeof(ProgramThread)));
+        memcpy(&conf.pgmThreads[i], &zeroThread, sizeof(ProgramThread));
+        ASSERT_TRUE(confIsInInitState());
+    }
+}
+
+TEST_F(ConfigManagerTests, TestGetProgramThread) {
+    ProgramThread zeroThread{0};
+    ProgramThread testThread;
+    testThread.activeStep = MASHSTEP_MASHOUT;
+    testThread.recipe = 5;
     
+    for (uint8_t i = 0; i <= PROGRAMTHREAD_MAX; i++) {
+        conf.pgmThreads[i] = testThread;
+        ProgramThread ret;
+        ConfigManager::getProgramThread(i, &ret);
+        ASSERT_EQ(0, memcmp(&testThread, &ret, sizeof(ProgramThread)));
+        memcpy(&conf.pgmThreads[i], &zeroThread, sizeof(ProgramThread));
+    }
+}
+
+TEST_F(ConfigManagerTests, TestGetBoilAdditionsTrigger) {
+    conf.boilAdditionsTrigger = 0xF891;
+    ASSERT_EQ(0xF891, ConfigManager::getBoilAdditionsTrigger());
+}
+
+TEST_F(ConfigManagerTests, TestSetBoilAdditionsTrigger) {
+    ConfigManager::setBoilAdditionsTrigger(0xABCD);
+    ASSERT_EQ(0xABCD, conf.boilAdditionsTrigger);
+    conf.boilAdditionsTrigger = 0;
+    ASSERT_TRUE(confIsInInitState());
+}
+
+TEST_F(ConfigManagerTests, TestConfigInit) {
     ConfigManager::initConfig();
     //Test the PID, Cycle, and Hysteresis Values for each vessel are set to defaults
     for (uint8_t i = 0; i <= VS_KETTLE; i++) {
@@ -936,5 +778,5 @@ TEST(ConfigManager, TestConfigInit) {
     
     //Ensure that init has zeroed out the rest of the config structure
     //  We don't care about any data that lies outside of the config structure, as we aren't using it
-    ASSERT_EQ(0, memcmp(&conf, &zeroConf, sizeof(config_t)));
+    ASSERT_TRUE(confIsInInitState());
 }

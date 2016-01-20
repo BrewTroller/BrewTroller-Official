@@ -27,19 +27,20 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 #include "Config.h"
 #include "BrewTroller.h"
 #include "Events.h"
-#include "EEPROM.h"
+#include "ConfigManager.hpp"
 #include "Outputs.h"
 #include "Timer.h"
 #include "StepLogic.h"
+#include "Types.hpp"
 
 unsigned long lastHop, grainInStart;
 unsigned int boilAdds, triggered;
 
-struct ProgramThread programThread[PROGRAMTHREAD_MAX];
+ProgramThread programThread[PROGRAMTHREAD_MAX];
 
 void programThreadsInit() {
   for(byte i = 0; i < PROGRAMTHREAD_MAX; i++) {
-    eepromLoadProgramThread(i, &programThread[i]);
+      ConfigManager::getProgramThread(i, &programThread[i]);
     if (programThread[i].activeStep != BREWSTEP_NONE) {
       programThreadSignal(programThread + i, STEPSIGNAL_INIT);
       eventHandler(EVENT_STEPINIT, programThread[i].activeStep);  
@@ -91,7 +92,7 @@ byte programThreadActiveStep(byte threadIndex) {
 }
 
 void programThreadRecipeName(byte threadIndex, char *returnValue) {
-  getProgName(programThread[threadIndex].recipe, returnValue);
+    ConfigManager::getProgramName(programThread[threadIndex].recipe, returnValue);
 }
 
 byte programThreadRecipeIndex(byte threadIndex) {
@@ -166,7 +167,7 @@ struct ProgramThread *programThreadInit(byte recipe, byte brewStep) {
 
 void programThreadSave(struct ProgramThread *thread) {
   int index = thread - programThread;
-  eepromSaveProgramThread(index, thread);
+    ConfigManager::setProgramThread(index, thread);
 }
 
 void programThreadSetStep(struct ProgramThread *thread, byte brewStep) {
@@ -214,8 +215,8 @@ void brewStepFill(enum StepSignal signal, struct ProgramThread *thread) {
     case STEPSIGNAL_INIT:
       tgtVol[VS_HLT] = calcSpargeVol(thread->recipe);
       tgtVol[VS_MASH] = calcStrikeVol(thread->recipe);
-      if (getProgMLHeatSrc(thread->recipe) == VS_HLT) {
-        tgtVol[VS_HLT] = min(tgtVol[VS_HLT] + tgtVol[VS_MASH], getCapacity(VS_HLT));
+          if (ConfigManager::getProgramMLHeatSource(thread->recipe) == VS_HLT) {
+              tgtVol[VS_HLT] = min(tgtVol[VS_HLT] + tgtVol[VS_MASH], ConfigManager::getVesselCapacity(VS_HLT));
         tgtVol[VS_MASH] = 0;
       }
       #ifdef AUTO_FILL_START
@@ -243,7 +244,7 @@ void brewStepFill(enum StepSignal signal, struct ProgramThread *thread) {
       bitClear(actProfiles, VLV_FILLHLT);
       bitClear(actProfiles, VLV_FILLMASH);
       if (signal == STEPSIGNAL_ADVANCE) {
-        if (getDelayMins())
+        if (ConfigManager::getDelayMins())
           brewStepDelay(STEPSIGNAL_INIT, thread);
         else
           brewStepPreheat(STEPSIGNAL_INIT, thread);
@@ -256,8 +257,8 @@ void brewStepDelay(enum StepSignal signal, struct ProgramThread *thread) {
   switch (signal) {
     case STEPSIGNAL_INIT:
       //Load delay minutes from EEPROM if timer is not already populated via Power Loss Recovery
-      if (getDelayMins() && !timerValue[TIMER_MASH])
-        setTimer(TIMER_MASH, getDelayMins());
+      if (ConfigManager::getDelayMins() && !timerValue[TIMER_MASH])
+        setTimer(TIMER_MASH, ConfigManager::getDelayMins());
         programThreadSetStep(thread, BREWSTEP_DELAY);
       break;
     case STEPSIGNAL_UPDATE:
@@ -283,34 +284,30 @@ void brewStepPreheat(enum StepSignal signal, struct ProgramThread *thread) {
         vlvConfig[VLV_MASHHEAT] = 0;
         vlvConfig[VLV_MASHIDLE] = 0;
       #endif
-      preheatVessel = getProgMLHeatSrc(thread->recipe);
+        preheatVessel = ConfigManager::getProgramMLHeatSource(thread->recipe);
       
       if (preheatVessel == VS_HLT) {
-        setSetpoint(TS_HLT, calcStrikeTemp(thread->recipe));
+        ConfigManager::setVesselTempSetpoint(TS_HLT, calcStrikeTemp(thread->recipe));
         
         #ifdef MASH_PREHEAT_STRIKE
-          setSetpoint(TS_MASH, calcStrikeTemp(stepProgram[BREWSTEP_PREHEAT]));
+          ConfigManager::setVesselTempSetpoint(TS_MASH, calcStrikeTemp(stepProgram[BREWSTEP_PREHEAT]));
         #elif defined MASH_PREHEAT_STEP1
-          setSetpoint(TS_MASH, getFirstStepTemp(stepProgram[BREWSTEP_PREHEAT]));
+          ConfigManager::setVesselTempSetpoint(TS_MASH, getFirstStepTemp(stepProgram[BREWSTEP_PREHEAT]));
         #else
-          setSetpoint(TS_MASH, 0);
+          ConfigManager::setVesselTempSetpoint(TS_MASH, 0);
         #endif        
       } else {
-        setSetpoint(TS_HLT, getProgHLT(thread->recipe));
-        setSetpoint(TS_MASH, calcStrikeTemp(thread->recipe));
+        ConfigManager::setVesselTempSetpoint(TS_HLT, ConfigManager::getProgramHLTTemp(thread->recipe));
+        ConfigManager::setVesselTempSetpoint(TS_MASH, calcStrikeTemp(thread->recipe));
       }
       
       #ifndef PID_FLOW_CONTROL
-        setSetpoint(VS_STEAM, getSteamTgt());
+        ConfigManager::setVesselTempSetpoint(VS_STEAM, ConfigManager::getSteamTarget());
       #endif
       preheated[VS_HLT] = 0;
       preheated[VS_MASH] = 0;
       //No timer used for preheat
       clearTimer(TIMER_MASH);
-      #ifdef MASH_PREHEAT_SENSOR
-        //Overwrite mash temp sensor address from EEPROM using the memory location of the specified sensor (sensor element number * 8 bytes)
-        EEPROMreadBytes(MASH_PREHEAT_SENSOR * 8, tSensor[TS_MASH], 8);
-      #endif
       programThreadSetStep(thread, BREWSTEP_PREHEAT);
       break;
     case STEPSIGNAL_UPDATE:
@@ -359,14 +356,14 @@ void brewStepGrainIn(enum StepSignal signal, struct ProgramThread *thread) {
       resetHeatOutput(VS_HLT);
       resetHeatOutput(VS_MASH);
       #ifndef PID_FLOW_CONTROL
-        setSetpoint(VS_STEAM, getSteamTgt());
+        ConfigManager::setVesselTempSetpoint(VS_STEAM, ConfigManager::getSteamTarget());
       #endif
       setAlarm(1);
       bitSet(actProfiles, VLV_ADDGRAIN);
-      if(getProgMLHeatSrc(thread->recipe) == VS_HLT) {
+      if(ConfigManager::getProgramMLHeatSource(thread->recipe) == VS_HLT) {
         unsigned long spargeVol = calcSpargeVol(thread->recipe);
         unsigned long mashVol = calcStrikeVol(thread->recipe);
-        tgtVol[VS_HLT] = (min((spargeVol + mashVol), getCapacity(VS_HLT)) - mashVol);
+        tgtVol[VS_HLT] = (min((spargeVol + mashVol), ConfigManager::getVesselCapacity(VS_HLT)) - mashVol);
         #ifdef VOLUME_MANUAL
           // In manual volume mode show the target mash volume as a guide to the user
           tgtVol[VS_MASH] = mashVol;
@@ -456,7 +453,7 @@ void brewStepRefill(enum StepSignal signal, struct ProgramThread *thread) {
 void brewStepMashHelper(byte mashStep, enum StepSignal signal, struct ProgramThread *thread) {
   switch (signal) {
     case STEPSIGNAL_INIT:
-      setSetpoint(TS_HLT, getProgHLT(thread->recipe));
+      ConfigManager::setVesselTempSetpoint(TS_HLT, ConfigManager::getProgramHLTTemp(thread->recipe));
       #ifdef RIMS_MLT_SETPOINT_DELAY
         starttime = millis(); // get current time
         timetoset = starttime + RIMS_DELAY; //note that overflow of the milisecond timer is not covered here 
@@ -464,15 +461,15 @@ void brewStepMashHelper(byte mashStep, enum StepSignal signal, struct ProgramThr
         RIMStimeExpired = 0; //reset the boolean so that we know if the timer has expired for this program or not
         autoValve[vesselAV(TS_MASH)] = 1; // turn on the mash recirc valve profile as if the setpoint had been set
       #else
-        setSetpoint(TS_MASH, getProgMashTemp(thread->recipe, mashStep));
+        ConfigManager::setVesselTempSetpoint(TS_MASH, ConfigManager::getProgramMashStepTemp(thread->recipe, mashStep));
       #endif
       
       #ifndef PID_FLOW_CONTROL
-      setSetpoint(VS_STEAM, getSteamTgt());
+        ConfigManager::setVesselTempSetpoint(VS_STEAM, ConfigManager::getSteamTarget());
       #endif
       preheated[VS_MASH] = 0;
       //Set timer only if empty (for purposes of power loss recovery)
-      if (!timerValue[TIMER_MASH]) setTimer(TIMER_MASH, getProgMashMins(thread->recipe, mashStep)); 
+      if (!timerValue[TIMER_MASH]) setTimer(TIMER_MASH, ConfigManager::getProgramMashStepMins(thread->recipe, mashStep));
       //Leave timer paused until preheated
       timerStatus[TIMER_MASH] = 0;
       programThreadSetStep(thread, BREWSTEP_DOUGHIN + mashStep);
@@ -547,15 +544,17 @@ void brewStepMashHold(enum StepSignal signal, struct ProgramThread *thread) {
     case STEPSIGNAL_INIT:
       setAlarm(1);
       //Set HLT to Sparge Temp
-      setSetpoint(TS_HLT, getProgSparge(thread->recipe));
+      ConfigManager::setVesselTempSetpoint(TS_HLT, ConfigManager::getProgramSpargeTemp(thread->recipe));
       //Cycle through steps and use last non-zero step for mash setpoint
       if (!setpoint[TS_MASH]) {
         byte i = MASHSTEP_MASHOUT;
-        while (setpoint[TS_MASH] == 0 && i >= MASHSTEP_DOUGHIN && i <= MASHSTEP_MASHOUT)
-          setSetpoint(TS_MASH, getProgMashTemp(thread->recipe, i--));
+        while (setpoint[TS_MASH] == 0 && i >= MASHSTEP_DOUGHIN && i <= MASHSTEP_MASHOUT) {
+           setpoint[TS_MASH] = ConfigManager::getProgramMashStepTemp(thread->recipe, i--);
+        }
+        ConfigManager::setVesselTempSetpoint(TS_MASH, setpoint[TS_MASH]);
       }
       #ifndef PID_FLOW_CONTROL
-        setSetpoint(VS_STEAM, getSteamTgt());
+        ConfigManager::setVesselTempSetpoint(VS_STEAM, ConfigManager::getSteamTarget());
       #endif
       programThreadSetStep(thread, BREWSTEP_MASHHOLD);
       break;
@@ -652,19 +651,19 @@ void brewStepBoil(enum StepSignal signal, struct ProgramThread *thread) {
       #ifdef PID_FLOW_CONTROL
         resetHeatOutput(VS_PUMP); // turn off the pump if we are moving to boil. 
       #endif
-      setSetpoint(VS_KETTLE, getBoilTemp());
+      ConfigManager::setVesselTempSetpoint(VS_KETTLE, ConfigManager::getBoilTemp());
       preheated[VS_KETTLE] = 0;
-      boilAdds = getProgAdds(thread->recipe);
+      boilAdds = ConfigManager::getProgramBoilAdditionAlarms(thread->recipe);
       
       //Set timer only if empty (for purposes of power loss recovery)
       if (!timerValue[TIMER_BOIL]) {
         //Clean start of Boil
-        setTimer(TIMER_BOIL, getProgBoil(thread->recipe));
+        setTimer(TIMER_BOIL, ConfigManager::getProgramBoilMins(thread->recipe));
         triggered = 0;
-        setBoilAddsTrig(triggered);
+        ConfigManager::setBoilAdditionsTrigger(triggered);
       } else {
         //Assuming power loss recovery
-        triggered = getBoilAddsTrig();
+        triggered = ConfigManager::getBoilAdditionsTrigger();
       }
       //Leave timer paused until preheated
       timerStatus[TIMER_BOIL] = 0;
@@ -677,7 +676,7 @@ void brewStepBoil(enum StepSignal signal, struct ProgramThread *thread) {
         if (!(triggered & 32768) && temp[TS_KETTLE] != BAD_TEMP && temp[TS_KETTLE] >= PREBOIL_ALARM * 100) {
           setAlarm(1);
           triggered |= 32768; 
-          setBoilAddsTrig(triggered);
+          ConfigManager::setBoilAdditionsTrigger(triggered);
         }
       #endif
       if (!preheated[VS_KETTLE] && temp[TS_KETTLE] >= setpoint[VS_KETTLE] && setpoint[VS_KETTLE] > 0) {
@@ -698,7 +697,7 @@ void brewStepBoil(enum StepSignal signal, struct ProgramThread *thread) {
           lastHop = millis();
           setAlarm(1); 
           triggered |= 1; 
-          setBoilAddsTrig(triggered); 
+          ConfigManager::setBoilAdditionsTrigger(triggered);
         }
         //Timed additions (See hoptimes[] array in BrewTroller.pde)
         for (byte i = 0; i < 11; i++) {
@@ -707,7 +706,7 @@ void brewStepBoil(enum StepSignal signal, struct ProgramThread *thread) {
             lastHop = millis();
             setAlarm(1); 
             triggered |= (1<<(i + 1)); 
-            setBoilAddsTrig(triggered);
+            ConfigManager::setBoilAdditionsTrigger(triggered);
           }
         }
         
@@ -744,7 +743,7 @@ void brewStepBoil(enum StepSignal signal, struct ProgramThread *thread) {
 void brewStepChill(enum StepSignal signal, struct ProgramThread *thread) {
   switch (signal) {
     case STEPSIGNAL_INIT:
-      pitchTemp = getProgPitch(thread->recipe);
+      pitchTemp = ConfigManager::getProgramPitchTemp(thread->recipe);
       programThreadSetStep(thread, BREWSTEP_CHILL);
       break;
     case STEPSIGNAL_UPDATE:
@@ -786,16 +785,16 @@ void smartHERMSHLT() {
 #endif
   
 unsigned long calcStrikeVol(byte recipe) {
-  unsigned int mashRatio = getProgRatio(recipe);
+  unsigned int mashRatio = ConfigManager::getProgramMashRatio(recipe);
   unsigned long retValue;
   if (mashRatio) {
-    retValue = round(getProgGrain(recipe) * mashRatio / 100.0);
+    retValue = round(ConfigManager::getProgramGrainWeight(recipe) * mashRatio / 100.0);
 
     //Convert qts to gal for US
     #ifndef USEMETRIC
       retValue = round(retValue / 4.0);
     #endif
-    retValue += getVolLoss(TS_MASH);
+      retValue += ConfigManager::getVesselVolumeLoss(TS_MASH);
   }
   else {
     //No Sparge Logic (Matio Ratio = 0)
@@ -805,7 +804,7 @@ unsigned long calcStrikeVol(byte recipe) {
     retValue += calcGrainLoss(recipe);
     
     //Add Loss from other Vessels
-    retValue += (getVolLoss(TS_HLT) + getVolLoss(TS_MASH));
+    retValue += (ConfigManager::getVesselVolumeLoss(TS_HLT) + ConfigManager::getVesselVolumeLoss(TS_MASH));
   }
   return retValue;
 }
@@ -818,7 +817,7 @@ unsigned long calcSpargeVol(byte recipe) {
   retValue += calcGrainLoss(recipe);
   
   //Add Loss from other Vessels
-  retValue += (getVolLoss(TS_HLT) + getVolLoss(TS_MASH));
+  retValue += (ConfigManager::getVesselVolumeLoss(TS_HLT) + ConfigManager::getVesselVolumeLoss(TS_MASH));
 
   //Subtract Strike Water Volume
   retValue -= calcStrikeVol(recipe);
@@ -827,7 +826,7 @@ unsigned long calcSpargeVol(byte recipe) {
 
 unsigned long calcRefillVolume(byte recipe) {
   unsigned long returnValue;
-  if (getProgMLHeatSrc(recipe) == VS_HLT) {
+  if (ConfigManager::getProgramMLHeatSource(recipe) == VS_HLT) {
     #ifdef HLT_MIN_REFILL
       SpargeVol = calcSpargeVol(recipe);
       returnValue = max(SpargeVol, HLT_MIN_REFILL_VOL);
@@ -843,21 +842,21 @@ unsigned long calcPreboilVol(byte recipe) {
   // It is (((batch volume + kettle loss) / thermo shrinkage factor ) / evap loss factor )
   //unsigned long retValue = (getProgBatchVol(recipe) / (1.0 - getEvapRate() / 100.0 * getProgBoil(recipe) / 60.0)) + getVolLoss(TS_KETTLE); // old logic 
   #ifdef BOIL_OFF_GALLONS
-    unsigned long retValue = (((getProgBatchVol(recipe) + getVolLoss(TS_KETTLE)) / VOL_SHRINKAGE) + (((unsigned long)getEvapRate() * EvapRateConversion) * getProgBoil(recipe) / 60.0));
+    unsigned long retValue = (((ConfigManager::getProgramBatchVol(recipe) + ConfigManager::getVesselVolumeLoss(TS_KETTLE)) / VOL_SHRINKAGE) + (((unsigned long)ConfigManager::getEvapRate() * EvapRateConversion) * ConfigManager::getProgramBoilMins(recipe) / 60.0));
   #else
-    unsigned long retValue = (((getProgBatchVol(recipe) + getVolLoss(TS_KETTLE)) / VOL_SHRINKAGE) / (1.0 - getEvapRate() / 100.0 * getProgBoil(recipe) / 60.0));
+    unsigned long retValue = (((ConfigManager::getProgramBatchVol(recipe) + ConfigManager::getVesselVolumeLoss(TS_KETTLE)) / VOL_SHRINKAGE) / (1.0 - ConfigManager::getEvapRate() / 100.0 * ConfigManager::getProgramBoilMins(recipe) / 60.0));
   #endif
   return round(retValue);
 }
 
 unsigned long calcGrainLoss(byte recipe) {
   unsigned long retValue;
-  retValue = round(getProgGrain(recipe) * GRAIN_VOL_LOSS);
+  retValue = round(ConfigManager::getProgramGrainWeight(recipe) * GRAIN_VOL_LOSS);
   return retValue;
 }
 
 unsigned long calcGrainVolume(byte recipe) {
-  return round (getProgGrain(recipe) * GRAIN2VOL);
+  return round (ConfigManager::getProgramGrainWeight(recipe) * GRAIN2VOL);
 }
 
 /**
@@ -866,7 +865,7 @@ unsigned long calcGrainVolume(byte recipe) {
 byte calcStrikeTemp(byte recipe) {
   //Metric temps are stored as quantity of 0.5C increments
   float strikeTemp = (float)getFirstStepTemp(recipe) / SETPOINT_DIV;
-  float grainTemp = (float)getGrainTemp() / SETPOINT_DIV;
+  float grainTemp = (float)ConfigManager::getGrainTemperature() / SETPOINT_DIV;
   
   //Imperial units must be converted from gallons to quarts
   #ifdef USEMETRIC
@@ -876,7 +875,7 @@ byte calcStrikeTemp(byte recipe) {
   #endif
   
   //Calculate mash ratio to include logic for no sparge recipes (Using mash ratio of 0 would not work in calcs)
-  float mashRatio = (float)calcStrikeVol(recipe) *  kMashRatioVolumeFactor / getProgGrain(recipe);
+  float mashRatio = (float)calcStrikeVol(recipe) *  kMashRatioVolumeFactor / ConfigManager::getProgramGrainWeight(recipe);
   
   #ifdef USEMETRIC
     const float kGrainThermoDynamic = 0.41;
@@ -904,6 +903,6 @@ byte calcStrikeTemp(byte recipe) {
 byte getFirstStepTemp(byte recipe) {
   byte firstStep = 0;
   byte i = MASHSTEP_DOUGHIN;
-  while (firstStep == 0 && i <= MASHSTEP_MASHOUT) firstStep = getProgMashTemp(recipe, i++);
+  while (firstStep == 0 && i <= MASHSTEP_MASHOUT) firstStep = ConfigManager::getProgramMashStepTemp(recipe, i++);
   return firstStep;
 }

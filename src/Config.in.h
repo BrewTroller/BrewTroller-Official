@@ -100,6 +100,10 @@
 // Outputs leaving an additional output to use for pumps/valves.
 #cmakedefine KETTLE_AS_MASH
 
+/**
+ WARNING: MASH_PREHEAT_SENSOR is broken! This option included code to write to eeprom from Steplogic code, which has been removed
+          and has not been replaced with a more appropriate solution.
+ */
 // MASH_PREHEAT_SENSOR: This option allows for an alternate temperature sensor to
 // control the mash heat output during the Preheat step. This is used to control the
 // water temperature on dedicated HEX vessel during preheat. After preheat the

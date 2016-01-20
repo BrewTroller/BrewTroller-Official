@@ -617,8 +617,35 @@ public:
      */
     static uint8_t getTriggerPin(TriggerType trigger);
     
+    /**
+     setProgramThread: Updates the program thread with the specified index
+     - parameter threadIndex: The target thread index
+     - parameter thread: A pointer to a thread structure to save
+     - returns: void
+     */
+    static void setProgramThread(uint8_t threadIndex, ProgramThread* thread);
+    
+    /**
+     getProgramThread: Gets the program thread specified from storage
+     - parameter threadIndex: The target program thread index
+     - parameter threadOut: A pointer to a program thread structure to which in which the thread should be placed
+     - returns: void
+     */
+    static void getProgramThread(uint8_t threadIndex, ProgramThread* threadOut);
+    
+    /**
+     getBoilAdditionsTrigger: Gets the additions trigger bitfield
+     - returns: The current additions trigger bitfield
+     */
+    static uint16_t getBoilAdditionsTrigger();
+    
+    /**
+     setGrainTemperature: Updates the Boil Additions Trigger bitfield
+     - returns: void
+     */
+    static void setBoilAdditionsTrigger(uint16_t trigger);
 };
 
-static config_t eepromConfig EEMEM;
+extern config_t eepromConfig;
 
 #endif /* EEPROM_hpp */
