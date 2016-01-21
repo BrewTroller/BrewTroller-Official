@@ -814,7 +814,7 @@ boolean vlvConfigIsActive(byte profile) {
 void boilController () {
   if (boilControlState == CONTROLSTATE_AUTO) {
     if(temp[TS_KETTLE] < setpoint[TS_KETTLE]) PIDOutput[VS_KETTLE] = PIDCycle[VS_KETTLE] * PIDLIMIT_KETTLE;
-    else PIDOutput[VS_KETTLE] = PIDCycle[VS_KETTLE] * min(boilPwr, PIDLIMIT_KETTLE);
+    else PIDOutput[VS_KETTLE] = PIDCycle[VS_KETTLE] * min(boilPower, PIDLIMIT_KETTLE);
   }
 }
 

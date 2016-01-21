@@ -30,7 +30,7 @@
 #include <avr/pgmspace.h>
 #include "UI.h"
 #include "BrewTroller.h"
-#include "EEPROM.h"
+#include "ConfigManager.hpp"
 #include "BrewCore.h"
 #include "Volume.h"
 #include "Outputs.h"
@@ -151,7 +151,7 @@ void uiInit() {
     
     
     //Check to see if EEPROM Initialization is needed
-    if (checkConfig()) {
+    if (!ConfigManager::configIsValid()) {
         LCD.clear();
         LCD.print_P(0, 0, UIStrings::EEPROMInit::MISSING_CONFIG);
         if (confirmChoice(UIStrings::EEPROMInit::INIT_EEPROM, 3)) UIinitEEPROM();
@@ -168,9 +168,9 @@ void UIinitEEPROM() {
     LCD.print_P(1, 0, UIStrings::EEPROMInit::INIT_EEPROM);
     LCD.print_P(2, 3, UIStrings::EEPROMInit::PLEASE_WAIT);
     LCD.update();
-    initEEPROM();
+    ConfigManager::initConfig();
     //Apply any EEPROM updates
-    checkConfig();
+    //checkConfig(); //No longer needed with ConfigManager
 }
 
 void uiEvent(byte eventID, byte eventParam) {
@@ -645,7 +645,7 @@ void screenRefresh() {
                 int encValue = Encoder.change();
                 if (encValue >= 0) {
                     boilControlState = CONTROLSTATE_ON;
-                    setpoint[VS_KETTLE] = encValue ? getBoilTemp() * SETPOINT_MULT : 0;
+                    setpoint[VS_KETTLE] = encValue ? ConfigManager::getBoilTemp() * SETPOINT_MULT : 0;
                     PIDOutput[VS_KETTLE] = PIDCycle[VS_KETTLE] * encValue;
                 }
             }
@@ -856,8 +856,8 @@ void screenEnter() {
                 mashMenu.setItem_P(UIStrings::Generic::EXIT, 255);
                 
                 byte lastOption = scrollMenu("Mash Menu", &mashMenu);
-                if (lastOption == 0) setSetpoint(VS_HLT, getValue_P(UIStrings::Shared::HLT_SETPOINT, setpoint[VS_HLT] / SETPOINT_MULT, SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
-                else if (lastOption == 1) setSetpoint(VS_MASH, getValue_P(UIStrings::MashMenu::MASH_SETPOINT, setpoint[VS_MASH] / SETPOINT_MULT, SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
+                if (lastOption == 0) ConfigManager::setVesselTempSetpoint(VS_HLT, getValue_P(UIStrings::Shared::HLT_SETPOINT, setpoint[VS_HLT] / SETPOINT_MULT, SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
+                else if (lastOption == 1) ConfigManager::setVesselTempSetpoint(VS_MASH, getValue_P(UIStrings::MashMenu::MASH_SETPOINT, setpoint[VS_MASH] / SETPOINT_MULT, SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
                 else if (lastOption == 2) {
                     setTimer(TIMER_MASH, getTimerValue(UIStrings::MashMenu::MASH_TIMER, timerValue[TIMER_MASH] / 60000, 1));
                     //Force Preheated
@@ -973,14 +973,14 @@ void screenEnter() {
                 
                 boilMenu.setItem_P(UIStrings::BoilMenu::BOIL_TEMP, 3);
                 boilMenu.appendItem_P(UIStrings::Generic::COLON_SPACE, 3);
-                vftoa(getBoilTemp() * SETPOINT_MULT, buf, 100, 1);
+                vftoa(ConfigManager::getBoilTemp() * SETPOINT_MULT, buf, 100, 1);
                 truncFloat(buf, 5);
                 boilMenu.appendItem(buf, 3);
                 boilMenu.appendItem_P(UIStrings::Units::TUNIT, 3);
                 
                 boilMenu.setItem_P(UIStrings::BoilMenu::BOIL_POWER, 4);
                 boilMenu.appendItem_P(UIStrings::Generic::COLON_SPACE, 4);
-                boilMenu.appendItem(itoa(boilPwr, buf, 10), 4);
+                boilMenu.appendItem(itoa(boilPower, buf, 10), 4);
                 boilMenu.appendItem("%", 4);
                 
                 boilMenu.setItem_P(UIStrings::ValveProfile::BOILRECIRC, 5);
@@ -1003,10 +1003,10 @@ void screenEnter() {
                 }
                 else if (lastOption == 2) boilControlMenu();
                 else if (lastOption == 3) {
-                    setBoilTemp(getValue_P(UIStrings::BoilMenu::BOIL_TEMP, getBoilTemp(), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
-                    setSetpoint(VS_KETTLE, getBoilTemp() * SETPOINT_MULT);
+                    ConfigManager::setBoilTemp(getValue_P(UIStrings::BoilMenu::BOIL_TEMP, ConfigManager::getBoilTemp(), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
+                    ConfigManager::setVesselTempSetpoint(VS_KETTLE, ConfigManager::getBoilTemp() * SETPOINT_MULT);
                 }
-                else if (lastOption == 4) setBoilPwr(getValue_P(UIStrings::BoilMenu::BOIL_POWER, boilPwr, 1, min(PIDLIMIT_KETTLE, 100), UIStrings::Generic::PERC_SYM));
+                else if (lastOption == 4) ConfigManager::setBoilPower(getValue_P(UIStrings::BoilMenu::BOIL_POWER, boilPower, 1, min(PIDLIMIT_KETTLE, 100), UIStrings::Generic::PERC_SYM));
                 else if (lastOption == 5) {
                     if (vlvConfigIsActive(VLV_BOILRECIRC)) bitClear(actProfiles, VLV_BOILRECIRC);
                     else bitSet(actProfiles, VLV_BOILRECIRC);
@@ -1081,7 +1081,7 @@ void boilControlMenu() {
             setpoint[VS_KETTLE] = 0;
             break;
         case CONTROLSTATE_AUTO:
-            setpoint[VS_KETTLE] = getBoilTemp() * SETPOINT_MULT;
+            setpoint[VS_KETTLE] = ConfigManager::getBoilTemp() * SETPOINT_MULT;
             break;
         case CONTROLSTATE_ON:
             setpoint[VS_KETTLE] = 1;
@@ -1119,14 +1119,14 @@ void editProgramMenu() {
     char itemDesc[20];
     menu progMenu(3, 20);
     for (byte i = 0; i < 20; i++) {
-        getProgName(i, itemDesc);
+        ConfigManager::getProgramName(i, itemDesc);
         progMenu.setItem(itemDesc, i);
     }
     byte profile = scrollMenu("Edit Program", &progMenu);
     if (profile < 20) {
         progMenu.getSelectedRow(itemDesc);
         getString(UIStrings::Program::ProgramMenu::PROG_NAME, itemDesc, 19);
-        setProgName(profile, itemDesc);
+        ConfigManager::setProgramName(profile, itemDesc);
         editProgram(profile);
     }
 }
@@ -1135,7 +1135,7 @@ void startProgramMenu() {
     char progName[20];
     menu progMenu(3, 20);
     for (byte i = 0; i < 20; i++) {
-        getProgName(i, progName);
+        ConfigManager::getProgramName(i, progName);
         progMenu.setItem(progName, i);
     }
     byte profile = scrollMenu("Start Program", &progMenu);
@@ -1148,14 +1148,14 @@ void startProgramMenu() {
             unsigned long mashVol = calcStrikeVol(profile);
             unsigned long grainVol = calcGrainVolume(profile);
             unsigned long preboilVol = calcPreboilVol(profile);
-            if (spargeVol > getCapacity(VS_HLT)) warnHLT(spargeVol);
-            if (mashVol + grainVol > getCapacity(VS_MASH)) warnMash(mashVol, grainVol);
-            if (preboilVol > getCapacity(VS_KETTLE)) warnBoil(preboilVol);
+            if (spargeVol > ConfigManager::getVesselCapacity(VS_HLT)) warnHLT(spargeVol);
+            if (mashVol + grainVol > ConfigManager::getVesselCapacity(VS_MASH)) warnMash(mashVol, grainVol);
+            if (preboilVol > ConfigManager::getVesselCapacity(VS_KETTLE)) warnBoil(preboilVol);
             startMenu.setItem_P(UIStrings::Program::ProgramMenu::EDIT_PROG, 0);
             
             startMenu.setItem_P(UIStrings::Program::ProgramMenu::GRAIN_TEMP, 1);
             startMenu.appendItem_P(UIStrings::Generic::COLON, 1);
-            startMenu.appendItem(itoa(getGrainTemp() / SETPOINT_DIV, buf, 10), 1);
+            startMenu.appendItem(itoa(ConfigManager::getGrainTemperature() / SETPOINT_DIV, buf, 10), 1);
             startMenu.appendItem_P(UIStrings::Units::TUNIT, 1);
             
             startMenu.setItem_P(UIStrings::Program::ProgramMenu::START, 2);
@@ -1164,7 +1164,7 @@ void startProgramMenu() {
             
             lastOption = scrollMenu(progName, &startMenu);
             if (lastOption == 0) editProgram(profile);
-            else if (lastOption == 1) setGrainTemp(getValue_P(UIStrings::Program::ProgramMenu::GRAIN_TEMP, getGrainTemp(), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
+            else if (lastOption == 1) ConfigManager::setGrainTemperature(getValue_P(UIStrings::Program::ProgramMenu::GRAIN_TEMP, ConfigManager::getGrainTemperature(), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
             else if (lastOption == 2 || lastOption == 3) {
                 #ifdef AUTO_SKIP_TO_BOIL
                 if (zoneIsActive(ZONE_BOIL)) {
@@ -1182,7 +1182,7 @@ void startProgramMenu() {
                 } else {
                     if (lastOption == 3) {
                         //Delay Start
-                        setDelayMins(getTimerValue(UIStrings::Program::ProgramMenu::DELAY_START, getDelayMins(), 23));
+                        ConfigManager::setDelayMins(getTimerValue(UIStrings::Program::ProgramMenu::DELAY_START, ConfigManager::getDelayMins(), 23));
                     }
                     #ifdef AUTO_SKIP_TO_BOIL
                     if (!programThreadInit(profile, BREWSTEP_BOIL)) {
@@ -1220,15 +1220,14 @@ void editProgram(byte pgm) {
     menu progMenu(3, 12);
     
     while (1) {
-        Serial.println("EditProg call");
         progMenu.setItem_P(UIStrings::Program::ProgramMenu::BATCH_VOL, 0);
-        vftoa(getProgBatchVol(pgm), buf, 1000, 1);
+        vftoa(ConfigManager::getProgramBatchVol(pgm), buf, 1000, 1);
         truncFloat(buf, 5);
         progMenu.appendItem(buf, 0);
         progMenu.appendItem_P(UIStrings::Units::VOLUNIT, 0);
         
         progMenu.setItem_P(UIStrings::Program::ProgramMenu::GRAIN_WT, 1);
-        vftoa(getProgGrain(pgm), buf, 1000, 1);
+        vftoa(ConfigManager::getProgramGrainWeight(pgm), buf, 1000, 1);
         truncFloat(buf, 7);
         progMenu.appendItem(buf, 1);
         progMenu.appendItem_P(UIStrings::Units::WTUNIT, 1);
@@ -1236,12 +1235,12 @@ void editProgram(byte pgm) {
         
         progMenu.setItem_P(UIStrings::Program::ProgramMenu::BOIL_LEN, 2);
         progMenu.appendItem_P(UIStrings::Generic::COLON, 2);
-        progMenu.appendItem(itoa(getProgBoil(pgm), buf, 10), 2);
+        progMenu.appendItem(itoa(ConfigManager::getProgramBoilMins(pgm), buf, 10), 2);
         progMenu.appendItem_P(UIStrings::Program::ProgramMenu::MINUTES_IND, 2);
         
         progMenu.setItem_P(UIStrings::Program::ProgramMenu::MASH_RATIO, 3);
         progMenu.appendItem_P(UIStrings::Generic::COLON, 3);
-        unsigned int mashRatio = getProgRatio(pgm);
+        unsigned int mashRatio = ConfigManager::getProgramMashRatio(pgm);
         if (mashRatio) {
             vftoa(mashRatio, buf, 100, 1);
             truncFloat(buf, 4);
@@ -1253,21 +1252,21 @@ void editProgram(byte pgm) {
         }
         
         progMenu.setItem_P(UIStrings::Program::ProgramMenu::HLT_TEMP, 4);
-        vftoa(getProgHLT(pgm) * SETPOINT_MULT, buf, 100, 1);
+        vftoa(ConfigManager::getProgramHLTTemp(pgm) * SETPOINT_MULT, buf, 100, 1);
         truncFloat(buf, 4);
         progMenu.appendItem(buf, 4);
         progMenu.appendItem_P(UIStrings::Units::TUNIT, 4);
         
         progMenu.setItem_P(UIStrings::Program::ProgramMenu::SPARGE_TEMP, 5);
         progMenu.appendItem_P(UIStrings::Generic::COLON, 5);
-        vftoa(getProgSparge(pgm) * SETPOINT_MULT, buf, 100, 1);
+        vftoa(ConfigManager::getProgramSpargeTemp(pgm) * SETPOINT_MULT, buf, 100, 1);
         truncFloat(buf, 4);
         progMenu.appendItem(buf, 5);
         progMenu.appendItem_P(UIStrings::Units::TUNIT, 5);
         
         progMenu.setItem_P(UIStrings::Program::ProgramMenu::PITCH_TEMP, 6);
         progMenu.appendItem_P(UIStrings::Generic::COLON, 6);
-        vftoa(getProgPitch(pgm) * SETPOINT_MULT, buf, 100, 1);
+        vftoa(ConfigManager::getProgramPitchTemp(pgm) * SETPOINT_MULT, buf, 100, 1);
         truncFloat(buf, 4);
         progMenu.appendItem(buf, 6);
         progMenu.appendItem_P(UIStrings::Units::TUNIT, 6);
@@ -1275,7 +1274,7 @@ void editProgram(byte pgm) {
         progMenu.setItem_P(UIStrings::Program::ProgramMenu::MASH_SCHED, 7);
         
         progMenu.setItem_P(UIStrings::Program::ProgramMenu::HEAT_STRIKE_IN, 8);
-        byte MLHeatSrc = getProgMLHeatSrc(pgm);
+        byte MLHeatSrc = ConfigManager::getProgramMLHeatSource(pgm);
         if (MLHeatSrc == VS_HLT) progMenu.appendItem_P(UIStrings::Vessel::TITLE_VS_HLT, 8);
         else if (MLHeatSrc == VS_MASH) progMenu.appendItem_P(UIStrings::Program::ProgramMenu::MASH, 8);
         else progMenu.appendItem_P(UIStrings::Program::ProgramMenu::UNKWN, 8);
@@ -1286,27 +1285,27 @@ void editProgram(byte pgm) {
         
         byte lastOption = scrollMenu("Program Parameters", &progMenu);
         
-        if (lastOption == 0) setProgBatchVol(pgm, getValue_P(UIStrings::Program::ProgramMenu::BATCH_VOLUME, getProgBatchVol(pgm), 1000, 9999999, UIStrings::Units::VOLUNIT));
-        else if (lastOption == 1) setProgGrain(pgm, getValue_P(UIStrings::Program::ProgramMenu::GRAIN_WEIGHT, getProgGrain(pgm), 1000, 9999999, UIStrings::Units::WTUNIT));
-        else if (lastOption == 2) setProgBoil(pgm, getTimerValue(UIStrings::Program::ProgramMenu::BOIL_LEN, getProgBoil(pgm), 2));
+        if (lastOption == 0) ConfigManager::setProgramBatchVol(pgm, getValue_P(UIStrings::Program::ProgramMenu::BATCH_VOLUME, ConfigManager::getProgramBatchVol(pgm), 1000, 9999999, UIStrings::Units::VOLUNIT));
+        else if (lastOption == 1) ConfigManager::setProgramGrainWeight(pgm, getValue_P(UIStrings::Program::ProgramMenu::GRAIN_WEIGHT, ConfigManager::getProgramGrainWeight(pgm), 1000, 9999999, UIStrings::Units::WTUNIT));
+        else if (lastOption == 2) ConfigManager::setProgramBoilMins(pgm, getTimerValue(UIStrings::Program::ProgramMenu::BOIL_LEN, ConfigManager::getProgramBoilMins(pgm), 2));
         else if (lastOption == 3) {
-            setProgRatio(pgm, getValue_P(UIStrings::Program::ProgramMenu::MASH_RATIO, getProgRatio(pgm), 100, 999, UIStrings::Program::ProgramMenu::RATIO_UNITS));
+            ConfigManager::setProgramMashRatio(pgm, getValue_P(UIStrings::Program::ProgramMenu::MASH_RATIO, ConfigManager::getProgramMashRatio(pgm), 100, 999, UIStrings::Program::ProgramMenu::RATIO_UNITS));
         }
-        else if (lastOption == 4) setProgHLT(pgm, getValue_P(UIStrings::Shared::HLT_SETPOINT, getProgHLT(pgm), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
-        else if (lastOption == 5) setProgSparge(pgm, getValue_P(UIStrings::Program::ProgramMenu::SPARGE_TEMP, getProgSparge(pgm), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
-        else if (lastOption == 6) setProgPitch(pgm, getValue_P(UIStrings::Program::ProgramMenu::PITCH_TEMP, getProgPitch(pgm), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
+        else if (lastOption == 4) ConfigManager::setProgramHLTTemp(pgm, getValue_P(UIStrings::Shared::HLT_SETPOINT, ConfigManager::getProgramHLTTemp(pgm), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
+        else if (lastOption == 5) ConfigManager::setProgramSpargeTemp(pgm, getValue_P(UIStrings::Program::ProgramMenu::SPARGE_TEMP, ConfigManager::getProgramSpargeTemp(pgm), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
+        else if (lastOption == 6) ConfigManager::setProgramPitchTemp(pgm, getValue_P(UIStrings::Program::ProgramMenu::PITCH_TEMP, ConfigManager::getProgramPitchTemp(pgm), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
         else if (lastOption == 7) editMashSchedule(pgm);
-        else if (lastOption == 8) setProgMLHeatSrc(pgm, MLHeatSrcMenu(getProgMLHeatSrc(pgm)));
-        else if (lastOption == 9) setProgAdds(pgm, editHopSchedule(getProgAdds(pgm)));
+        else if (lastOption == 8) ConfigManager::setProgramMLHeatSource(pgm, MLHeatSrcMenu(ConfigManager::getProgramMLHeatSource(pgm)));
+        else if (lastOption == 9) ConfigManager::setProgramBoilAdditionAlarms(pgm, editHopSchedule(ConfigManager::getProgramBoilAdditionAlarms(pgm)));
         else if (lastOption == 10) showProgCalcs(pgm);
         else return;
         unsigned long spargeVol = calcSpargeVol(pgm);
         unsigned long mashVol = calcStrikeVol(pgm);
         unsigned long grainVol = calcGrainVolume(pgm);
         unsigned long preboilVol = calcPreboilVol(pgm);
-        if (spargeVol > getCapacity(VS_HLT)) warnHLT(spargeVol);
-        if (mashVol + grainVol > getCapacity(VS_MASH)) warnMash(mashVol, grainVol);
-        if (preboilVol > getCapacity(VS_KETTLE)) warnBoil(preboilVol);
+        if (spargeVol > ConfigManager::getVesselCapacity(VS_HLT)) warnHLT(spargeVol);
+        if (mashVol + grainVol > ConfigManager::getVesselCapacity(VS_MASH)) warnMash(mashVol, grainVol);
+        if (preboilVol > ConfigManager::getVesselCapacity(VS_KETTLE)) warnBoil(preboilVol);
     }
 }
 
@@ -1374,10 +1373,10 @@ void editMashSchedule(byte pgm) {
             mashMenu.setItem(concatPSTRS(buf, (char*)pgm_read_word(&TITLE_MASHSTEP[i]), UIStrings::Generic::COLON), i << 4 | OPT_SETMINS);
             mashMenu.setItem(concatPSTRS(buf, (char*)pgm_read_word(&TITLE_MASHSTEP[i]), UIStrings::Generic::COLON), i << 4 | OPT_SETTEMP);
             
-            mashMenu.appendItem(itoa(getProgMashMins(pgm, i), buf, 10), i << 4 | OPT_SETMINS);
+            mashMenu.appendItem(itoa(ConfigManager::getProgramMashStepMins(pgm, i), buf, 10), i << 4 | OPT_SETMINS);
             mashMenu.appendItem(" min", i << 4 | OPT_SETMINS);
             
-            vftoa(getProgMashTemp(pgm, i) * SETPOINT_MULT, buf, 100, 1);
+            vftoa(ConfigManager::getProgramMashStepTemp(pgm, i) * SETPOINT_MULT, buf, 100, 1);
             truncFloat(buf, 4);
             mashMenu.appendItem(buf, i << 4 | OPT_SETTEMP);
             mashMenu.appendItem_P(UIStrings::Units::TUNIT, i << 4 | OPT_SETTEMP);
@@ -1387,9 +1386,9 @@ void editMashSchedule(byte pgm) {
         byte mashstep = lastOption>>4;
         
         if ((lastOption & B00001111) == OPT_SETMINS)
-            setProgMashMins(pgm, mashstep, getTimerValue((char*)pgm_read_word(&(TITLE_MASHSTEP[mashstep])), getProgMashMins(pgm, mashstep), 1));
+            ConfigManager::setProgramMashStepMins(pgm, mashstep, getTimerValue((char*)pgm_read_word(&(TITLE_MASHSTEP[mashstep])), ConfigManager::getProgramMashStepMins(pgm, mashstep), 1));
         else if ((lastOption & B00001111) == OPT_SETTEMP)
-            setProgMashTemp(pgm, mashstep, getValue_P((char*)pgm_read_word(&(TITLE_MASHSTEP[mashstep])), getProgMashTemp(pgm, mashstep), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
+            ConfigManager::setProgramMashStepTemp(pgm, mashstep, getValue_P((char*)pgm_read_word(&(TITLE_MASHSTEP[mashstep])), ConfigManager::getProgramMashStepTemp(pgm, mashstep), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
         else return;
     }
 }
@@ -2179,12 +2178,12 @@ void assignSensor() {
                     if (confirmChoice(UIStrings::Generic::CONTINUE, 3)) {
                         byte addr[8] = {0, 0, 0, 0, 0, 0, 0, 0};
                         getDSAddr(addr);
-                        setTSAddr(encValue, addr);
+                        ConfigManager::setTempSensorAddress(encValue, addr);
                     }
                 }
             } else if (selected == 1) {
                 byte addr[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-                setTSAddr(encValue, addr);
+                ConfigManager::setTempSensorAddress(encValue, addr);
             }
             else if (selected > 2) return;
             
@@ -2269,14 +2268,14 @@ void cfgOutputs() {
         
         outputMenu.setItem_P(UIStrings::BoilMenu::BOIL_TEMP, OPT_BOILTEMP);
         outputMenu.appendItem_P(UIStrings::Generic::COLON_SPACE, OPT_BOILTEMP);
-        vftoa(getBoilTemp(), buf, SETPOINT_DIV, 1);
+        vftoa(ConfigManager::getBoilTemp(), buf, SETPOINT_DIV, 1);
         truncFloat(buf, 5);
         outputMenu.appendItem(buf, OPT_BOILTEMP);
         outputMenu.appendItem_P(UIStrings::Units::TUNIT, OPT_BOILTEMP);
         
         outputMenu.setItem_P(UIStrings::BoilMenu::BOIL_POWER, OPT_BOILPWR);
         outputMenu.appendItem_P(UIStrings::Generic::COLON_SPACE, OPT_BOILPWR);
-        outputMenu.appendItem(itoa(boilPwr, buf, 10), OPT_BOILPWR);
+        outputMenu.appendItem(itoa(boilPower, buf, 10), OPT_BOILPWR);
         outputMenu.appendItem("%", OPT_BOILPWR);
         
 #ifdef PID_FLOW_CONTROL
@@ -2321,11 +2320,11 @@ void cfgOutputs() {
                     strcpy_P(title, (char*)pgm_read_word(&(UIStrings::SystemSetup::TITLE_VS[vessel])));
         
         if ((lastOption & B00001111) == OPT_MODE) {
-            if (PIDEnabled[vessel]) setPIDEnabled(vessel, 0);
-            else setPIDEnabled(vessel, 1);
+            if (PIDEnabled[vessel]) ConfigManager::setPIDEnabled(vessel, 0);
+            else ConfigManager::setPIDEnabled(vessel, 1);
         } else if ((lastOption & B00001111) == OPT_CYCLE) {
             strcat_P(title, UIStrings::SystemSetup::OutputConfig::PIDCYCLE);
-            setPIDCycle(vessel, getValue(title, PIDCycle[vessel], 10, 255, UIStrings::Shared::SEC));
+            ConfigManager::setPIDCycle(vessel, getValue(title, PIDCycle[vessel], 10, 255, UIStrings::Shared::SEC));
             pid[vessel].SetOutputLimits(0, PIDCycle[vessel] * pidLimits[vessel]);
             
         } else if ((lastOption & B00001111) == OPT_GAIN) {
@@ -2333,7 +2332,7 @@ void cfgOutputs() {
             setPIDGain(title, vessel);
         } else if ((lastOption & B00001111) == OPT_HYSTERESIS) {
             strcat_P(title, UIStrings::SystemSetup::OutputConfig::HYSTERESIS);
-            setHysteresis(vessel, getValue(title, hysteresis[vessel], 10, 255, UIStrings::Units::TUNIT));
+            ConfigManager::setHysteresis(vessel, getValue(title, hysteresis[vessel], 10, 255, UIStrings::Units::TUNIT));
 #if defined USESTEAM || defined PID_FLOW_CONTROL
         } else if ((lastOption & B00001111) == OPT_PRESS) {
 #ifdef PID_FLOW_CONTROL
@@ -2352,9 +2351,9 @@ void cfgOutputs() {
             if (confirmChoice(UIStrings::Generic::CONTINUE, 3)) setSteamZero(analogRead(STEAMPRESS_APIN));
 #endif
         } else if ((lastOption & B00001111) == OPT_BOILTEMP) {
-            setBoilTemp(getValue_P(UIStrings::BoilMenu::BOIL_TEMP, getBoilTemp(), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
+            ConfigManager::setBoilTemp(getValue_P(UIStrings::BoilMenu::BOIL_TEMP, ConfigManager::getBoilTemp(), SETPOINT_DIV, 255, UIStrings::Units::TUNIT));
         } else if ((lastOption & B00001111) == OPT_BOILPWR) {
-            setBoilPwr(getValue_P(UIStrings::BoilMenu::BOIL_POWER, boilPwr, 1, min(PIDLIMIT_KETTLE, 100), UIStrings::Generic::PERC_SYM));
+            ConfigManager::setBoilPower(getValue_P(UIStrings::BoilMenu::BOIL_POWER, boilPower, 1, min(PIDLIMIT_KETTLE, 100), UIStrings::Generic::PERC_SYM));
         } else return;
         brewCore();
     }
@@ -2421,9 +2420,9 @@ void setPIDGain(char sTitle[], byte vessel) {
         }
         if (Encoder.ok()) {
             if (cursorPos == 3) {
-                setPIDp(vessel, retP);
-                setPIDi(vessel, retI);
-                setPIDd(vessel, retD);
+                ConfigManager::setPIDPGain(vessel, retP);
+                ConfigManager::setPIDIGain(vessel, retI);
+                ConfigManager::setPIDDGain(vessel, retD);
 #ifdef DEBUG_PID_GAIN
                 logDebugPIDGain(vessel);
 #endif
@@ -2486,11 +2485,11 @@ void cfgVolumes() {
         
         if ((lastOption & B00001111) == OPT_CAPACITY) {
             strcat_P(title, UIStrings::SystemSetup::VolumeConfig::CAPACITY);
-            setCapacity(vessel, getValue(title, getCapacity(vessel), 1000, 9999999, UIStrings::Units::VOLUNIT));
+            ConfigManager::setVesselCapacity(vessel, getValue(title, ConfigManager::getVesselCapacity(vessel), 1000, 9999999, UIStrings::Units::VOLUNIT));
         }
         else if ((lastOption & B00001111) == OPT_DEADSPACE) {
             strcat_P(title, UIStrings::SystemSetup::VolumeConfig::DEADSPACE);
-            setVolLoss(vessel, getValue(title, getVolLoss(vessel), 1000, 65535, UIStrings::Units::VOLUNIT));
+            ConfigManager::setVesselVolumeLoss(vessel, getValue(title, ConfigManager::getVesselVolumeLoss(vessel), 1000, 65535, UIStrings::Units::VOLUNIT));
         }
         else if ((lastOption & B00001111) == OPT_CALIBRATION) {
             strcat_P(title, UIStrings::SystemSetup::VolumeConfig::CALIBRATION);
@@ -2499,7 +2498,7 @@ void cfgVolumes() {
 #ifdef BOIL_OFF_GALLONS
         else if ((lastOption & B00001111) == OPT_EVAP) setEvapRate(getValue_P(UIStrings::SystemSetup::VolumeConfig::EVAP_RATE, getEvapRate(), 1, 255, UIStrings::SystemSetup::VolumeConfig::EVAP_RATE_UNIT));
 #else
-        else if ((lastOption & B00001111) == OPT_EVAP) setEvapRate(getValue_P(UIStrings::SystemSetup::VolumeConfig::EVAP_RATE, getEvapRate(), 1, 100, UIStrings::SystemSetup::VolumeConfig::EVAP_RATE_UNIT));
+        else if ((lastOption & B00001111) == OPT_EVAP) ConfigManager::setEvapRate(getValue_P(UIStrings::SystemSetup::VolumeConfig::EVAP_RATE, ConfigManager::getEvapRate(), 1, 100, UIStrings::SystemSetup::VolumeConfig::EVAP_RATE_UNIT));
 #endif
         else return;
     }
@@ -2533,7 +2532,7 @@ void volCalibMenu(char sTitle[], byte vessel) {
                 logVolCalib("Value before dialog:", analogRead(vSensor[vessel]));
 #endif
                 
-                setVolCalib(vessel, lastOption, 0, getValue_P(UIStrings::SystemSetup::VolumeCalibration::CURR_VOL, 0, 1000, 9999999, UIStrings::Units::VOLUNIT)); //Set temporary the value to zero. It will be updated in the next step.
+                ConfigManager::setVolumeCalib(vessel, lastOption, 0, getValue_P(UIStrings::SystemSetup::VolumeCalibration::CURR_VOL, 0, 1000, 9999999, UIStrings::Units::VOLUNIT)); //Set temporary the value to zero. It will be updated in the next step.
                 volCalibEntryMenu(vessel, lastOption);
                 
 #ifdef DEBUG_VOLCALIB
@@ -2574,16 +2573,16 @@ void volCalibEntryMenu(byte vessel, byte entry) {
         
         if (lastOption == 0) {
             //Update the volume value.
-            setVolCalib(vessel, entry, newSensorValue, calibVols[vessel][entry]);
+            ConfigManager::setVolumeCalib(vessel, entry, newSensorValue, calibVols[vessel][entry]);
             return;
         } else if (lastOption == 1) {
             newSensorValue = (unsigned int) getValue_P(UIStrings::SystemSetup::VolumeCalibration::MANUAL_VOL_ENTRY, calibVals[vessel][entry], 1, 1023, UIStrings::Generic::EMPTY);
-            setVolCalib(vessel, entry, newSensorValue, calibVols[vessel][entry]);
+            ConfigManager::setVolumeCalib(vessel, entry, newSensorValue, calibVols[vessel][entry]);
             return;
         } else if (lastOption == 2) {
             //Delete the volume and value.
             if(confirmDel()) {
-                setVolCalib(vessel, entry, 0, 0);
+                ConfigManager::setVolumeCalib(vessel, entry, 0, 0);
                 return;
             }
         } else return;
@@ -2622,7 +2621,7 @@ void cfgValves() {
     while (1) {
         byte profile = scrollMenu("Valve Configuration", &vlvMenu);
         if (profile >= NUM_VLVCFGS) return;
-        else setValveCfg(profile, cfgValveProfile(vlvMenu.getSelectedRow(buf), vlvConfig[profile]));
+        else ConfigManager::setValveProfileConfig(profile, cfgValveProfile(vlvMenu.getSelectedRow(buf), vlvConfig[profile]));
     }
 }
 
@@ -2960,12 +2959,19 @@ void cfgTriggers() {
         triggerMenu.setItem_P(UIStrings::SystemSetup::TriggersConfig::KETTLE_MIN, 4);
         triggerMenu.setItem_P(UIStrings::Generic::EXIT, 255);
         for (byte i = 0; i < 5; i++) {
-            if (getTriggerPin(i)) triggerMenu.appendItem(itoa(getTriggerPin(i), buf, 10), i);
+            if (ConfigManager::getTriggerPin(static_cast<TriggerType>(i))) triggerMenu.appendItem(itoa(ConfigManager::getTriggerPin(static_cast<TriggerType>(i)), buf, 10), i);
             else triggerMenu.appendItem_P(UIStrings::SystemSetup::TriggersConfig::NONE, i);
         }
         
         byte lastOption = scrollMenu("Trigger Assignment", &triggerMenu);
-        if (lastOption < 5) setTriggerPin(lastOption, getValue_P(UIStrings::SystemSetup::TriggersConfig::INPUT_PIN_NONE, getTriggerPin(lastOption), 1, DIGIN_COUNT, UIStrings::Generic::EMPTY));
+        if (lastOption < 5) {
+            uint8_t pin = (getValue_P(UIStrings::SystemSetup::TriggersConfig::INPUT_PIN_NONE,
+                                      ConfigManager::getTriggerPin(static_cast<TriggerType>(lastOption)),
+                                      1,
+                                      DIGIN_COUNT,
+                                      UIStrings::Generic::EMPTY));
+            ConfigManager::setTriggerPin(static_cast<TriggerType>(lastOption), pin);
+        }
         else return;
     }
 }

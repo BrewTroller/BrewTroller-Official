@@ -541,6 +541,8 @@ void ConfigManager::initConfig() {
     
     //Mark the BT Fingerprint
     eeprom_update_byte(&configStore->btFingerprint, 252);
+    //Store the config version
+    eeprom_update_byte(&configStore->eepromSchemaVersion, 4);
     
     //Set the defaults for Grain temperature and boil temperature
     setGrainTemperature(DEFAULT_GRAINTEMP);

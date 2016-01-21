@@ -737,11 +737,11 @@ void BTnic::execCmd(void) {
       
 
     case CMD_SET_BOILPWR:  //i
-      boilPwr = getCmdParamNum(1);
+      boilPower = getCmdParamNum(1);
       ConfigManager::setBoilPower(getCmdParamNum(1));
     case CMD_GET_BOILPWR:  //f
       logFieldCmd(CMD_GET_BOILPWR, NO_CMDINDEX);
-      logFieldI(boilPwr);
+      logFieldI(boilPower);
       break;
       
       

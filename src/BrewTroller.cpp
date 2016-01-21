@@ -206,7 +206,7 @@ byte pidLimits[4] = { PIDLIMIT_HLT, PIDLIMIT_MASH, PIDLIMIT_KETTLE, PIDLIMIT_STE
 
 //Steam Pressure in thousandths
 unsigned long steamPressure;
-byte boilPwr;
+byte boilPower;
 
 PID pid[4] = {
         PID(&PIDInput[VS_HLT], &PIDOutput[VS_HLT], &setpoint[VS_HLT], 3, 4, 1),

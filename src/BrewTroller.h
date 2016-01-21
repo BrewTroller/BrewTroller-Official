@@ -138,7 +138,7 @@ extern byte pidLimits[4];
 
 //Steam Pressure in thousandths
 extern unsigned long steamPressure;
-extern byte boilPwr;
+extern byte boilPower;
 
 extern PID pid[4];
 #if defined PID_FLOW_CONTROL && defined PID_CONTROL_MANUAL
