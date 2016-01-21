@@ -482,6 +482,48 @@ void ConfigManager::setBoilAdditionsTrigger(uint16_t trigger) {
     eeprom_update_block(&trigger, &configStore->boilAdditionsTrigger, sizeof(uint16_t));
 }
 
+void ConfigManager::setTimerStatus(uint8_t timer, bool enabled) {
+    uint8_t val = eeprom_read_byte(&configStore->timerStatus);
+    uint8_t mask = 1 << timer;
+    val ^= (-enabled ^ val) & mask; //Set the bit if enabled == true; clear it otherwise
+                                    //from https://graphics.stanford.edu/~seander/bithacks.html
+    eeprom_update_byte(&configStore->timerStatus, val);
+}
+
+bool ConfigManager::getTimerStatus(uint8_t timer) {
+    return (eeprom_read_byte(&configStore->timerStatus) >> timer) & 0x1;
+}
+
+void ConfigManager::setCurrentTimerValue(uint8_t timer, uint16_t minutes) {
+    uint16_t* target = &configStore->mashTimer;
+    if (timer == TIMER_BOIL) {
+        target = &configStore->boilTimer;
+    }
+    eeprom_update_block(&minutes, target, sizeof(uint16_t));
+}
+
+uint16_t ConfigManager::getCurrentTimerValue(uint8_t timer) {
+    uint16_t* target = &configStore->mashTimer;
+    if (timer == TIMER_BOIL) {
+        target = &configStore->boilTimer;
+    }
+    uint16_t temp;
+    eeprom_read_block(&temp, target, sizeof(uint16_t));
+    return temp;
+}
+
+void ConfigManager::setAlarmStatus(bool on) {
+    uint8_t val = eeprom_read_byte(&configStore->timerStatus);
+    constexpr uint8_t mask = 1 << 2;
+    val ^= (-on ^ val) & mask; //Set the bit if enabled == true; clear it otherwise
+    //from https://graphics.stanford.edu/~seander/bithacks.html
+    eeprom_update_byte(&configStore->timerStatus, val);
+}
+
+bool ConfigManager::getAlarmStatus() {
+    return (eeprom_read_byte(&configStore->timerStatus) >> 2) & 0x1;
+}
+
 void ConfigManager::initConfig() {
     //Zero the config structure out
     for (size_t i = 0; i < sizeof(config_t); i++) {

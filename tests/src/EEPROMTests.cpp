@@ -727,6 +727,70 @@ TEST_F(ConfigManagerTests, TestSetBoilAdditionsTrigger) {
     ASSERT_TRUE(confIsInInitState());
 }
 
+TEST_F(ConfigManagerTests, TestSetTimerStatus) {
+    ConfigManager::setTimerStatus(TIMER_MASH, true);
+    ASSERT_EQ(0x1, conf.timerStatus & 0x1);
+    ConfigManager::setTimerStatus(TIMER_MASH, false);
+    ASSERT_EQ(0, conf.timerStatus);
+    
+    ASSERT_TRUE(confIsInInitState());
+    
+    ConfigManager::setTimerStatus(TIMER_BOIL, true);
+    ASSERT_EQ(0x2, conf.timerStatus & 0x2);
+    ConfigManager::setTimerStatus(TIMER_BOIL, false);
+    ASSERT_EQ(0, conf.timerStatus);
+    
+    ASSERT_TRUE(confIsInInitState());
+}
+
+TEST_F(ConfigManagerTests, TestGetTimerStatus) {
+    conf.timerStatus = 0x1;
+    ASSERT_TRUE(ConfigManager::getTimerStatus(TIMER_MASH));
+    
+    conf.timerStatus = 0x2;
+    ASSERT_TRUE(ConfigManager::getTimerStatus(TIMER_BOIL));
+}
+
+TEST_F(ConfigManagerTests, TestSetCurrentTimerValue) {
+    ConfigManager::setCurrentTimerValue(TIMER_MASH, 407);
+    ASSERT_EQ(407, conf.mashTimer);
+    conf.mashTimer = 0;
+    ASSERT_TRUE(confIsInInitState());
+    
+    ConfigManager::setCurrentTimerValue(TIMER_BOIL, 765);
+    ASSERT_EQ(765, conf.boilTimer);
+    conf.boilTimer = 0;
+    ASSERT_TRUE(confIsInInitState());
+}
+
+TEST_F(ConfigManagerTests, TestGetCurrentTimerValue) {
+    conf.mashTimer = 1187;
+    ASSERT_EQ(1187, ConfigManager::getCurrentTimerValue(TIMER_MASH));
+    
+    conf.boilTimer = 555;
+    ASSERT_EQ(555, ConfigManager::getCurrentTimerValue(TIMER_BOIL));
+}
+
+TEST_F(ConfigManagerTests, TestSetAlarmStatus) {
+    ConfigManager::setAlarmStatus(true);
+    ASSERT_EQ(0x4, conf.timerStatus & 0x4);
+    conf.timerStatus = 0;
+    ASSERT_TRUE(confIsInInitState());
+    
+    conf.timerStatus = 0x4;
+    ConfigManager::setAlarmStatus(false);
+    ASSERT_EQ(0, conf.timerStatus);
+    ASSERT_TRUE(confIsInInitState());
+}
+
+TEST_F(ConfigManagerTests, TestGetAlarmStatus) {
+    conf.timerStatus = 0x4;
+    ASSERT_TRUE(ConfigManager::getAlarmStatus());
+    
+    conf.timerStatus = 0;
+    ASSERT_FALSE(ConfigManager::getAlarmStatus());
+}
+
 TEST_F(ConfigManagerTests, TestConfigInit) {
     ConfigManager::initConfig();
     //Test the PID, Cycle, and Hysteresis Values for each vessel are set to defaults

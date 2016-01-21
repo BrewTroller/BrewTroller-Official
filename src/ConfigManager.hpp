@@ -644,6 +644,49 @@ public:
      - returns: void
      */
     static void setBoilAdditionsTrigger(uint16_t trigger);
+    
+    /**
+     setTimerStatus: Update the status of a Timer
+     - parameter timer: The timer index to update; Defined in ENUM.h
+     - parameter enabled: A boolean value representing the current state of the timer
+     - returns: void
+     */
+    static void setTimerStatus(uint8_t timer, bool enabled);
+    
+    /**
+     getTimerStatus: Get the status of a Timer
+     - parameter timer: The timer index to update; Defined in ENUM.h
+     - returns: bool indicating if the timer is enabled
+     */
+    static bool getTimerStatus(uint8_t timer);
+    
+    /**
+     setCurrentTimerValue: Set the current minute value of a timer
+     - parameter timer: The timer index to update; Defined in ENUM.h
+     - parameter minutes: The current minutes value of the timer
+     - returns: void
+     */
+    static void setCurrentTimerValue(uint8_t timer, uint16_t minutes);
+    
+    /**
+     getCurrentTimerValue: Get the current minute value of a timer
+     - parameter timer: The timer index to retrieve the value for; Defined in ENUM.h
+     - returns: uint16_t the current timer value in minutes
+     */
+    static uint16_t getCurrentTimerValue(uint8_t timer);
+    
+    /**
+     setAlarmStatus: Set the current status of the alarm
+     - parameter on: A boolean value representing the state of the alarm
+     - returns: void
+     */
+    static void setAlarmStatus(bool on);
+    
+    /**
+     getAlarmStatus: Get the current status of the alarm
+     - returns: bool; the current state of the alarm
+     */
+    static bool getAlarmStatus();
 };
 
 extern config_t eepromConfig;

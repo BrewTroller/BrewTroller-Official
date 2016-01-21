@@ -26,7 +26,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
 #include <Arduino.h>
 #include "Timer.h"
 #include "BrewTroller.h"
-#include "EEPROM.h"
+#include "ConfigManager.hpp"
 
 unsigned long buzzerCycleStart = millis(); //last time the alarm went on
 
@@ -38,8 +38,8 @@ void setTimer(byte timer, int minutes) {
     timerValue[timer] = minutes * 60000;
     lastTime[timer] = millis();
     timerStatus[timer] = 1;
-    setTimerStatus(timer, 1);
-    setTimerRecovery(timer, minutes);
+    ConfigManager::setTimerStatus(timer, true);
+    ConfigManager::setCurrentTimerValue(timer, minutes);
   }
 }
 
@@ -52,14 +52,14 @@ void pauseTimer(byte timer) {
     timerStatus[timer] = 1;
     lastTime[timer] = millis();
   }
-  setTimerStatus(timer, timerStatus[timer]);
+  ConfigManager::setTimerStatus(timer, timerStatus[timer]);
 }
 
 void clearTimer(byte timer) {
   timerValue[timer] = 0;
   timerStatus[timer] = 0;
-  setTimerStatus(timer, 0);
-  setTimerRecovery(timer, 0);
+  ConfigManager::setTimerStatus(timer, 0);
+  ConfigManager::setCurrentTimerValue(timer, 0);
 }
 
 void updateTimers() {
@@ -77,8 +77,8 @@ void updateTimers() {
         #endif
         timerValue[timer] = 0;
         timerStatus[timer] = 0;
-        setTimerStatus(timer, 0);
-        setTimerRecovery(timer, 0);  // KM - Moved this from below to be event driven
+        ConfigManager::setTimerStatus(timer, 0);
+        ConfigManager::setCurrentTimerValue(timer, 0);  // KM - Moved this from below to be event driven
         setAlarm(1);
       }
       lastTime[timer] = now;
@@ -90,7 +90,9 @@ void updateTimers() {
     //Update EEPROM once per minute
     if (timerMins != lastEEPROMWrite[timer]) {
       lastEEPROMWrite[timer] = timerMins;
-      if (timerValue[timer]) setTimerRecovery(timer, timerValue[timer]/60000 + 1);
+        if (timerValue[timer]) {
+            ConfigManager::setCurrentTimerValue(timer, timerValue[timer]/60000 + 1);
+        }
     }
   }
 }
@@ -104,7 +106,7 @@ void updateBuzzer() {
 }
 
 void setAlarm(boolean alarmON) {
-  setAlarmStatus(alarmON);
+  ConfigManager::setAlarmStatus(alarmON);
   setBuzzer(alarmON);  
 }
 
