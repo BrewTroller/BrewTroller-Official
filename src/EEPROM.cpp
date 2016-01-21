@@ -681,7 +681,7 @@ boolean checkConfig() {
       for (uint8_t i = 0; i < PVOUT_MODBUS_MAXBOARDS; i++) {
           setVlvModbusDefaults(i);
       }
-      EEPROM.write(2057, 4);
+      EEPROM.write(2047, 4);
   }
   return 0;
 }
