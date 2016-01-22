@@ -834,7 +834,8 @@ TEST_F(ConfigManagerTests, TestConfigInit) {
     conf.lcdContrast = 0;
     
     //Test the config version number
-    ASSERT_EQ(0, conf.eepromSchemaVersion);
+    ASSERT_EQ(EEPROM_SCHEMA_VER, conf.eepromSchemaVersion);
+    conf.eepromSchemaVersion = 0;
     
     //Test the Fingerprint has been set
     ASSERT_EQ(252, conf.btFingerprint);
