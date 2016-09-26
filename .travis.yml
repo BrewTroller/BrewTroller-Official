@@ -3,10 +3,6 @@ sudo: false
 env:
   - PATH="$HOME/avr-gcc/bin:$PATH"
 
-cache:
-  directories:
-    - $HOME/avr-gcc
-
 before_script:
     - curl -L -O https://github.com/BrewTroller/toolchain-builder/releases/download/v5.4.0/avr-gcc-5.4.0-linux.tar.xz &&
       tar xf avr-gcc*.tar.xz &&
