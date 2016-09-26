@@ -8,9 +8,9 @@ cache:
     - $HOME/avr-gcc
 
 before_script:
-    - cd $HOME &&
-      curl -L -O https://github.com/BrewTroller/toolchain-builder/releases/download/v5.4.0/avr-gcc-5.4.0-linux.tar.xz &&
+    - curl -L -O https://github.com/BrewTroller/toolchain-builder/releases/download/v5.4.0/avr-gcc-5.4.0-linux.tar.xz &&
       tar xf avr-gcc*.tar.xz &&
+      mv avr-gcc $HOME/ && rm -rf avr-gcc*.tar.xz &&
       cd $TRAVIS_BUILD_DIR &&
       chmod +x build-all-test.sh
 
