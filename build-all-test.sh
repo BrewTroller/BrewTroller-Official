@@ -64,7 +64,11 @@ board_list=("BT_3X"\
             "OT_EX1_HERMS"\        
             "OT_EX1_RIMSDF"\       
             "OT_EX1_SINGLEVESSEL"\ 
-            "OT_EX1_STEAMPWM")     
+            "OT_EX1_STEAMPWM"\
+            "BT_PHOENIX_HERMS"\
+            "BT_PHOENIX_RIMS"\
+            "BT_PHOENIX_SINGLE_VESSEL"\
+            "BT_PHOENIX_STEAM_PWM")     
 
 for board in "${board_list[@]}"
 do

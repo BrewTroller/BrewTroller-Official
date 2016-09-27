@@ -1,63 +1,67 @@
  [
-	{
-		"type": "radio",
-		"id": "board",
-		"title": "Board Type",
-		"description": "Select the physical BrewTroller board type you have",
-		"options": [
-			{"optName":"BT_3X", "name": "3.X"},
-			{"optName":"BT_4P", "name": "4.X Pro"},
-			{"optName":"OT_BX1_HERMSI2CLCD", "name": "BX1 HERMS"},
-			{"optName":"OT_BX1_RIMSDFI2CLCD", "name": "BX1 RIMS"},
-			{"optName":"OT_BX1_SINGLEVESSEL", "name": "BX1 Single Vessel"},
-			{"optName":"OT_BX1_STEAMPWMI2CLCD", "name": "BX1 Steam"},
-			{"optName":"OT_DX1_HERMS", "name": "DX1 HERMS"},
-			{"optName":"OT_DX1_RIMSDF", "name": "DX1 RIMS"},
-			{"optName":"OT_DX1_SINGLEVESSEL", "name": "DX1 Single Vessel"},
-			{"optName":"OT_DX1_STEAMPWM", "name": "DX1 Steam"},
-			{"optName":"OT_EX1_HERMS", "name": "EX1 HERMS"},
-			{"optName":"OT_EX1_RIMSDF", "name": "EX1 RIMS"},
-			{"optName":"OT_EX1_SINGLEVESSEL", "name": "EX1 Single Vessel"},
-			{"optName":"OT_EX1_STEAMPWM", "name": "EX1 Steam"}
-		],
-		"default": "DX1 HERMS"
-	},
-	{
-		"type": "switch",
-		"id": "BASIC_CONFIG",
-		"title": "Basic Configuration",
-		"description": "Basic BrewTroller Configuration Options.",
-		"options": [
-			{"name": "Use Metric Units", "optName":"USEMETRIC", "on": false}
-		]
-	},
-	{
-		"type": "switch",
-		"id": "VESSEL_CONFIG",
-		"title": "Vessel Configuration",
-		"description": "Configure Vessel Use and Type Options for your Brewery",
-		"options": [
-			{"name": "Use HLT as Kettle", "optName": "HLT_AS_KETTLE", "on": false},
-			{"name": "Use Kettle as Mash", "optName": "KETTLE_AS_MASH", "on": false},
-			{"name": "Single Vessel Mode", "optName": "SINGLE_VESSEL_SUPPORT", "on": false}
-		]
-	},
-	{
-		"type": "switch",
-		"id": "VOLUME_SENSORS",
-		"title": "Volume Sensing",
-		"description": "Disabling volume sensors changes the system display screens; Instead of displaying current volume levels target volumes for the step are shown",
-		"options": [
-			{"name": "Disable Volume Sensors", "optName":"VOLUME_MANUAL", "on": false}
-		]
-	},
-	{
-		"type": "switch",
-		"id": "SKIP_TO_BOIL",
-		"title": "Skip To Boil",
-		"description": "When enabled, all program steps preceeding boil are skipped. Useful for controlling boil stage only.",
-		"options": [
-			{"name": "Boil Only", "optName":"AUTO_SKIP_TO_BOIL", "on": false}
-		]
-	}
+    {
+        "type": "radio",
+        "id": "board",
+        "title": "Board Type",
+        "description": "Select the physical BrewTroller board type you have",
+        "options": [
+            {"optName":"BT_3X", "name": "3.X"},
+            {"optName":"BT_4P", "name": "4.X Pro"},
+            {"optName":"OT_BX1_HERMSI2CLCD", "name": "BX1 HERMS"},
+            {"optName":"OT_BX1_RIMSDFI2CLCD", "name": "BX1 RIMS"},
+            {"optName":"OT_BX1_SINGLEVESSEL", "name": "BX1 Single Vessel"},
+            {"optName":"OT_BX1_STEAMPWMI2CLCD", "name": "BX1 Steam"},
+            {"optName":"OT_DX1_HERMS", "name": "DX1 HERMS"},
+            {"optName":"OT_DX1_RIMSDF", "name": "DX1 RIMS"},
+            {"optName":"OT_DX1_SINGLEVESSEL", "name": "DX1 Single Vessel"},
+            {"optName":"OT_DX1_STEAMPWM", "name": "DX1 Steam"},
+            {"optName":"OT_EX1_HERMS", "name": "EX1 HERMS"},
+            {"optName":"OT_EX1_RIMSDF", "name": "EX1 RIMS"},
+            {"optName":"OT_EX1_SINGLEVESSEL", "name": "EX1 Single Vessel"},
+            {"optName":"OT_EX1_STEAMPWM", "name": "EX1 Steam"},
+            {"optName":"BT_PHOENIX_HERMS","name": "Phoenix HERMS"},
+            {"optName":"BT_PHOENIX_RIMS","name": "Phoenix RIMS"},
+            {"optName":"BT_PHOENIX_SINGLEVESSEL","name": "Phoenix Single Vessel"},
+            {"optName":"BT_PHOENIX_STEAMPWM","name": "Phoenix Steam"}
+            ],
+        "default": "Phoenix HERMS"
+    },
+    {
+        "type": "switch",
+        "id": "BASIC_CONFIG",
+        "title": "Basic Configuration",
+        "description": "Basic BrewTroller Configuration Options.",
+        "options": [
+            {"name": "Use Metric Units", "optName":"USEMETRIC", "on": false}
+        ]
+    },
+    {
+        "type": "switch",
+        "id": "VESSEL_CONFIG",
+        "title": "Vessel Configuration",
+        "description": "Configure Vessel Use and Type Options for your Brewery",
+        "options": [
+            {"name": "Use HLT as Kettle", "optName": "HLT_AS_KETTLE", "on": false},
+            {"name": "Use Kettle as Mash", "optName": "KETTLE_AS_MASH", "on": false},
+            {"name": "Single Vessel Mode", "optName": "SINGLE_VESSEL_SUPPORT", "on": false}
+        ]
+    },
+    {
+        "type": "switch",
+        "id": "VOLUME_SENSORS",
+        "title": "Volume Sensing",
+        "description": "Disabling volume sensors changes the system display screens; Instead of displaying current volume levels target volumes for the step are shown",
+        "options": [
+            {"name": "Disable Volume Sensors", "optName":"VOLUME_MANUAL", "on": false}
+        ]
+    },
+    {
+        "type": "switch",
+        "id": "SKIP_TO_BOIL",
+        "title": "Skip To Boil",
+        "description": "When enabled, all program steps preceeding boil are skipped. Useful for controlling boil stage only.",
+        "options": [
+            {"name": "Boil Only", "optName":"AUTO_SKIP_TO_BOIL", "on": false}
+        ]
+    }
 ]
