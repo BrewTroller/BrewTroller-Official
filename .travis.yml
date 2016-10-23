@@ -1,9 +1,11 @@
 sudo: false
+language: c++
+
 env:
   global:
     - PATH="$HOME/avr-gcc/bin:$PATH"
     # Coverity scan token
-    secure: "cWrhHvZ77WmW9ll9QmRsLYPzu+LUi38PJ12vXDXRyDYxvU9NMfSFya34Z7J6Y5p06C+gT/CSyNc3gI9AIrKrQy8qX/n6zO2GTQkpGRhiK0PFZ6PyiJrbiwdXccdBV6RMI5p3Oq+UnvgN25wONXSwcc74Az9PgOMj1sYhX0uiJnAVUPz8vMvRN0KjadK2IJB7roh/CGWz2BnMyD0Xn0ZpG30XNmZJ5rYITuvhDlA4jRFg1WkzCIPD+jLwaXKIDNDTFfDHLpUm4EJmEgSYF0XYW4Met0r0OEoWmrr+YZ5CKCu/JimoqBqNyIf3kvSSc7Lza3DvJKmy8J/wWlQFZ18rVGkv252KUQfNqQt5MdNBxFUd67Odpxa/lxvjV87WmtN9QGYA2ZGBub6HQJ6GoJh/fuFRqPbij/SqNlc9IoY7jwi+0/A//Qk6Pnj8+7nLY7JSo5N99Bmmo+v8XmaXzBZOlDs9yTm26rBD+x0wHbgRH4Q9xQBgasBV2sC7T2qxQxBBSz9vdwYY79BavLIletO7mQ+QGzs9kJ8Zla7mHEuMS4KMMR7SltZ6AkPOj9fd/T08qvHQ3ZkANaZyKKfxEKdyCJO89TlJvcvUgF+3WCMCQx4EtGH4fmQxbZ8vdxEP+ZE3D2pLPM/SAfH464JlLkQDh1AvPlBAUQTRyHTZxJPmSa4="
+    - secure: "cWrhHvZ77WmW9ll9QmRsLYPzu+LUi38PJ12vXDXRyDYxvU9NMfSFya34Z7J6Y5p06C+gT/CSyNc3gI9AIrKrQy8qX/n6zO2GTQkpGRhiK0PFZ6PyiJrbiwdXccdBV6RMI5p3Oq+UnvgN25wONXSwcc74Az9PgOMj1sYhX0uiJnAVUPz8vMvRN0KjadK2IJB7roh/CGWz2BnMyD0Xn0ZpG30XNmZJ5rYITuvhDlA4jRFg1WkzCIPD+jLwaXKIDNDTFfDHLpUm4EJmEgSYF0XYW4Met0r0OEoWmrr+YZ5CKCu/JimoqBqNyIf3kvSSc7Lza3DvJKmy8J/wWlQFZ18rVGkv252KUQfNqQt5MdNBxFUd67Odpxa/lxvjV87WmtN9QGYA2ZGBub6HQJ6GoJh/fuFRqPbij/SqNlc9IoY7jwi+0/A//Qk6Pnj8+7nLY7JSo5N99Bmmo+v8XmaXzBZOlDs9yTm26rBD+x0wHbgRH4Q9xQBgasBV2sC7T2qxQxBBSz9vdwYY79BavLIletO7mQ+QGzs9kJ8Zla7mHEuMS4KMMR7SltZ6AkPOj9fd/T08qvHQ3ZkANaZyKKfxEKdyCJO89TlJvcvUgF+3WCMCQx4EtGH4fmQxbZ8vdxEP+ZE3D2pLPM/SAfH464JlLkQDh1AvPlBAUQTRyHTZxJPmSa4="
 
 before_script:
   - curl -L -O https://github.com/BrewTroller/toolchain-builder/releases/download/v5.4.0/avr-gcc-5.4.0-linux.tar.xz
@@ -16,7 +18,7 @@ notifications:
     secure: iEre5TG5JhLfDHkqi3SpnePCoP2NGTdiVGN5O5/Iqn465C1H3ngsVHVXyBm015Pnr7LhN+lKFjHmgeVvzKy3v7JhZvwD5of2blFzk4l9kHerG2noEMQlbgJDnFpYvLHgu1M2p3s/A77PXTkqpNhNggNcWb+cyLYeqisXrWzzLvou+ofzImTNvydobi348Q4H3MeK45TTskuddDjo02uuyNxET+fac0v45i0GRk0no/vlFC8+1cHqOoZUuj9WEi1f89If1WXQSzp6kLtF6CnOAYXlqQyTIvjVlRFqmMrxBeeW86QqTf1Ab0eQ2sjzjpJ3xvc8lff9r9Fs4Wu3Fi5uLSJ6pyizu2OyzVk+M3ZNVjDcQ7vrN23uyRwBaMXRezb+gjdOtfxeOqq9Tg4QVsA0jZKPnhUfDobThbbxHMCnazNqEtfvGv5iLE1afuVOl0TmpNxc3tmSHAxlVndgCdiLPq7yizQwiXQTTHXuincE7n4Z/NQIw2IrjvBMDev3afNdBmmIvDbTENre6VQwfI4N0jKObS1mF4Fzkx30nv4CRqO0GDnI+Ad+wf63NV+Bf3bC4nSNoid53KXpZW6qqljkBYr9S5VAxiHmtsIyiKwFb1ObICOcnexUUspSaHoydx4r92PtrrDBxPTjxm6D3tbha3BJrLzWGfEXOLBD0gsCvz8=
 
 addons:
-  coverity-scan:
+  coverity_scan:
     project:
       name: BrewTroller/BrewTroller-Official
     build_command_prepend: rm -rf build && cov-configure --comptype gcc --compiler avr-gcc --template && mkdir build && cd build && cp ../coverity-build.sh ./ && chmod +x coverity-build.sh
