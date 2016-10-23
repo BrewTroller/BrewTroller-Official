@@ -49,7 +49,7 @@ message(STATUS "Building BrewTroller version: " ${VER_STR})
 ####################
 # User selectable compile time options
 ####################
-set(board  "OT_DX1_HERMS" CACHE STRING "BrewTroller Hardware Board Target, available options:
+set(board  "BT_PHOENIX_HERMS" CACHE STRING "BrewTroller Hardware Board Target, available options:
 BT_10_21                 --> 1.0 - 2.1
 BT_22_24                 --> 2.2 - 2.4
 BT_3X                    --> 3.X
