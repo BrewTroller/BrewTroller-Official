@@ -23,4 +23,5 @@ addons:
       name: BrewTroller/BrewTroller-Official
     build_command_prepend: rm -rf build && cov-configure --comptype gcc --compiler avr-gcc --template && mkdir build && cd build && cp ../coverity-build.sh ./ && chmod +x coverity-build.sh
     build_command: ./coverity-build.sh
+    notification_email: adam@brewtroller.com
     branch_pattern: coverity
