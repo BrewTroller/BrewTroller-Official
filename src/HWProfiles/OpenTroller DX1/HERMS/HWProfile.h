@@ -16,6 +16,7 @@ OpenTroller DX1 HERMS Hardware Configuration
 
   #define ALARM_PIN 2	//OUT14
   
+  #define PVOUT_TYPE_GPIO
   #define PVOUT_TYPE_MODBUS
   #define PVOUT_BUILTIN_COUNT 1 //1 Outputs
 
