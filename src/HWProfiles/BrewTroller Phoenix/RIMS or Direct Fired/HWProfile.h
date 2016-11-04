@@ -9,6 +9,8 @@ BrewTroller Phoenix RIMS/Direct Fired Hardware Configuration
 #ifndef BT_HWPROFILE
 #define BT_HWPROFILE
 
+  #include "Config.h"
+
   #define ENCODER_I2C
   #define ENCODER_I2CADDR 0x01
 
