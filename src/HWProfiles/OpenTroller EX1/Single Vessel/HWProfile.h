@@ -10,6 +10,8 @@ OpenTroller EX1 Hardware Configuration
 #ifndef BT_HWPROFILE
 #define BT_HWPROFILE
   
+  #include "Config.h"
+
   //**********************************************************************************
   // ENCODER TYPE
   //**********************************************************************************
@@ -29,7 +31,10 @@ OpenTroller EX1 Hardware Configuration
   #define ALARM_PIN 27 //EX1 Alarm
   
   #define PVOUT_TYPE_GPIO
-  #define PVOUT_COUNT 5 //5 Outputs
+  #define PVOUT_TYPE_MODBUS
+  #define PVOUT_BUILTIN_COUNT 5 //5 Outputs
+
+  const uint8_t PVOUT_COUNT = PVOUT_BUILTIN_COUNT + (NUM_MODBUS_RELAY_BOARDS*MODBUS_RELAY_DEFCOILCOUNT); // Total # of outputs - Outputs used for heat + Modbus relay outputs
   
   #define VALVE1_PIN 15 //OUT2
   #define VALVE2_PIN 21 //OUT3
@@ -43,7 +48,6 @@ OpenTroller EX1 Hardware Configuration
 
   #define RS485_SERIAL_PORT 1
   #define RS485_RTS_PIN    12
-  #define PVOUT_TYPE_MODBUS
 
   #define HLTVOL_APIN 3
   #define MASHVOL_APIN 2

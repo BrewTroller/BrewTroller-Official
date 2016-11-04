@@ -9,13 +9,17 @@ OpenTroller DX1 HERMS Hardware Configuration
 #ifndef BT_HWPROFILE
 #define BT_HWPROFILE
 
+  #include "Config.h"
+
   #define ENCODER_I2C
   #define ENCODER_I2CADDR 0x01
 
   #define ALARM_PIN 2	//OUT14
   
-  #define PVOUT_TYPE_GPIO
-  #define PVOUT_COUNT 11 //11 Outputs
+  #define PVOUT_TYPE_MODBUS
+  #define PVOUT_BUILTIN_COUNT 1 //1 Outputs
+
+  const uint8_t PVOUT_COUNT = PVOUT_BUILTIN_COUNT + (NUM_MODBUS_RELAY_BOARDS*MODBUS_RELAY_DEFCOILCOUNT); // Total # of outputs - Outputs used for heat + Modbus relay outputs
 
   #define VALVE1_PIN 28	//OUT1
   #define VALVE2_PIN 29	//OUT2
@@ -34,7 +38,6 @@ OpenTroller DX1 HERMS Hardware Configuration
 
   #define RS485_SERIAL_PORT 1
   #define RS485_RTS_PIN    23
-  #define PVOUT_TYPE_MODBUS
 
   #define DIGITAL_INPUTS
   #define DIGIN_COUNT 6
