@@ -1737,7 +1737,6 @@ unsigned long getHexValue(const char sTitle[], unsigned long defValue) {
             }
             else {
                 cursorPos = encValue;
-                multiplier = ulpow(16, (digits - cursorPos - 1));
                 for (byte i = valuePos - 1; i < valuePos - 1 + digits; i++) {
                     LCD.writeCustChar(2, i, 0);
                 }
@@ -1748,6 +1747,7 @@ unsigned long getHexValue(const char sTitle[], unsigned long defValue) {
                     LCD.print_P(3, 11, UIStrings::Generic::LESS_SYM);
                 }
                 else {
+                    multiplier = ulpow(16, (digits - cursorPos - 1));
                     if (cursorPos < digits) {
                         LCD.writeCustChar(2, valuePos + cursorPos - 1, 1);
                     }
