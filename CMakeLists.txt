@@ -38,3 +38,16 @@ include_directories(lib/arduino
 
 add_subdirectory(lib)
 add_subdirectory(src)
+
+if(EXISTS "rgbio.json")
+    message(STATUS "Auto-generating RGBIO config")
+    execute_process(COMMAND python json2mako.py -j rgbio.json -t templates/rgbio.template -o src/Com_RGBIO8_Config.h
+	                ERROR_VARIABLE rgb_stderr
+	                RESULT_VARIABLE rgb_result_var
+					ERROR_STRIP_TRAILING_WHITESPACE)
+    if (NOT "${rgb_result_var}" STREQUAL "0")
+	    message(FATAL_ERROR "${rgb_stderr}")
+	else()
+		add_definitions("-DGENERATED_RGBIO_CONFIG")
+	endif()
+endif()

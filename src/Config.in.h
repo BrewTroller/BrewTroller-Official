@@ -681,6 +681,12 @@ static const uint8_t TS = 1;
 //
 #define RGBIO8_NUM_BOARDS 1
 //
+
+#ifdef GENERATED_RGBIO_CONFIG
+#define RGBIO8_ENABLE
+#endif
+
+
 //**********************************************************************************
 
 #endif

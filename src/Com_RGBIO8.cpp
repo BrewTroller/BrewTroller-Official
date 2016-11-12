@@ -1,5 +1,6 @@
 #include "Com_RGBIO8.h"
 #include "Outputs.h"
+#include "Util.h"
 
 #ifdef RGBIO8_ENABLE
 
@@ -124,6 +125,12 @@ RGBIO8::RGBIO8() {
     output_assignments[i].type = 0;
     input_assignments[i].type = 0;
   }
+#ifdef GENERATED_RGBIO_CONFIG
+  #pragma message "Using generated RGBIO8 config"
+  memcpy(RGBIO8::output_recipes, genRGBIO_OutputRecipes, array_size(genRGBIO_Inputs) * sizeof(uint16_t) * 4);
+  memcpy(output_assignments, genRGBIO_Outputs, array_size(genRGBIO_Inputs) * sizeof(RGBIO8_output_assignment));
+  memcpy(input_assignments, genRGBIO_Inputs, array_size(genRGBIO_Inputs) * sizeof(RGBIO8_input_assignment));
+#endif
 }
 
 void RGBIO8::begin(int rs485_address, int i2c_address) {

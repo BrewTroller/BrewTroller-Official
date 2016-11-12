@@ -4,6 +4,21 @@
 #include "BrewTroller.h"
 #include "Config.h"
 
+struct RGBIO8_output_assignment {
+    byte type;
+    byte index;
+    byte recipe_id;
+};
+
+struct RGBIO8_input_assignment {
+    byte type;
+    byte index;
+};
+
+#ifdef GENERATED_RGBIO_CONFIG
+#include "Com_RGBIO8_Config.h"
+#endif
+
 #ifdef RGBIO8_ENABLE
 
 #define RGBIO8_MAX_OUTPUT_RECIPES 4
@@ -15,17 +30,6 @@
 
 extern byte softSwitchHeat[HEAT_OUTPUTS_COUNT];
 extern byte softSwitchPv[PVOUT_COUNT];
-
-struct RGBIO8_output_assignment {
-  byte type;
-  byte index;
-  byte recipe_id;
-};
-
-struct RGBIO8_input_assignment {
-  byte type;
-  byte index;
-};
 
 class RGBIO8 {
   public:
