@@ -306,9 +306,9 @@ void setSteamPSens(unsigned int value) {
   steamPSens = value;
   #ifndef PID_FLOW_CONTROL
   #ifdef USEMETRIC
-    pid[VS_STEAM].SetInputLimits(0, 50000 / steamPSens);
+    pid[VS_STEAM].SetInputLimits(0.0, (double)(50000 / steamPSens));
   #else
-    pid[VS_STEAM].SetInputLimits(0, 7250 / steamPSens);
+    pid[VS_STEAM].SetInputLimits(0.0, (double)(7250 / steamPSens));
   #endif
   #endif
   EEPROMwriteInt(117, value);
@@ -670,12 +670,17 @@ boolean checkConfig() {
       for (byte trig = 0; trig < NUM_TRIGGERS; trig++) EEPROM.write(2050 + trig, 0);
       EEPROM.write(2047, 2);
     case 2:
-      for (byte i = 0; i < NUM_MODBUS_RELAY_BOARDS; i++)
-        setVlvModbusDefaults(i);
+      if (NUM_MODBUS_RELAY_BOARDS) {
+          for (byte i = 0; i < NUM_MODBUS_RELAY_BOARDS; i++) {
+              setVlvModbusDefaults(i);
+          }
+      }
       EEPROM.write(2047, 3);
     case 3:
-      for (uint8_t i = 0; i < NUM_MODBUS_RELAY_BOARDS; i++) {
-          setVlvModbusDefaults(i);
+      if (NUM_MODBUS_RELAY_BOARDS) {
+          for (uint8_t i = 0; i < NUM_MODBUS_RELAY_BOARDS; i++) {
+              setVlvModbusDefaults(i);
+          }
       }
       EEPROM.write(2047, 4);
   }

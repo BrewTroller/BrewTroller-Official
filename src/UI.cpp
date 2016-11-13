@@ -1808,7 +1808,7 @@ unsigned long getHexValue(const char sTitle[], unsigned long defValue) {
 char* concatPSTRS(char* dst, const char* one, const char* two)
 {
     strcpy_P(dst, one);
-    strcat_P(dst, two);
+    return strcat_P(dst, two);
 }
 
 void printTimer(byte timer, byte iRow, byte iCol) {
@@ -1910,8 +1910,10 @@ int getTimerValue(const char *sTitle, int defMins, byte maxHours) {
 
 void getString(const char *sTitle, char defValue[], byte chars) {
     char retValue[20];
-    strcpy(retValue, defValue);
+    strncpy(retValue, defValue, 19);
     
+    chars = min(chars,19);
+
     //Right-Pad with spaces
     boolean doWipe = 0;
     for (byte i = 0; i < chars; i++) {
@@ -1994,6 +1996,7 @@ byte ASCII2enc(byte charin) {
     else if (charin >= 58 && charin <= 64) return charin + 20;
     else if (charin >= 91 && charin <= 96) return charin - 6;
     else if (charin >= 123 && charin <= 126) return charin - 32;
+    return 0;
 }
 
 byte enc2ASCII(byte charin) {
@@ -2005,6 +2008,7 @@ byte enc2ASCII(byte charin) {
     else if (charin >= 78 && charin <= 84) return charin - 20; //Scan special character :
     else if (charin >= 85 && charin <= 90) return charin + 6;  //Scan special character from [
     else if (charin >= 91 && charin <= 94) return charin + 32; //Scan special character from {
+    return 0;
 }
 
 //*****************************************************************************************************************************
@@ -2473,13 +2477,13 @@ void cfgVolumes() {
         
         char title[20];
 #ifdef PID_FLOW_CONTROL
-        if (vessel >= VS_HLT && vessel <= VS_PUMP)
+        if (vessel <= VS_PUMP)
 #elif defined USESTEAM
-            if (vessel >= VS_HLT && vessel <= VS_STEAM)
+        if (vessel <= VS_STEAM)
 #else
-                if (vessel >= VS_HLT && vessel <= VS_KETTLE)
+        if (vessel <= VS_KETTLE)
 #endif
-                    strcpy_P(title, (char*)pgm_read_word(&(UIStrings::SystemSetup::TITLE_VS[vessel])));
+            strcpy_P(title, (char*)pgm_read_word(&(UIStrings::SystemSetup::TITLE_VS[vessel])));
         
         if ((lastOption & B00001111) == OPT_CAPACITY) {
             strcat_P(title, UIStrings::SystemSetup::VolumeConfig::CAPACITY);

@@ -250,6 +250,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
     public:
       LCDI2C(byte addr) {
         i2cLCDAddr = addr;
+        fastWrite = 1;
       }
       
       void init(){
@@ -482,6 +483,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
         {
           return Wire.read();
         }
+        return 0;
       }
       
       uint8_t i2cGetContrast(void) {
@@ -496,6 +498,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
         {
           return Wire.read();
         }
+        return 0;
       }
       
       uint8_t i2cSaveConfig(void) {
@@ -521,7 +524,7 @@ Documentation, Forums and more information available at http://www.brewtroller.c
       int i2cLcdGetVersion(void) {
         //This command may not be implemented in which case bogus values are returned
         //Executing the command twice after other differing requests will validate the result
-	int retValue[2];
+    int retValue[2];
         for (byte pass = 0; pass < 2; pass++) {
           if (pass) i2cGetBright();
           else i2cGetContrast();
