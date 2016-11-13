@@ -626,12 +626,12 @@ void screenRefresh() {
         truncFloat(buf, 5);
         LCD.lPad(2, 15, buf, 5, ' ');
         
-        if (PIDEnabled[TS_KETTLE]) {
-            byte pct = PIDOutput[TS_KETTLE] / PIDCycle[TS_KETTLE];
+        if (PIDEnabled[VS_KETTLE]) {
+            byte pct = PIDOutput[VS_KETTLE] / PIDCycle[VS_KETTLE];
             if (pct == 0) strcpy_P(buf, UIStrings::Generic::OFF);
             else if (pct == 100) concatPSTRS(buf, UIStrings::Generic::SPACE, UIStrings::Generic::ON);
             else { itoa(pct, buf, 10); strcat(buf, "%"); }
-        } else if (heatStatus[TS_KETTLE]) {
+        } else if (heatStatus[VS_KETTLE]) {
             concatPSTRS(buf, UIStrings::Generic::SPACE, UIStrings::Generic::ON);
         } else {
             strcpy_P(buf, UIStrings::Generic::OFF);
@@ -1220,7 +1220,6 @@ void editProgram(byte pgm) {
     menu progMenu(3, 12);
     
     while (1) {
-        Serial.println("EditProg call");
         progMenu.setItem_P(UIStrings::Program::ProgramMenu::BATCH_VOL, 0);
         vftoa(getProgBatchVol(pgm), buf, 1000, 1);
         truncFloat(buf, 5);
@@ -1699,7 +1698,7 @@ unsigned long ulpow(unsigned long base, unsigned long exponent) {
  * Prompt the user for a value in hex. The value is shown with 0x prepended
  * and the user may only select 0-f for each digit.
  */
-unsigned long getHexValue(char sTitle[], unsigned long defValue) {
+unsigned long getHexValue(const char sTitle[], unsigned long defValue) {
     unsigned long retValue = defValue;
     byte cursorPos = 0;
     boolean cursorState = 0; //0 = Unselected, 1 = Selected
@@ -1738,7 +1737,6 @@ unsigned long getHexValue(char sTitle[], unsigned long defValue) {
             }
             else {
                 cursorPos = encValue;
-                multiplier = ulpow(16, (digits - cursorPos - 1));
                 for (byte i = valuePos - 1; i < valuePos - 1 + digits; i++) {
                     LCD.writeCustChar(2, i, 0);
                 }
@@ -1749,6 +1747,7 @@ unsigned long getHexValue(char sTitle[], unsigned long defValue) {
                     LCD.print_P(3, 11, UIStrings::Generic::LESS_SYM);
                 }
                 else {
+                    multiplier = ulpow(16, (digits - cursorPos - 1));
                     if (cursorPos < digits) {
                         LCD.writeCustChar(2, valuePos + cursorPos - 1, 1);
                     }
@@ -2027,10 +2026,8 @@ void menuSetup() {
 #ifdef UI_DISPLAY_SETUP
     setupMenu.setItem_P(UIStrings::SystemSetup::DISPLAY_S, 6);
 #endif
-#ifdef RGBIO8_ENABLE
-#ifdef RGBIO8_SETUP
+#if defined(RGBIO8_ENABLE) && defined(RGBIO8_SETUP)
     setupMenu.setItem_P(UIStrings::SystemSetup::RGB_SETUP, 7);
-#endif
 #endif
 #ifdef DIGITAL_INPUTS
     setupMenu.setItem_P(UIStrings::SystemSetup::TRIGGERS, 8);
@@ -2090,10 +2087,10 @@ void cfgRgb() {
         m.setItem_P(UIStrings::Generic::EXIT, 255);
         byte lastOption = scrollMenu("RGB Setup", &m);
         if (lastOption == 0) {
-            targetAddr = (byte) getHexValue("Target Address", targetAddr);
+            targetAddr = (byte) getHexValue(UIStrings::SystemSetup::RGBIO::TARGET_ADDR, targetAddr);
         }
         else if (lastOption == 1) {
-            byte address = (byte) getHexValue("Set Address", targetAddr);
+            byte address = (byte) getHexValue(UIStrings::SystemSetup::RGBIO::SET_ADDR, targetAddr);
             RGBIO8 rgb;
             rgb.begin(0, targetAddr);
             rgb.setAddress(address);
@@ -2177,13 +2174,13 @@ void assignSensor() {
                 LCD.print_P(2,2,UIStrings::SystemSetup::TempSensorAssign::DISCONNECT_WARN2);
                 {
                     if (confirmChoice(UIStrings::Generic::CONTINUE, 3)) {
-                        byte addr[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                        byte addr[TEMP_ADDR_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0};
                         getDSAddr(addr);
                         setTSAddr(encValue, addr);
                     }
                 }
             } else if (selected == 1) {
-                byte addr[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                byte addr[TEMP_ADDR_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0};
                 setTSAddr(encValue, addr);
             }
             else if (selected > 2) return;
@@ -2628,16 +2625,15 @@ void cfgValves() {
 
 unsigned long cfgValveProfile (char sTitle[], unsigned long defValue) {
     unsigned long retValue = defValue;
+    byte encMax = 1;
     //firstBit: The left most bit being displayed
-    byte firstBit, encMax;
+    byte firstBit;
     
-    encMax = PVOUT_COUNT + 1;
-#ifdef PVOUT_TYPE_MODBUS
-    for (byte i = 0; i < PVOUT_MODBUS_MAXBOARDS; i++) {
-        if (ValvesMB[i])
-            encMax = max(encMax, ValvesMB[i]->offset() + ValvesMB[i]->count() + 1);
+    for (byte i = 0; i < NUM_OUTPUT_BANKS; ++i) {
+        if (outputBanks[i]) {
+            encMax += outputBanks[i]->size();
+        }
     }
-#endif
     
     Encoder.setMin(0);
     Encoder.setCount(0);
@@ -2708,7 +2704,7 @@ unsigned long cfgValveProfile (char sTitle[], unsigned long defValue) {
             if (encValue == encMax) return retValue;
             else if (encValue == encMax - 1) {
                 //Test Profile
-                setValves(retValue);
+                setOutputs(retValue);
                 LCD.print_P(3, 2, UIStrings::SystemSetup::ValveProfileConfig::OPEN_SQR);
                 LCD.print_P(3, 7, UIStrings::SystemSetup::ValveProfileConfig::CLOSE_SQR);
                 LCD.update();
@@ -2718,7 +2714,7 @@ unsigned long cfgValveProfile (char sTitle[], unsigned long defValue) {
 #endif
                     delay(50);
                 }
-                setValves(computeValveBits());
+                setOutputs(computeValveBits());
                 redraw = 1;
             } else {
                 retValue = retValue ^ ((unsigned long)1<<encValue);
@@ -2743,28 +2739,34 @@ const uint8_t ku8MBResponseTimedOut           = 0xE2;
 
 void cfgMODBUSOutputs() {
     while(1) {
-        menu boardMenu(3, PVOUT_MODBUS_MAXBOARDS + 1);
-        for (byte i = 0; i < PVOUT_MODBUS_MAXBOARDS; i++) {
+        menu boardMenu(3, NUM_MODBUS_RELAY_BOARDS + 1);
+        for (byte i = 0; i < NUM_MODBUS_RELAY_BOARDS; i++) {
             boardMenu.setItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::BOARD, i);
             boardMenu.appendItem(itoa(i, buf, 10), i);
-            if (!ValvesMB[i])
+
+            if (!outputBanks[i+1])
                 boardMenu.appendItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::DISABLED, i);
             else {
-                byte result = ValvesMB[i]->detect();
-                if (result == ku8MBSuccess) 
+                MODBUSOutputBank* modbus = (MODBUSOutputBank*)outputBanks[i + 1];
+                byte result = modbus->detect();
+                if (result == ku8MBSuccess) {
                     boardMenu.appendItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::CONNECTED, i);
-                else if (result == ku8MBResponseTimedOut)
+                }
+                else if (result == ku8MBResponseTimedOut) {
                     boardMenu.appendItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::TIMEOUT, i);
+                }
                 else {
                     boardMenu.appendItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::ERROR, i);
                     boardMenu.appendItem(itoa(result, buf, 16), i);
                 }
+                // Wait for bus to clear before addressing the next relay board
+                delay(10);
             }
         }
         boardMenu.setItem_P(UIStrings::Generic::EXIT, 255);
         
         byte lastOption = scrollMenu("RS485 Outputs", &boardMenu);
-        if (lastOption < PVOUT_MODBUS_MAXBOARDS) cfgMODBUSOutputBoard(lastOption);
+        if (lastOption < NUM_MODBUS_RELAY_BOARDS) cfgMODBUSOutputBoard(lastOption);
         else return;
     }
 }
@@ -2774,10 +2776,16 @@ void cfgMODBUSOutputBoard(byte board) {
         menu boardMenu(3, 8);
         boardMenu.setItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::ADDRESS, 0);
         byte addr = getVlvModbusAddr(board);
-        if (addr != PVOUT_MODBUS_ADDRNONE)
+        if (addr != MODBUS_RELAY_ADDRNONE)
             boardMenu.appendItem(itoa(addr, buf, 10), 0);
         else
             boardMenu.appendItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::NA, 0);
+
+        MODBUSOutputBank* modbus = (MODBUSOutputBank*)outputBanks[board + 1];
+        if (!modbus)
+        {
+            modbus = new MODBUSOutputBank(PVOUT_BUILTIN_COUNT+(board*MODBUS_RELAY_DEFCOILCOUNT), MODBUS_RELAY_ADDRINIT, getVlvModbusReg(board), getVlvModbusCoilCount(board), getVlvModbusOffset(board));
+        }
         
         boardMenu.setItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::REGISTER, 1);
         boardMenu.appendItem(itoa(getVlvModbusReg(board), buf, 10), 1);
@@ -2786,16 +2794,17 @@ void cfgMODBUSOutputBoard(byte board) {
         boardMenu.setItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::OFFSET, 3);
         boardMenu.appendItem(itoa(getVlvModbusOffset(board), buf, 10), 3);
         
-        if (addr == PVOUT_MODBUS_ADDRNONE)
+        if (addr == MODBUS_RELAY_ADDRNONE)
             boardMenu.setItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::AUTO_ASSIGN, 4);
         
-        if (ValvesMB[board]) {
+        if (outputBanks[board+1]) {
             boardMenu.setItem_P(UIStrings::SystemSetup::MODBUSOutputConfig::ID_MODE, 5);
-            boardMenu.appendItem_P((ValvesMB[board]->getIDMode()) ? UIStrings::Generic::ON : UIStrings::Generic::OFF, 5);
+            boardMenu.appendItem_P(modbus->getIDMode() ? UIStrings::Generic::ON : UIStrings::Generic::OFF, 5);
         }
         
-        if (addr != PVOUT_MODBUS_ADDRNONE)      
+        if (addr != MODBUS_RELAY_ADDRNONE) {
             boardMenu.setItem_P(UIStrings::Shared::DELETE, 6);
+        }
         
         boardMenu.setItem_P(UIStrings::Generic::EXIT, 255);
         
@@ -2804,7 +2813,11 @@ void cfgMODBUSOutputBoard(byte board) {
         byte lastOption = scrollMenu(title, &boardMenu);
         if (lastOption == 0) {
             byte addr = getVlvModbusAddr(board);
-            setVlvModbusAddr(board, getValue_P(UIStrings::SystemSetup::MODBUSOutputConfig::RELAY_ADDRESS, addr == PVOUT_MODBUS_ADDRNONE ? PVOUT_MODBUS_BASEADDR + board : addr, 1, 255, UIStrings::Generic::EMPTY));
+            unsigned long val = getValue_P(UIStrings::SystemSetup::MODBUSOutputConfig::RELAY_ADDRESS, addr == MODBUS_RELAY_ADDRNONE ? MODBUS_RELAY_BASEADDR + board : addr, 1, 255, UIStrings::Generic::EMPTY);
+            if (modbus->setAddr(val) == 0)
+            {
+                setVlvModbusAddr(board, val);
+            }
         } else if (lastOption == 1)
             setVlvModbusReg(board, getValue_P(UIStrings::SystemSetup::MODBUSOutputConfig::COIL_REGISTER, getVlvModbusReg(board), 1, 65536, UIStrings::Generic::EMPTY));
         else if (lastOption == 2)
@@ -2814,20 +2827,39 @@ void cfgMODBUSOutputBoard(byte board) {
         else if (lastOption == 4)
             cfgMODBUSOutputAssign(board);
         else if (lastOption == 5)
-            ValvesMB[board]->setIDMode((ValvesMB[board]->getIDMode()) ^ 1);
+            modbus->setIDMode(modbus->getIDMode() ^ 1);
         else {
-            if (lastOption == 6)
+            if (lastOption == 6) {
                 setVlvModbusDefaults(board);
+            }
             //Reload board
-            loadVlvModbus(board);
+
+            byte bitPos = PVOUT_BUILTIN_COUNT;
+            for (int x = 0; x < NUM_MODBUS_RELAY_BOARDS; x++)
+            {
+                if (x == board)
+                {
+                    byte addr = getVlvModbusAddr(x);
+                    if (outputBanks[x + 1])
+                    {
+                        delete outputBanks[x + 1];
+                        outputBanks[x + 1] = NULL;
+                    }
+                    if (addr != MODBUS_RELAY_ADDRNONE) {
+                        outputBanks[x+1] = new MODBUSOutputBank(bitPos, addr, getVlvModbusReg(x), getVlvModbusCoilCount(x), getVlvModbusOffset(x));
+                    }
+                    break;
+                }
+                bitPos += MODBUS_RELAY_DEFCOILCOUNT;
+            }
             return;
         }
     }
 }
 
 void cfgMODBUSOutputAssign(byte board) {
-    PVOutMODBUS tempMB(PVOUT_MODBUS_ADDRINIT, getVlvModbusReg(board), getVlvModbusCoilCount(board), getVlvModbusOffset(board));
-    
+    MODBUSOutputBank tempMB(0, MODBUS_RELAY_ADDRINIT, getVlvModbusReg(board), getVlvModbusCoilCount(board), getVlvModbusOffset(board));
+
     byte result = 1;
     while ((result = tempMB.detect())) {
         LCD.clear();
@@ -2846,7 +2878,7 @@ void cfgMODBUSOutputAssign(byte board) {
         if(getChoice(&choiceMenu, 3))
             return;      
     }
-    byte newAddr = getValue_P(UIStrings::SystemSetup::MODBUSOutputConfig::NEW_ADDRESS, PVOUT_MODBUS_BASEADDR + board, 1, 254, UIStrings::Generic::EMPTY);
+    byte newAddr = getValue_P(UIStrings::SystemSetup::MODBUSOutputConfig::NEW_ADDRESS, MODBUS_RELAY_BASEADDR + board, 1, 254, UIStrings::Generic::EMPTY);
     if (tempMB.setAddr(newAddr)) {
         LCD.clear();
         LCD.print_P(1, 1, UIStrings::SystemSetup::MODBUSOutputConfig::UPDATE_FAIL);

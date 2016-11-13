@@ -9,13 +9,19 @@ BrewTroller Phoenix Single Vessel Hardware Configuration
 #ifndef BT_HWPROFILE
 #define BT_HWPROFILE
 
+  #include "Config.h"
+
   #define ENCODER_I2C
   #define ENCODER_I2CADDR 0x01
 
   #define ALARM_PIN 15 //OUT4
   
+  #define PVOUT
   #define PVOUT_TYPE_MUX
-  #define PVOUT_COUNT 16 //16 Outputs
+  #define PVOUT_TYPE_MODBUS
+  #define PVOUT_BUILTIN_COUNT 16 // # of onboard outputs
+
+  const uint8_t PVOUT_COUNT = PVOUT_BUILTIN_COUNT + (NUM_MODBUS_RELAY_BOARDS*MODBUS_RELAY_DEFCOILCOUNT);  // Total # of outputs - Outputs used for heat + Modbus relay outputs
 
   #define MUX_LATCH_PIN 3
   #define MUX_CLOCK_PIN 4
@@ -26,7 +32,7 @@ BrewTroller Phoenix Single Vessel Hardware Configuration
   #define HLTHEAT_PIN 12
 
   #define DIGITAL_INPUTS
-  #define DIGIN_COUNT 8
+  #define DIGIN_COUNT 9
   #define DIGIN1_PIN 31
   #define DIGIN2_PIN 30
   #define DIGIN3_PIN 29
@@ -35,10 +41,10 @@ BrewTroller Phoenix Single Vessel Hardware Configuration
   #define DIGIN6_PIN 19
   #define DIGIN7_PIN 20
   #define DIGIN8_PIN 21
+  #define DIGIN9_PIN 22 //estop
 
   #define RS485_SERIAL_PORT 1
   #define RS485_RTS_PIN    23
-  #define PVOUT_TYPE_MODBUS
   
   #define HLTVOL_APIN 7
   #define MASHVOL_APIN 6
@@ -83,7 +89,7 @@ BrewTroller Phoenix Single Vessel Hardware Configuration
   //   11-bit (0.125C  / 0.225F ) = 375ms 
   //   10-bit (0.25C   / 0.45F  ) = 188ms 
   //    9-bit (0.5C    / 0.9F   ) =  94ms   
-  #define TS_ONEWIRE_RES 11
+  #define TS_ONEWIRE_RES 12
   
   // TS_ONEWIRE_FASTREAD: Enables faster reads of temperatures by reading only the first
   // 2 bytes of temperature data and ignoring CRC check.

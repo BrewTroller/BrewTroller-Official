@@ -26,7 +26,9 @@ BrewTroller 4.0 Pro Hardware Configuration
   #define ALARM_PIN 15
   
   #define PVOUT_TYPE_MUX
-  #define PVOUT_COUNT 16 //16 Outputs
+  #define PVOUT_BUILTIN_COUNT 16 //16 Outputs
+
+  const uint8_t PVOUT_COUNT = PVOUT_BUILTIN_COUNT;
     
   #define MUX_LATCH_PIN 12
   #define MUX_CLOCK_PIN 13

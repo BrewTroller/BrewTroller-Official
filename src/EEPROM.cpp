@@ -131,8 +131,6 @@ void loadSetup() {
     logEnd();
   #endif
   
-
-
   //**********************************************************************************
   //401-480 Valve Profiles
   //**********************************************************************************
@@ -140,8 +138,18 @@ void loadSetup() {
     loadVlvConfigs();
   
     #ifdef PVOUT_TYPE_MODBUS
-      for (byte i = 0; i < PVOUT_MODBUS_MAXBOARDS; i++) 
-        loadVlvModbus(i);
+      byte bitPos = PVOUT_BUILTIN_COUNT;
+      for (int x = 0; x < NUM_MODBUS_RELAY_BOARDS; x++)
+      {
+        byte addr = getVlvModbusAddr(x);
+        if (addr != MODBUS_RELAY_ADDRNONE) {
+          outputBanks[x + 1] = new MODBUSOutputBank(bitPos, addr, getVlvModbusReg(x), getVlvModbusCoilCount(x), getVlvModbusOffset(x));
+        }
+        else {
+          outputBanks[x + 1] = NULL;
+        }
+        bitPos += MODBUS_RELAY_DEFCOILCOUNT;
+      }
     #endif
   #endif
 }
@@ -150,18 +158,6 @@ void loadSetup() {
   void loadVlvConfigs() {
     eeprom_read_block(&vlvConfig, (unsigned char *) 401, 80);
   }
-  
-  #ifdef PVOUT_TYPE_MODBUS
-    void loadVlvModbus(byte board) {
-      if (ValvesMB[board]) {
-        delete ValvesMB[board];
-        ValvesMB[board] = NULL;
-      }
-      byte addr = getVlvModbusAddr(board);
-      if (addr != PVOUT_MODBUS_ADDRNONE)
-        ValvesMB[board] = new PVOutMODBUS(addr, getVlvModbusReg(board), getVlvModbusCoilCount(board), getVlvModbusOffset(board));
-    }
-  #endif 
 #endif
 
 //*****************************************************************************************************************************
@@ -172,7 +168,7 @@ void loadSetup() {
 //TSensors: HLT (0-7), MASH (8-15), KETTLE (16-23), H2OIN (24-31), H2OOUT (32-39), 
 //          BEEROUT (40-47), AUX1 (48-55), AUX2 (56-63), AUX3 (64-71)
 //**********************************************************************************
-void setTSAddr(byte sensor, byte addr[8]) {
+void setTSAddr(byte sensor, byte addr[TEMP_ADDR_SIZE]) {
     #ifdef HLT_AS_KETTLE
     if (sensor == TS_HLT || sensor == TS_KETTLE) {
       //Also copy HLT setting to Kettle
@@ -633,9 +629,9 @@ void setVlvModbusOffset(byte board, byte offset) {
 }
 
 void setVlvModbusDefaults(byte board) {
-  setVlvModbusAddr(board, PVOUT_MODBUS_ADDRNONE);
-  setVlvModbusReg(board, PVOUT_MODBUS_DEFCOILREG);
-  setVlvModbusCoilCount(board, PVOUT_MODBUS_DEFCOILCOUNT);
+  setVlvModbusAddr(board, MODBUS_RELAY_ADDRNONE);
+  setVlvModbusReg(board, MODBUS_RELAY_DEFCOILREG);
+  setVlvModbusCoilCount(board, MODBUS_RELAY_DEFCOILCOUNT);
   byte defaultOffset = PVOUT_COUNT;
   if (board)
     for (byte i = 0; i < board; i++)
@@ -674,11 +670,11 @@ boolean checkConfig() {
       for (byte trig = 0; trig < NUM_TRIGGERS; trig++) EEPROM.write(2050 + trig, 0);
       EEPROM.write(2047, 2);
     case 2:
-      for (byte i = 0; i < PVOUT_MODBUS_MAXBOARDS; i++)
+      for (byte i = 0; i < NUM_MODBUS_RELAY_BOARDS; i++)
         setVlvModbusDefaults(i);
       EEPROM.write(2047, 3);
     case 3:
-      for (uint8_t i = 0; i < PVOUT_MODBUS_MAXBOARDS; i++) {
+      for (uint8_t i = 0; i < NUM_MODBUS_RELAY_BOARDS; i++) {
           setVlvModbusDefaults(i);
       }
       EEPROM.write(2047, 4);

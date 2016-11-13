@@ -1,11 +1,7 @@
-#ifdef RGBIO8_ENABLE
-
-#include "Config.h"
 #include "Com_RGBIO8.h"
+#include "Outputs.h"
 
-#define SOFTSWITCH_OFF 0
-#define SOFTSWITCH_ON 1
-#define SOFTSWITCH_AUTO 2
+#ifdef RGBIO8_ENABLE
 
 byte softSwitchPv[PVOUT_COUNT];
 byte softSwitchHeat[HEAT_OUTPUTS_COUNT];
@@ -20,19 +16,6 @@ void RGBIO8_Init() {
   // Initialize and address each RGB board that is attached
   for (int i = 0; i < RGBIO8_NUM_BOARDS; i++) {
     rgbio8s[i].begin(0, RGBIO8_START_ADDR + i);
-  }
-  
-  // Set the default coniguration. The user can override this with the
-  // custom configuration information below.
-  int ioIndex = 0;
-  for (int i = 0; i < HEAT_OUTPUTS_COUNT && (ioIndex / 8) < RGBIO8_NUM_BOARDS; i++, ioIndex++) {
-    rgbio8s[ioIndex / 8].assignHeatInput(i, ioIndex % 8);
-    rgbio8s[ioIndex / 8].assignHeatOutputRecipe(i, ioIndex % 8, 0);
-  }
-  
-  for (int i = 0; i < PVOUT_COUNT && (ioIndex / 8) < RGBIO8_NUM_BOARDS; i++, ioIndex++) {
-    rgbio8s[ioIndex / 8].assignPvInput(i, ioIndex % 8);
-    rgbio8s[ioIndex / 8].assignPvOutputRecipe(i, ioIndex % 8, 1);
   }
   
   // Set the default values of Softswitches to AUTO so that outputs that are not assigned to softswitches are unaffected by this logic
@@ -219,7 +202,7 @@ void RGBIO8::update(void) {
   
   // Update any assigned outputs
   #ifdef PVOUT
-  unsigned long vlvBits = Valves.get();
+  uint32_t vlvBits = getValveBits();
   #endif
   for (int i = 0; i < 8; i++) {
     RGBIO8_output_assignment *a = &output_assignments[i];
@@ -250,7 +233,7 @@ void RGBIO8::update(void) {
       else if (a->type == 2) {
         // this is a PV output
         #ifdef PVOUT
-        if (vlvBits & (1 << a->index)) {
+        if (vlvBits & (1UL << (uint32_t)a->index)) {
           if (softSwitchPv[a->index] == SOFTSWITCH_AUTO) {
             setOutput(i, output_recipes[a->recipe_id][2]);
           }
