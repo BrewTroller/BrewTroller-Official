@@ -31,17 +31,26 @@ Windows users can download cmake [here](http://www.cmake.org/download/), and pre
   ```
   $ sudo apt-get install avr-libc binutils-avr gcc-avr cmake avrdude
   ```
-
+For Ubuntu on Windows you will need to install and use [WinAVR](http://www.ladyada.net/learn/avr/setup-win.html) for the avrdude step below becauee USB isn't support yet.
+  
+## Download and Prepare for Build
+  ```
+  $ git clone https://github.com/BrewTroller/BrewTroller-Official.git
+  $ cd BrewTroller_Official
+  $ git checkout develop
+  $ mkdir build
+  $ cd build
+   ```
 ##Compiling
 
 To prevent causing serious headaches all builds should be done out-of-source; building from the build directory is recommended.
 
 To build from the build directory execute:
 
-```
-$ cmake -Dboard={Hardware profile} -DAVR_MCU={mcu} ../
-$ make
-```
+  ```
+  $ cmake -Dboard={Hardware profile} -DAVR_MCU={mcu} ../
+  $ make
+  ```
 
 This ensures that all build artifacts are stored in the build directory and not in the source code directories.
 
@@ -83,8 +92,12 @@ If no AVR_MCU option is specified atmega1284p is used by default.
 To upload the compiled BrewTroller firmware to a BrewTroller board:
 
 ```
-$ avrdude -p m1284p -c arduino -b 57600 -P [your brewtroller serial port] -U flash:w:src/Brewtroller-atmega1284p.hex
+$ avrdude -p m1284p -c arduino -b 115200 -P [your brewtroller serial port] -U flash:w:src/Brewtroller-atmega1284p.hex
 ```
+
+Phoenix now uses a buad rate of 115200 but older boards may require 57600
 
 You must substitute [you brewtroller serial port] for the serial port your board is connected to. This will vary by OS, windows users will have form `COMxx`,
 Mac users will have the form `/dev/tty.usbserial-xxxxxxx` and linux users will have the form `/dev/ttyUSBxx`.
+
+For Ubuntu on Windows you will need to install and use [WinAVR](http://www.ladyada.net/learn/avr/setup-win.html) for the avrdude step below becauee USB isn't support yet.
