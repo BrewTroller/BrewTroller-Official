@@ -229,7 +229,6 @@ class ModbusMaster
   private:
     uint8_t  _u8SerialPort;                                      ///< serial port (0..3) initialized in constructor
     uint8_t  _u8MBSlave;                                         ///< Modbus slave (1..255) initialized in constructor
-    uint16_t _u16BaudRate;                                       ///< baud rate (300..115200) initialized in begin()
     static const uint8_t ku8MaxBufferSize                = 64;   ///< size of response/transmit buffers    
     uint16_t _u16ReadAddress;                                    ///< slave register from which to read
     uint16_t _u16ReadQty;                                        ///< quantity of words to read

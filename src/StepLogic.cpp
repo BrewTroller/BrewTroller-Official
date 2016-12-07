@@ -68,20 +68,8 @@ boolean brewStepIsActive(byte brewStep) {
  * Returns true is any step in the given ZONE is the active step, false otherwise.
  */
 boolean zoneIsActive(byte brewZone) {
-  byte stepMin, stepMax;
-  switch (brewZone) {
-    case ZONE_MASH:
-      stepMin = BREWSTEP_FILL;
-      stepMax = BREWSTEP_SPARGE;
-      break;
-    case ZONE_BOIL:
-      stepMin = BREWSTEP_FILL;
-      stepMax = BREWSTEP_SPARGE;
-      break;
-  }    
-
   for (byte i = 0; i < PROGRAMTHREAD_MAX; i++)
-    if (programThread[i].activeStep >= stepMin && programThread[i].activeStep <= stepMax)
+    if (programThread[i].activeStep >= BREWSTEP_FILL && programThread[i].activeStep <= BREWSTEP_SPARGE)
       return true;
   return false;
 }
@@ -180,7 +168,7 @@ void programThreadSetStep(struct ProgramThread *thread, byte brewStep) {
 }
 
 boolean brewStepZoneInUse(byte brewStep) {
-  if (brewStep >= BREWSTEP_FILL && brewStep <= BREWSTEP_MASHHOLD && zoneIsActive(ZONE_MASH))
+  if (brewStep <= BREWSTEP_MASHHOLD && zoneIsActive(ZONE_MASH))
     return 1;  
   else if (brewStep == BREWSTEP_SPARGE && (zoneIsActive(ZONE_MASH) || zoneIsActive(ZONE_BOIL)))
     return 1;  
@@ -258,7 +246,7 @@ void brewStepDelay(enum StepSignal signal, struct ProgramThread *thread) {
       //Load delay minutes from EEPROM if timer is not already populated via Power Loss Recovery
       if (getDelayMins() && !timerValue[TIMER_MASH])
         setTimer(TIMER_MASH, getDelayMins());
-        programThreadSetStep(thread, BREWSTEP_DELAY);
+      programThreadSetStep(thread, BREWSTEP_DELAY);
       break;
     case STEPSIGNAL_UPDATE:
       if (timerValue[TIMER_MASH] == 0)
@@ -551,7 +539,7 @@ void brewStepMashHold(enum StepSignal signal, struct ProgramThread *thread) {
       //Cycle through steps and use last non-zero step for mash setpoint
       if (!setpoint[TS_MASH]) {
         byte i = MASHSTEP_MASHOUT;
-        while (setpoint[TS_MASH] == 0 && i >= MASHSTEP_DOUGHIN && i <= MASHSTEP_MASHOUT)
+        while (setpoint[TS_MASH] == 0 && i <= MASHSTEP_MASHOUT)
           setSetpoint(TS_MASH, getProgMashTemp(thread->recipe, i--));
       }
       #ifndef PID_FLOW_CONTROL
@@ -826,7 +814,7 @@ unsigned long calcSpargeVol(byte recipe) {
 }
 
 unsigned long calcRefillVolume(byte recipe) {
-  unsigned long returnValue;
+  unsigned long returnValue = 0;
   if (getProgMLHeatSrc(recipe) == VS_HLT) {
     #ifdef HLT_MIN_REFILL
       SpargeVol = calcSpargeVol(recipe);

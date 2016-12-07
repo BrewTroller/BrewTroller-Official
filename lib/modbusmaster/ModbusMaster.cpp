@@ -50,6 +50,16 @@ ModbusMaster::ModbusMaster(void)
 {
   _u8SerialPort = 0;
   _u8MBSlave = 1;
+
+  // Overwritten before use
+  _u16ReadAddress = 0;
+  _u16ReadQty = 0;
+  _u16WriteAddress = 0;
+  _u16WriteQty = 0;
+
+  // Disabled by default, configured with setupRTS
+  _u8RTSMask = 0;
+  _u8RTSPort = nullptr;
 }
 
 
@@ -66,6 +76,16 @@ ModbusMaster::ModbusMaster(uint8_t u8MBSlave)
 {
   _u8SerialPort = 0;
   _u8MBSlave = u8MBSlave;
+
+  // Overwritten before use
+  _u16ReadAddress = 0;
+  _u16ReadQty = 0;
+  _u16WriteAddress = 0;
+  _u16WriteQty = 0;
+
+  // Disabled by default, configured with setupRTS
+  _u8RTSMask = 0;
+  _u8RTSPort = nullptr;
 }
 
 
@@ -83,7 +103,16 @@ ModbusMaster::ModbusMaster(uint8_t u8SerialPort, uint8_t u8MBSlave)
 {
   _u8SerialPort = (u8SerialPort > 3) ? 0 : u8SerialPort;
   _u8MBSlave = u8MBSlave;
-  _u8RTSMask = 0; //Unused by default
+
+  // Overwritten before use
+  _u16ReadAddress = 0;
+  _u16ReadQty = 0;
+  _u16WriteAddress = 0;
+  _u16WriteQty = 0;
+
+  // Disabled by default, configured with setupRTS
+  _u8RTSMask = 0;
+  _u8RTSPort = 0;
 }
 
 
