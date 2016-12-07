@@ -52,7 +52,8 @@ To build from the build directory execute:
   $ make
   ```
   EXAMPLE:
-    ```
+  
+  ```
   $ cmake -Dboard=BT_PHOENIX_HERMS -DAVR_MCU=atmega1284p ./
   $ make
   ```
