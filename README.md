@@ -41,11 +41,20 @@ To build from the build directory execute:
 $ cmake -Dboard={Hardware profile} -DAVR_MCU={mcu} ../
 $ make
 ```
+Example:
 
+```
+$ cmake -Dboard=BT_PHOENIX_HERMS -DAVR_MCU=atmega1284p ./
+$ make
+```
 This ensures that all build artifacts are stored in the build directory and not in the source code directories.
 
 Available Hardware profile options are:
 
+    BT_PHOENIX_HERMS       --> Phoenix HERMS
+    BT_PHOENIX_RIMSDF      --> Phoenix RIMS
+    BT_PHOENIX_SINGLEVESSEL--> Phoenix Single Vessel
+    BT_PHOENIX_STEAMPWM    --> Phoenix Steam or PWM Pump
     BT_10_21               --> 1.0 - 2.1
     BT_22_24               --> 2.2 - 2.4
     BT_3X                  --> 3.X
