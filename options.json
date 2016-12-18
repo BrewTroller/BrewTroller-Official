@@ -63,5 +63,14 @@
         "options": [
             {"name": "Boil Only", "optName":"AUTO_SKIP_TO_BOIL", "on": false}
         ]
+    },
+    {
+        "type": "switch",
+        "id": "RGBIO",
+        "title": "RGBIO Configuration",
+        "description": "Configure your RGBIO boards to control the outputs and inputs you want.",
+        "options": [
+            {"name": "Test", "optName":"TEST", "on": false}
+        ]
     }
 ]
