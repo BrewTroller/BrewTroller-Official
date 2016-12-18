@@ -44,6 +44,7 @@ set(ENUM_HEADER "${CMAKE_CURRENT_LIST_DIR}/Enum.h")
 execute_process(COMMAND git describe --tags --abbrev=0
                 OUTPUT_VARIABLE VER_STR
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 message(STATUS "Building BrewTroller version: " ${VER_STR})
 
 ####################
@@ -75,6 +76,10 @@ BT_PHOENIX_SINGLE_VESSEL --> Phoenix Single Vessel
 BT_PHOENIX_STEAM_PWM     --> Phoenix Steam or PWM Pump") # Default to DX1 Herms build
 add_definitions("-D${board}")
 message(STATUS "Building BrewTroller for   " ${board})
+
+if (EXISTS "src/Com_RGBIO8_Config.h")
+	add_definitions("-DGENERATED_RGBIO_CONFIG")
+endif()
 
 #####
 # Basic Options

@@ -11,4 +11,9 @@ void vftoa(unsigned long val, char retStr[], unsigned int divisor, boolean decim
 unsigned long pow10(byte power);
 unsigned long pow2(byte power);
 
+template<class T, size_t N>
+constexpr size_t array_size(T(&)[N]) { return N; }
+template<class T, size_t N, size_t M>
+constexpr size_t array_size(T(&)[N][M]) { return N; }
+
 #endif

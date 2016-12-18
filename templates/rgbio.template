@@ -1,0 +1,40 @@
+<%
+    from operator import itemgetter
+
+    recipes = json['recipes']
+    inputs = sorted(json['assignments'],key=itemgetter('input'), reverse=True)
+    outputs = sorted(json['assignments'],key=itemgetter('output'), reverse=True)
+%>
+#ifndef COM_RGBIO8_CONFIG_H
+#define COM_RGBIO8_CONFIG_H
+
+#include "Com_RGBIO8.h"
+
+#undef RGBIO_NUM_BOARDS
+#undef RGBIO_SETUP
+#undef RGBIO_START_ADDR
+
+#define RGBIO_NUM_BOARDS ${json['boards']}
+% if json['enable_setup']:
+#define RGBIO_SETUP
+% endif
+#define RGBIO_START_ADDR ${json['start_address']}
+
+const uint16_t genRGBIO_OutputRecipes[${len(recipes)}][4] = {
+% for r in recipes:
+    {${r['off_rgb']},${r['auto_off_rgb']},${r['auto_on_rgb']},${r['on_rgb']}},
+% endfor
+} ;
+
+const RGBIO8_output_assignment genRGBIO_Outputs[${len(outputs)}] = {
+% for o in outputs:
+    {${o['type']}, ${o['vessel'] if o['type'] == 1 else o['pv']}, ${o['recipe']}},
+% endfor
+};
+
+const RGBIO8_input_assignment genRGBIO_Inputs[${len(inputs)}] = {
+% for i in inputs:
+    {${o['type']}, ${o['vessel'] if o['type'] == 1 else o['pv']}},
+% endfor
+};
+#endif
