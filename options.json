@@ -65,7 +65,7 @@
         ]
     },
     {
-        "type": "switch",
+        "type": "dropdown",
         "id": "RGBIO",
         "title": "RGBIO Configuration",
         "description": "Configure your RGBIO boards to control the outputs and inputs you want.",
