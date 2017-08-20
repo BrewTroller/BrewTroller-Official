@@ -21,8 +21,8 @@ This is the new home of BrewTroller! (Originally forked from the now defunct OSC
 The recommended way for mac users to install these dependancies is with the [Homebrew](http://brew.sh) package manager.
 The commands to install the dependanies are:
   ```
-  $ brew tap larsimmisch/avr
-  $ brew install avr-libc
+  $ brew tap osx-cross/avr
+  $ brew install avr-gcc
   $ brew install cmake
   ```
 Windows users can download cmake [here](http://www.cmake.org/download/), and pre-built binaries for the AVR toolchain can be downloaded [here](http://sourceforge.net/projects/mobilechessboar/files/avr-gcc%20snapshots%20%28Win32%29/avr-gcc-4.8_2013-03-06_mingw32.zip/download).  
