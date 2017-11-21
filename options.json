@@ -72,8 +72,7 @@
         "master": {"name": "Enable RGBIO8", "value": "RGBIO8_ENABLE", "on": false},
         "dependantsCountOption": {"name": "Number of boards", "optName": "RGBIO8_NUM_BOARDS", "value": 1, "min": 1, "max": 5, "step": 1},
         "options": {
-            "slider": [{"name": "Start Address", "optName": "RGBIO8_START_ADDR", "value": 48, "min": 48, "max": 127, "step": 1},
-                       {"name": "Number of boards", "optName": "RGBIO8_NUM_BOARDS", "value": 1, "min": 1, "max": 5, "step": 1}],
+            "slider": [{"name": "Start Address", "optName": "RGBIO8_START_ADDR", "value": 48, "min": 48, "max": 127, "step": 1}]
         }
     }
 ]
