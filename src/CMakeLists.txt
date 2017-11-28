@@ -40,6 +40,7 @@ set(SOURCE_FILES
 # Workaround to enable generated Config header to include Enum header
 #    *The Config header should get refactored to remove its dependancy on the Enum header*
 set(ENUM_HEADER "${CMAKE_CURRENT_LIST_DIR}/Enum.h")
+set(COM_RGBIO_HEADER "${CMAKE_CURRENT_LIST_DIR}/Com_RGBIO8.h")
 
 execute_process(COMMAND git describe --tags --abbrev=0
                 OUTPUT_VARIABLE VER_STR
