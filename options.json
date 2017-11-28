@@ -74,7 +74,7 @@
         "options": {
             "slider": [{"name": "Start Address", "optName": "RGBIO8_START_ADDR", "value": 48, "min": 48, "max": 127, "step": 1}]
         },
-        "dependantType": "rgbio-map",
+        "dependantPanelType": "rgbio-map",
         "dependantOptions": {
             "availableSelections": [{"type": "RGBIO_OUT_HEAT", "index": 0, "label": "HLT Heat", "recipeIndex": 0},
                                     {"type": "RGBIO_OUT_HEAT", "index": 1, "label": "MLT Heat", "recipeIndex": 0},
