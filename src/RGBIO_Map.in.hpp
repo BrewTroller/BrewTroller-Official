@@ -8,7 +8,7 @@
 #include "Config.h"
 #include "@COM_RGBIO_HEADER@"
 
-const RGBIO8_output_assignment rgbioOutputAssignments[RGBIO_NUM_BOARDS][8] = @RGBIO8_OUTPUT_MAP@;
-const RGBIO8_input_assignment rgbioInputAssignments[RGBIO_NUM_BOARDS][8] = @RGBIO8_INPUT_MAP@;
+const RGBIO8_output_assignment rgbioOutputAssignments[RGBIO8_NUM_BOARDS][8] = @RGBIO8_OUTPUT_MAP@;
+const RGBIO8_input_assignment rgbioInputAssignments[RGBIO8_NUM_BOARDS][8] = @RGBIO8_INPUT_MAP@;
 
 #endif //BREWTROLLER_RGBIO_MAP_HPP

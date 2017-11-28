@@ -122,18 +122,15 @@ uint16_t RGBIO8::output_recipes[RGBIO8_MAX_OUTPUT_RECIPES][4];
 RGBIO8::RGBIO8() {
   this->rs485_address = 0;
   this->i2c_address = 0;
-  for (int i = 0; i < 8; i++) {
-    output_assignments[i].type = 0;
-    input_assignments[i].type = 0;
-  }
 }
 
 void RGBIO8::begin(int rs485_address, int i2c_address,
-                    RGBIO8_input_assignment *inputAssignments, RGBIO8_output_assignment *outputAssignments) {
+                   const RGBIO8_input_assignment* const inputAssignments,
+                   const RGBIO8_output_assignment* const outputAssignments) {
     this->rs485_address = rs485_address;
     this->i2c_address = i2c_address;
     this->input_assignments = inputAssignments;
-    this->output_assignments = outputAssignments
+    this->output_assignments = outputAssignments;
 }
 
 void RGBIO8::setOutputRecipe(
@@ -148,27 +145,27 @@ void RGBIO8::setOutputRecipe(
     output_recipes[recipe_id][3] = on_rgb;
 }
     
-void RGBIO8::assignHeatOutputRecipe(byte vessel, byte output, byte recipe_id) {
-  output_assignments[output].type = 1;
-  output_assignments[output].index = vessel;
-  output_assignments[output].recipe_id = recipe_id;
-}
-    
-void RGBIO8::assignPvOutputRecipe(byte pv, byte output, byte recipe_id) {
-  output_assignments[output].type = 2;
-  output_assignments[output].index = pv;
-  output_assignments[output].recipe_id = recipe_id;
-}
-    
-void RGBIO8::assignHeatInput(byte vessel, byte input) {
-  input_assignments[input].type = 1;
-  input_assignments[input].index = vessel;
-}
-    
-void RGBIO8::assignPvInput(byte pv, byte input) {
-  input_assignments[input].type = 2;
-  input_assignments[input].index = pv;
-}
+//void RGBIO8::assignHeatOutputRecipe(byte vessel, byte output, byte recipe_id) {
+//  output_assignments[output].type = 1;
+//  output_assignments[output].index = vessel;
+//  output_assignments[output].recipe_id = recipe_id;
+//}
+//
+//void RGBIO8::assignPvOutputRecipe(byte pv, byte output, byte recipe_id) {
+//  output_assignments[output].type = 2;
+//  output_assignments[output].index = pv;
+//  output_assignments[output].recipe_id = recipe_id;
+//}
+//
+//void RGBIO8::assignHeatInput(byte vessel, byte input) {
+//  input_assignments[input].type = 1;
+//  input_assignments[input].index = vessel;
+//}
+//
+//void RGBIO8::assignPvInput(byte pv, byte input) {
+//  input_assignments[input].type = 2;
+//  input_assignments[input].index = pv;
+//}
     
 void RGBIO8::update(void) {
   // Get the state of the 8 inputs first
@@ -176,7 +173,7 @@ void RGBIO8::update(void) {
   
   // Update any assigned inputs
   for (int i = 0; i < 8; i++) {
-    RGBIO8_input_assignment *a = &input_assignments[i];
+    const RGBIO8_input_assignment *a = &input_assignments[i];
     if (a->type) {
       if (a->type == 1) {
         // this is a heat input
@@ -210,7 +207,7 @@ void RGBIO8::update(void) {
   uint32_t vlvBits = getValveBits();
   #endif
   for (int i = 0; i < 8; i++) {
-    RGBIO8_output_assignment *a = &output_assignments[i];
+    const RGBIO8_output_assignment *a = &output_assignments[i];
     if (a->type) {
       if (a->type == 1) {
         // this is a heat output

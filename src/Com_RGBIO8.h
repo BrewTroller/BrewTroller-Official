@@ -40,8 +40,8 @@ class RGBIO8 {
      * ready for use but it will not actually do anything until assign* functions are called.
      */
     void begin(int rs485_address, int i2c_address,
-               RGBIO8_input_assignment *inputAssignments,
-               RGBIO8_output_assignment * outputAssignments);
+               const RGBIO8_input_assignment* const inputAssignments,
+               const RGBIO8_output_assignment* const outputAssignments);
     
     /**
      * Creates an output recipe that can be assigned to an output. A recipe determines
@@ -63,33 +63,33 @@ class RGBIO8 {
       uint16_t auto_on_rgb,
       uint16_t on_rgb);
     
-    /**
-     * Attaches the given output to the specified vessel using the given recipe. Once this has been
-     * called, future calls to update() will query the specified heat output for it's status and
-     * then update the output with the recipe.
-     */
-    void assignHeatOutputRecipe(byte vessel, byte output, byte recipe_id);
-    
-    /**
-     * Attaches the given output to the specified PV using the given recipe. Once this has been
-     * called, future calls to update() will query the specified PV for it's status and
-     * then update the output with the recipe.
-     */
-    void assignPvOutputRecipe(byte pv, byte output, byte recipe_id);
-    
-    /**
-     * Creates a soft switch for the specified vessel attached to the specified input of the
-     * RGBIO8 board. This causes the output of the specified vessel to be determined by the
-     * logical AND() of the BrewTroller logic and the state of the given input.
-     */
-    void assignHeatInput(byte vessel, byte input);
-    
-    /**
-     * Creates a soft switch for the specified PV attached to the specified input of the
-     * RGBIO8 board. This causes the output of the specified PV to be determined by the
-     * logical AND() of the BrewTroller logic and the state of the given input.
-     */
-    void assignPvInput(byte pv, byte input);
+//    /**
+//     * Attaches the given output to the specified vessel using the given recipe. Once this has been
+//     * called, future calls to update() will query the specified heat output for it's status and
+//     * then update the output with the recipe.
+//     */
+//    void assignHeatOutputRecipe(byte vessel, byte output, byte recipe_id);
+//
+//    /**
+//     * Attaches the given output to the specified PV using the given recipe. Once this has been
+//     * called, future calls to update() will query the specified PV for it's status and
+//     * then update the output with the recipe.
+//     */
+//    void assignPvOutputRecipe(byte pv, byte output, byte recipe_id);
+//
+//    /**
+//     * Creates a soft switch for the specified vessel attached to the specified input of the
+//     * RGBIO8 board. This causes the output of the specified vessel to be determined by the
+//     * logical AND() of the BrewTroller logic and the state of the given input.
+//     */
+//    void assignHeatInput(byte vessel, byte input);
+//
+//    /**
+//     * Creates a soft switch for the specified PV attached to the specified input of the
+//     * RGBIO8 board. This causes the output of the specified PV to be determined by the
+//     * logical AND() of the BrewTroller logic and the state of the given input.
+//     */
+//    void assignPvInput(byte pv, byte input);
     
     /**
      * Called regularly by the main program loop. Updates the local state of the inputs, checks
@@ -104,8 +104,8 @@ class RGBIO8 {
   private:
     static uint16_t output_recipes[RGBIO8_MAX_OUTPUT_RECIPES][4];
     int rs485_address, i2c_address;
-    RGBIO8_output_assignment *output_assignments;
-    RGBIO8_input_assignment *input_assignments;
+    const RGBIO8_output_assignment* output_assignments;
+    const RGBIO8_input_assignment* input_assignments;
     byte inputs_auto, inputs_manual;
     
     int getInputs(uint8_t *m, uint8_t *a);
