@@ -17,7 +17,7 @@ unsigned long lastRGBIO8 = 0;
 void RGBIO8_Init() {
   // Initialize and address each RGB board that is attached
   for (int i = 0; i < RGBIO8_NUM_BOARDS; i++) {
-    rgbio8s[i].begin(0, RGBIO8_START_ADDR + i, rgbioInputAssignements[i], rgbioOutputAssignements[i]);
+    rgbio8s[i].begin(0, RGBIO8_START_ADDR + i, rgbioInputAssignments[i], rgbioOutputAssignments[i]);
   }
   
   // Set the default values of Softswitches to AUTO so that outputs that are not assigned to softswitches are unaffected by this logic
