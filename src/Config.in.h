@@ -675,11 +675,17 @@ static const uint8_t TS = 1;
 // address. So, for instance, if this value is 0x30, board 2 should be 0x31, board
 // 3 should be 0x32, etc.
 //
-#cmakedefine RGBIO8_START_ADDR @RGBIO8_START_ADDR@
+#cmakedefine RGBIO8_START_ADDR 0x@RGBIO8_START_ADDR@
 //
 // The number of RGB boards you have connnected.
 //
 #cmakedefine RGBIO8_NUM_BOARDS @RGBIO8_NUM_BOARDS@
+
+// The RGBIO8 Input Mapping Array
+#ifdef RGBIO8_ENABLE
+const RGBIO8_output_assignement rgbioOutputAssignments[RGBIO_NUM_BOARDS][8] = @RGBIO8_OUTPUT_MAP@;
+const RGBIO8_input_assignment rgbioInputAssignments[RGBIO_NUM_BOARDS][8] = @RGBIO8_INPUT_MAP@;
+#endif
 //
 //**********************************************************************************
 

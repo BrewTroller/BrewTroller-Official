@@ -15,7 +15,7 @@ unsigned long lastRGBIO8 = 0;
 void RGBIO8_Init() {
   // Initialize and address each RGB board that is attached
   for (int i = 0; i < RGBIO8_NUM_BOARDS; i++) {
-    rgbio8s[i].begin(0, RGBIO8_START_ADDR + i);
+    rgbio8s[i].begin(0, RGBIO8_START_ADDR + i, rgbioInputAssignements[i], rgbioOutputAssignements[i]);
   }
   
   // Set the default values of Softswitches to AUTO so that outputs that are not assigned to softswitches are unaffected by this logic
@@ -126,9 +126,12 @@ RGBIO8::RGBIO8() {
   }
 }
 
-void RGBIO8::begin(int rs485_address, int i2c_address) {
-  this->rs485_address = rs485_address;
-  this->i2c_address = i2c_address;
+void RGBIO8::begin(int rs485_address, int i2c_address,
+                    RGBIO8_input_assignment *inputAssignments, RGBIO8_output_assignment *outputAssignments) {
+    this->rs485_address = rs485_address;
+    this->i2c_address = i2c_address;
+    this->input_assignments = inputAssignments;
+    this->output_assignments = outputAssignments
 }
 
 void RGBIO8::setOutputRecipe(

@@ -102,8 +102,11 @@ option(AUTO_SKIP_TO_BOIL "Automatically jump programs to Boil Step" OFF)
 # RGBIO8 Options
 #####
 option(RGBIO8_ENABLE "Enable RGBIO8 board support" OFF)
-set(RGBIO8_START_ADDR "0x30" CACHE STRING "Address of first RGBIO8 board")
+set(RGBIO8_START_ADDR "0x48" CACHE STRING "Address of first RGBIO8 board")
 set(RGBIO8_NUM_BOARDS "1" CACHE STRING "Number of RGBIO boards connected")
+set(RGBIO8_INPUT_MAP "" CACHE STRING "Mapping of RGBIO8 Inputs to BrewTroller I/O")
+set(RGBIO8_OUTPUT_MAP "" CACHE STRING "Mapping of BrewTroller I/O to RGBIO8 Ouputs")
+
 
 # Generate Configuration header
 configure_file(Config.in.h "${PROJECT_BINARY_DIR}/Config.h")

@@ -36,7 +36,9 @@ class RGBIO8 {
      * i2c_address and specify 0 for the unused address. Once initialized the board is reset and
      * ready for use but it will not actually do anything until assign* functions are called.
      */
-    void begin(int rs485_address, int i2c_address);
+    void begin(int rs485_address, int i2c_address,
+               RGBIO8_input_assignment *inputAssignments,
+               RGBIO8_output_assignment * outputAssignments);
     
     /**
      * Creates an output recipe that can be assigned to an output. A recipe determines
@@ -99,8 +101,8 @@ class RGBIO8 {
   private:
     static uint16_t output_recipes[RGBIO8_MAX_OUTPUT_RECIPES][4];
     int rs485_address, i2c_address;
-    struct RGBIO8_output_assignment output_assignments[8];
-    struct RGBIO8_input_assignment input_assignments[8];
+    RGBIO8_output_assignment *output_assignments;
+    RGBIO8_input_assignment *input_assignments;
     byte inputs_auto, inputs_manual;
     
     int getInputs(uint8_t *m, uint8_t *a);
