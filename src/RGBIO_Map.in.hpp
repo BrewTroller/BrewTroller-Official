@@ -5,6 +5,7 @@
 #ifndef BREWTROLLER_RGBIO_MAP_HPP
 #define BREWTROLLER_RGBIO_MAP_HPP
 
+#include "Config.h"
 #include "@COM_RGBIO_HEADER@"
 
 const RGBIO8_output_assignment rgbioOutputAssignments[RGBIO_NUM_BOARDS][8] = @RGBIO8_OUTPUT_MAP@;

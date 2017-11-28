@@ -13,6 +13,9 @@
 #define SOFTSWITCH_ON 1
 #define SOFTSWITCH_AUTO 2
 
+#define RGBIO_OUT_HEAT 1
+#define RGBIO_OUT_PV 2
+
 extern byte softSwitchHeat[HEAT_OUTPUTS_COUNT];
 extern byte softSwitchPv[PVOUT_COUNT];
 
