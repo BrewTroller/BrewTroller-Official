@@ -110,6 +110,7 @@ set(RGBIO8_OUTPUT_MAP "" CACHE STRING "Mapping of BrewTroller I/O to RGBIO8 Oupu
 
 # Generate Configuration header
 configure_file(Config.in.h "${PROJECT_BINARY_DIR}/Config.h")
+configure_file(RGBIO_Map.in.hpp "${PROJECT_BINARY_DIR}/RGBIO_Map.hpp")
 include_directories(${PROJECT_BINARY_DIR})
 
 ###################

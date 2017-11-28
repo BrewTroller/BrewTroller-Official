@@ -3,6 +3,8 @@
 
 #ifdef RGBIO8_ENABLE
 
+#include "RGBIO_Map.hpp"
+
 byte softSwitchPv[PVOUT_COUNT];
 byte softSwitchHeat[HEAT_OUTPUTS_COUNT];
 

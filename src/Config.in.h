@@ -681,11 +681,6 @@ static const uint8_t TS = 1;
 //
 #cmakedefine RGBIO8_NUM_BOARDS @RGBIO8_NUM_BOARDS@
 
-// The RGBIO8 Input Mapping Array
-#ifdef RGBIO8_ENABLE
-const RGBIO8_output_assignement rgbioOutputAssignments[RGBIO_NUM_BOARDS][8] = @RGBIO8_OUTPUT_MAP@;
-const RGBIO8_input_assignment rgbioInputAssignments[RGBIO_NUM_BOARDS][8] = @RGBIO8_INPUT_MAP@;
-#endif
 //
 //**********************************************************************************
 
