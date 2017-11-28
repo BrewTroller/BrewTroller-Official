@@ -96,7 +96,7 @@
                                     {"type": "RGBIO_OUT_PV", "index": 13, "label": "P/V 14", "recipeIndex": 1},
                                     {"type": "RGBIO_OUT_PV", "index": 14, "label": "P/V 15", "recipeIndex": 1},
                                     {"type": "RGBIO_OUT_PV", "index": 15, "label": "P/V 16", "recipeIndex": 1}],
-            "optionDescription": "Configure BrewTroller I/O mappings for the RGBIO8 board."
+            "description": "Configure BrewTroller I/O mappings for the RGBIO8 board."
         }
     }
 ]
