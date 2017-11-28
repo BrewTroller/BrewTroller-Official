@@ -65,7 +65,7 @@
         ]
     },
     {
-        "type": "dependant",
+        "type": "dependantHomogeneousSet",
         "id": "RGBIO8_CONFIG",
         "title": "RGBIO8 Display Configuration",
         "description": "RGBIO8 display board configuration options.",
@@ -73,6 +73,30 @@
         "dependantsCountOption": {"name": "Number of boards", "optName": "RGBIO8_NUM_BOARDS", "value": 1, "min": 1, "max": 5, "step": 1},
         "options": {
             "slider": [{"name": "Start Address", "optName": "RGBIO8_START_ADDR", "value": 48, "min": 48, "max": 127, "step": 1}]
+        },
+        "dependantType": "rgbio-map",
+        "dependantOptions": {
+            "availableSelections": [{"type": "RGBIO_OUT_HEAT", "index": 0, "label": "HLT Heat", "recipeIndex": 0},
+                                    {"type": "RGBIO_OUT_HEAT", "index": 1, "label": "MLT Heat", "recipeIndex": 0},
+                                    {"type": "RGBIO_OUT_HEAT", "index": 2, "label": "Kettle Heat", "recipeIndex": 0},
+                                    {"type": "RGBIO_OUT_HEAT", "index": 3, "label": "Steam", "recipeIndex": 0},
+                                    {"type": "RGBIO_OUT_PV", "index": 0, "label": "P/V 1", "recipeIndex": 1},
+                                    {"type": "RGBIO_OUT_PV", "index": 1, "label": "P/V 2", "recipeIndex": 1},
+                                    {"type": "RGBIO_OUT_PV", "index": 2, "label": "P/V 3", "recipeIndex": 1},
+                                    {"type": "RGBIO_OUT_PV", "index": 3, "label": "P/V 4", "recipeIndex": 1},
+                                    {"type": "RGBIO_OUT_PV", "index": 4, "label": "P/V 5", "recipeIndex": 1},
+                                    {"type": "RGBIO_OUT_PV", "index": 5, "label": "P/V 6", "recipeIndex": 1},
+                                    {"type": "RGBIO_OUT_PV", "index": 6, "label": "P/V 7", "recipeIndex": 1},
+                                    {"type": "RGBIO_OUT_PV", "index": 7, "label": "P/V 8", "recipeIndex": 1},
+                                    {"type": "RGBIO_OUT_PV", "index": 8, "label": "P/V 9", "recipeIndex": 1},
+                                    {"type": "RGBIO_OUT_PV", "index": 9, "label": "P/V 10", "recipeIndex": 1},
+                                    {"type": "RGBIO_OUT_PV", "index": 10, "label": "P/V 11", "recipeIndex": 1},
+                                    {"type": "RGBIO_OUT_PV", "index": 11, "label": "P/V 12", "recipeIndex": 1},
+                                    {"type": "RGBIO_OUT_PV", "index": 12, "label": "P/V 13", "recipeIndex": 1},
+                                    {"type": "RGBIO_OUT_PV", "index": 13, "label": "P/V 14", "recipeIndex": 1},
+                                    {"type": "RGBIO_OUT_PV", "index": 14, "label": "P/V 15", "recipeIndex": 1},
+                                    {"type": "RGBIO_OUT_PV", "index": 15, "label": "P/V 16", "recipeIndex": 1}],
+            "optionDescription": "Configure BrewTroller I/O mappings for the RGBIO8 board."
         }
     }
 ]
